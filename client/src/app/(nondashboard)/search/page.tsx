@@ -37,7 +37,9 @@ const Search = () => {
   };
 
   const handleEnrollNow = (courseId: string) => {
-    router.push(`/checkout?step=1&id=${courseId}&showSignUp=false`, {
+    // In a real application, you would make an API call to enroll the user
+    // For now, just redirect to the course page
+    router.push(`/user/courses/${courseId}`, {
       scroll: false,
     });
   };

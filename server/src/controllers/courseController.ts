@@ -57,7 +57,6 @@ export const createCourse = async (
       description: "",
       category: "Uncategorized",
       image: "",
-      price: 0,
       level: "Beginner",
       status: "Draft",
       sections: [],
@@ -93,16 +92,20 @@ export const updateCourse = async (
       return;
     }
 
-    if (updateData.price) {
-      const price = parseInt(updateData.price);
-      if (isNaN(price)) {
-        res.status(400).json({
-          message: "Invalid price format",
-          error: "Price must be a valid number",
-        });
-        return;
-      }
-      updateData.price = price * 100;
+    if ("file" in req && req.file) {
+      const file = req.file;
+      const uniqueId = uuidv4();
+      const s3Key = `images/courses/${courseId}/${uniqueId}-${file.originalname}`;
+
+      const params = {
+        Bucket: process.env.S3_BUCKET_NAME || "",
+        Key: s3Key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      await s3.upload(params).promise();
+      updateData.image = `${process.env.CLOUDFRONT_DOMAIN}/${s3Key}`;
     }
 
     if (updateData.sections) {
@@ -190,5 +193,42 @@ export const getUploadVideoUrl = async (
     });
   } catch (error) {
     res.status(500).json({ message: "Error generating upload URL", error });
+  }
+};
+
+export const getUploadImageUrl = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { fileName, fileType } = req.body;
+  const { courseId } = req.params;
+
+  if (!fileName || !fileType) {
+    res.status(400).json({ message: "File name and type are required" });
+    return;
+  }
+
+  try {
+    const uniqueId = uuidv4();
+    const s3Key = `images/courses/${courseId}/${uniqueId}-${fileName}`;
+
+    const s3Params = {
+      Bucket: process.env.S3_BUCKET_NAME || "",
+      Key: s3Key,
+      Expires: 60,
+      ContentType: fileType,
+    };
+
+    const uploadUrl = s3.getSignedUrl("putObject", s3Params);
+    const imageUrl = `${process.env.CLOUDFRONT_DOMAIN}/${s3Key}`;
+
+    res.json({
+      message: "Image upload URL generated successfully",
+      data: { uploadUrl, imageUrl },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error generating image upload URL", error });
   }
 };

@@ -7,7 +7,6 @@ import fs from "fs";
 import path from "path";
 import dynamoose from "dynamoose";
 import pluralize from "pluralize";
-import Transaction from "../models/transactionModel";
 import Course from "../models/courseModel";
 import UserCourseProgress from "../models/userCourseProgressModel";
 import dotenv from "dotenv";
@@ -45,7 +44,7 @@ console.warn = (message, ...args) => {
 };
 
 async function createTables() {
-  const models = [Transaction, UserCourseProgress, Course];
+  const models = [UserCourseProgress, Course];
 
   for (const model of models) {
     const tableName = model.name;

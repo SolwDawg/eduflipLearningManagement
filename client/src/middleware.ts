@@ -17,12 +17,12 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  if (isTeacherRoute(req)) {
-    if (userRole !== "teacher") {
-      const url = new URL("/user/courses", req.url);
-      return NextResponse.redirect(url);
-    }
-  }
+  // if (isTeacherRoute(req)) {
+  //   if (userRole !== "teacher") {
+  //     const url = new URL("/user/courses", req.url);
+  //     return NextResponse.redirect(url);
+  //   }
+  // }
 });
 
 export const config = {

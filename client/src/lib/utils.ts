@@ -8,32 +8,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Convert cents to formatted currency string (e.g., 4999 -> "$49.99")
-export function formatPrice(cents: number | undefined): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format((cents || 0) / 100);
-}
-
-// Convert dollars to cents (e.g., "49.99" -> 4999)
-export function dollarsToCents(dollars: string | number): number {
-  const amount = typeof dollars === "string" ? parseFloat(dollars) : dollars;
-  return Math.round(amount * 100);
-}
-
-// Convert cents to dollars (e.g., 4999 -> "49.99")
-export function centsToDollars(cents: number | undefined): string {
-  return ((cents || 0) / 100).toString();
-}
-
-// Zod schema for price input (converts dollar input to cents)
-export const priceSchema = z.string().transform((val) => {
-  const dollars = parseFloat(val);
-  if (isNaN(dollars)) return "0";
-  return dollarsToCents(dollars).toString();
-});
-
 export const countries = [
   "Afghanistan",
   "Albania",
@@ -296,7 +270,6 @@ export const createCourseFormData = (
   formData.append("title", data.courseTitle);
   formData.append("description", data.courseDescription);
   formData.append("category", data.courseCategory);
-  formData.append("price", data.coursePrice.toString());
   formData.append("status", data.courseStatus ? "Published" : "Draft");
 
   const sectionsWithVideos = sections.map((section) => ({

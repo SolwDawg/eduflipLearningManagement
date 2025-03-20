@@ -1,4 +1,3 @@
-import { formatPrice } from "@/lib/utils";
 import Image from "next/image";
 import React from "react";
 
@@ -36,9 +35,6 @@ const CourseCardSearch = ({
         <div className="mt-2">
           <p className="course-card-search__teacher">By {course.teacherName}</p>
           <div className="course-card-search__footer">
-            <span className="course-card-search__price">
-              {formatPrice(course.price)}
-            </span>
             <span className="course-card-search__enrollment">
               {course.enrollments?.length} Enrolled
             </span>

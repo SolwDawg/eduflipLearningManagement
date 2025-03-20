@@ -5,11 +5,7 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { courseSchema } from "@/lib/schemas";
-import {
-  centsToDollars,
-  createCourseFormData,
-  uploadAllVideos,
-} from "@/lib/utils";
+import { createCourseFormData, uploadAllVideos } from "@/lib/utils";
 import { openSectionModal, setSections } from "@/state";
 import {
   useGetCourseQuery,
@@ -43,7 +39,6 @@ const CourseEditor = () => {
       courseTitle: "",
       courseDescription: "",
       courseCategory: "",
-      coursePrice: "0",
       courseStatus: false,
     },
   });
@@ -54,7 +49,6 @@ const CourseEditor = () => {
         courseTitle: course.title,
         courseDescription: course.description,
         courseCategory: course.category,
-        coursePrice: centsToDollars(course.price),
         courseStatus: course.status === "Published",
       });
       dispatch(setSections(course.sections || []));
@@ -160,14 +154,6 @@ const CourseEditor = () => {
                     },
                   ]}
                   initialValue={course?.category}
-                />
-
-                <CustomFormField
-                  name="coursePrice"
-                  label="Course Price"
-                  type="number"
-                  placeholder="0"
-                  initialValue={course?.price}
                 />
               </div>
             </div>

@@ -93,9 +93,6 @@ const courseSchema = new Schema(
     image: {
       type: String,
     },
-    price: {
-      type: Number,
-    },
     level: {
       type: String,
       required: true,

@@ -1,11 +1,4 @@
 declare global {
-  interface PaymentMethod {
-    methodId: string;
-    type: string;
-    lastFour: string;
-    expiry: string;
-  }
-
   interface UserSettings {
     theme?: "light" | "dark";
     emailAlerts?: boolean;
@@ -25,8 +18,6 @@ declare global {
     };
     privateMetadata: {
       settings?: UserSettings;
-      paymentMethods?: Array<PaymentMethod>;
-      defaultPaymentMethodId?: string;
       stripeCustomerId?: string;
     };
     unsafeMetadata: {
@@ -43,24 +34,12 @@ declare global {
     description?: string;
     category: string;
     image?: string;
-    price?: number; // Stored in cents (e.g., 4999 for $49.99)
     level: "Beginner" | "Intermediate" | "Advanced";
     status: "Draft" | "Published";
     sections: Section[];
     enrollments?: Array<{
       userId: string;
     }>;
-  }
-
-  interface Transaction {
-    userId: string;
-    transactionId: string;
-    dateTime: string;
-    courseId: string;
-    paymentProvider: "stripe";
-    paymentMethodId?: string;
-    amount: number; // Stored in cents
-    savePaymentMethod?: boolean;
   }
 
   interface DateRange {
@@ -79,7 +58,6 @@ declare global {
 
   type CreateUserArgs = Omit<User, "userId">;
   type CreateCourseArgs = Omit<Course, "courseId">;
-  type CreateTransactionArgs = Omit<Transaction, "transactionId">;
 
   interface CourseCardProps {
     course: Course;
@@ -203,7 +181,6 @@ declare global {
     courseTitle: string;
     courseDescription: string;
     courseCategory: string;
-    coursePrice: string;
     courseStatus: boolean;
   }
 }
