@@ -1,116 +1,204 @@
 [
   {
-    "userId": "user_2ntu96pUCljUV2T9W0AThzjacQB",
-    "courseId": "3a9f3d6c-c391-4b1c-9c3d-6c3f3d6c3f3d",
-    "enrollmentDate": "2023-03-01T09:00:00Z",
-    "overallProgress": 0.75,
+    "userId": "user-123",
+    "courseId": "course-mathematics-101",
+    "enrollmentDate": "2023-04-10T10:00:00Z",
+    "overallProgress": 75,
+    "completedChapters": ["chapter-algebra-intro", "chapter-equations"],
     "sections": [
       {
-        "sectionId": "2f9d1e8b-5a3c-4b7f-9e6d-8c2a1f0b3d5e",
-        "chapters": [
-          {
-            "chapterId": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
-            "completed": true
-          },
-          {
-            "chapterId": "b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7",
-            "completed": false
-          }
-        ]
+        "sectionId": "section-algebra",
+        "progress": 100,
+        "completedChapters": ["chapter-algebra-intro", "chapter-equations"]
+      },
+      {
+        "sectionId": "section-geometry",
+        "progress": 50,
+        "completedChapters": ["chapter-geometry-intro"]
       }
     ],
-    "lastAccessedTimestamp": "2023-03-10T14:30:00Z"
+    "lastAccessedTimestamp": "2023-05-15T14:30:00Z"
   },
   {
-    "userId": "user_2ntu96pUCljUV2T9W0AThzjacQB",
-    "courseId": "8b4f7d9c-4b1c-4b1c-8b4f-7d9c8b4f7d9c",
-    "enrollmentDate": "2023-03-15T10:00:00Z",
-    "overallProgress": 0.25,
+    "userId": "user-123",
+    "courseId": "course-literature-101",
+    "enrollmentDate": "2023-04-12T10:30:00Z",
+    "overallProgress": 25,
+    "completedChapters": ["chapter-truyen-kieu"],
     "sections": [
       {
-        "sectionId": "1a7b3c5d-9e2f-4g6h-8i0j-2k4l6m8n0p1q",
-        "chapters": [
-          {
-            "chapterId": "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
-            "completed": true
-          },
-          {
-            "chapterId": "d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9",
-            "completed": false
-          }
-        ]
+        "sectionId": "section-vietnamese-lit",
+        "progress": 50,
+        "completedChapters": ["chapter-truyen-kieu"]
+      },
+      {
+        "sectionId": "section-world-lit",
+        "progress": 0,
+        "completedChapters": []
       }
     ],
-    "lastAccessedTimestamp": "2023-03-20T16:45:00Z"
+    "lastAccessedTimestamp": "2023-05-16T09:45:00Z"
   },
   {
-    "userId": "user_3rTg67LmZnXc4Vb8Wd0JyUhEq",
-    "courseId": "c5d6e7f8-g9h0-i1j2-k3l4-m5n6o7p8q9r0",
-    "enrollmentDate": "2023-04-01T11:30:00Z",
-    "overallProgress": 0.5,
+    "userId": "user-456",
+    "courseId": "course-mathematics-101",
+    "enrollmentDate": "2023-04-15T09:00:00Z",
+    "overallProgress": 25,
+    "completedChapters": ["chapter-algebra-intro"],
     "sections": [
       {
-        "sectionId": "3e5f7g9h-1i3j-5k7l-9m1n-3o5p7q9r1s3t",
-        "chapters": [
-          {
-            "chapterId": "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
-            "completed": true
-          },
-          {
-            "chapterId": "f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u1",
-            "completed": true
-          },
-          {
-            "chapterId": "g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2",
-            "completed": false
-          }
-        ]
+        "sectionId": "section-algebra",
+        "progress": 50,
+        "completedChapters": ["chapter-algebra-intro"]
+      },
+      {
+        "sectionId": "section-geometry",
+        "progress": 0,
+        "completedChapters": []
       }
     ],
-    "lastAccessedTimestamp": "2023-04-10T09:15:00Z"
+    "lastAccessedTimestamp": "2023-05-17T11:20:00Z"
   },
   {
-    "userId": "user_5vBn23WsLkMp7Jh4Gt8FxYcRz",
-    "courseId": "d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9",
-    "enrollmentDate": "2023-04-05T14:00:00Z",
-    "overallProgress": 0.1,
+    "userId": "user-456",
+    "courseId": "course-physics-101",
+    "enrollmentDate": "2023-04-18T14:15:00Z",
+    "overallProgress": 100,
+    "completedChapters": [
+      "chapter-kinematics",
+      "chapter-newton-laws",
+      "chapter-temperature"
+    ],
     "sections": [
       {
-        "sectionId": "4u6v8w0x-2y4z-6a8b-0c2d-4e6f8g0h2i4j",
-        "chapters": [
-          {
-            "chapterId": "h8i9j0k1-l2m3-n4o5-p6q7-r8s9t0u1v2w3",
-            "completed": true
-          },
-          {
-            "chapterId": "i9j0k1l2-m3n4-o5p6-q7r8-s9t0u1v2w3x4",
-            "completed": false
-          }
-        ]
+        "sectionId": "section-mechanics",
+        "progress": 100,
+        "completedChapters": ["chapter-kinematics", "chapter-newton-laws"]
+      },
+      {
+        "sectionId": "section-thermodynamics",
+        "progress": 100,
+        "completedChapters": ["chapter-temperature"]
       }
     ],
-    "lastAccessedTimestamp": "2023-04-15T11:30:00Z"
+    "lastAccessedTimestamp": "2023-05-18T16:10:00Z"
   },
   {
-    "userId": "user_8qPk34ZxCvBn1Mh6Jt9WsYdAe",
-    "courseId": "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
-    "enrollmentDate": "2023-04-10T09:30:00Z",
-    "overallProgress": 0.8,
+    "userId": "user-789",
+    "courseId": "course-chemistry-101",
+    "enrollmentDate": "2023-04-20T11:30:00Z",
+    "overallProgress": 100,
+    "completedChapters": [
+      "chapter-atomic-models",
+      "chapter-periodic-table",
+      "chapter-covalent-bonds"
+    ],
     "sections": [
       {
-        "sectionId": "5k7l9m1n-3o5p-7q9r-1s3t-5u7v9w1x3y5z",
-        "chapters": [
-          {
-            "chapterId": "j0k1l2m3-n4o5-p6q7-r8s9-t0u1v2w3x4y5",
-            "completed": true
-          },
-          {
-            "chapterId": "k1l2m3n4-o5p6-q7r8-s9t0-u1v2w3x4y5z6",
-            "completed": true
-          }
-        ]
+        "sectionId": "section-atomic-structure",
+        "progress": 100,
+        "completedChapters": ["chapter-atomic-models", "chapter-periodic-table"]
+      },
+      {
+        "sectionId": "section-chemical-bonds",
+        "progress": 100,
+        "completedChapters": ["chapter-covalent-bonds"]
       }
     ],
-    "lastAccessedTimestamp": "2023-04-20T15:45:00Z"
+    "lastAccessedTimestamp": "2023-05-19T13:25:00Z"
+  },
+  {
+    "userId": "user-789",
+    "courseId": "course-biology-101",
+    "enrollmentDate": "2023-04-22T15:45:00Z",
+    "overallProgress": 50,
+    "completedChapters": ["chapter-cell-structure"],
+    "sections": [
+      {
+        "sectionId": "section-cell-biology",
+        "progress": 50,
+        "completedChapters": ["chapter-cell-structure"]
+      }
+    ],
+    "lastAccessedTimestamp": "2023-05-20T10:15:00Z"
+  },
+  {
+    "userId": "user-101",
+    "courseId": "course-mathematics-101",
+    "enrollmentDate": "2023-04-25T08:20:00Z",
+    "overallProgress": 0,
+    "completedChapters": [],
+    "sections": [
+      {
+        "sectionId": "section-algebra",
+        "progress": 0,
+        "completedChapters": []
+      },
+      {
+        "sectionId": "section-geometry",
+        "progress": 0,
+        "completedChapters": []
+      }
+    ],
+    "lastAccessedTimestamp": "2023-05-21T14:50:00Z"
+  },
+  {
+    "userId": "user-101",
+    "courseId": "course-literature-101",
+    "enrollmentDate": "2023-04-28T13:10:00Z",
+    "overallProgress": 100,
+    "completedChapters": [
+      "chapter-truyen-kieu",
+      "chapter-tay-tien",
+      "chapter-hamlet"
+    ],
+    "sections": [
+      {
+        "sectionId": "section-vietnamese-lit",
+        "progress": 100,
+        "completedChapters": ["chapter-truyen-kieu", "chapter-tay-tien"]
+      },
+      {
+        "sectionId": "section-world-lit",
+        "progress": 100,
+        "completedChapters": ["chapter-hamlet"]
+      }
+    ],
+    "lastAccessedTimestamp": "2023-05-22T09:30:00Z"
+  },
+  {
+    "userId": "user-202",
+    "courseId": "course-physics-101",
+    "enrollmentDate": "2023-05-01T10:00:00Z",
+    "overallProgress": 25,
+    "completedChapters": ["chapter-kinematics"],
+    "sections": [
+      {
+        "sectionId": "section-mechanics",
+        "progress": 50,
+        "completedChapters": ["chapter-kinematics"]
+      },
+      {
+        "sectionId": "section-thermodynamics",
+        "progress": 0,
+        "completedChapters": []
+      }
+    ],
+    "lastAccessedTimestamp": "2023-05-23T11:40:00Z"
+  },
+  {
+    "userId": "user-202",
+    "courseId": "course-biology-101",
+    "enrollmentDate": "2023-05-03T16:20:00Z",
+    "overallProgress": 100,
+    "completedChapters": ["chapter-cell-structure", "chapter-cell-division"],
+    "sections": [
+      {
+        "sectionId": "section-cell-biology",
+        "progress": 100,
+        "completedChapters": ["chapter-cell-structure", "chapter-cell-division"]
+      }
+    ],
+    "lastAccessedTimestamp": "2023-05-24T15:20:00Z"
   }
 ]

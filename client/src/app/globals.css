@@ -347,185 +347,6 @@ input[type="color"] {
   @apply h-[300px] rounded-lg;
 }
 
-/* Checkout Details Page */
-.checkout-details {
-  @apply w-full h-fit gap-10;
-}
-
-.checkout-details__container {
-  @apply sm:flex gap-10;
-}
-
-.checkout-details__preview {
-  @apply basis-1/2 rounded-lg;
-}
-
-.checkout-details__options {
-  @apply basis-1/2 flex-1 h-auto flex flex-col gap-10;
-}
-
-.checkout-details__guest {
-  @apply w-full bg-customgreys-secondarybg py-12 px-24 rounded-lg;
-}
-
-.checkout-details__title {
-  @apply text-3xl font-bold text-center mb-2;
-}
-
-.checkout-details__subtitle {
-  @apply mb-6 text-sm text-center text-gray-400 mx-auto;
-}
-
-.checkout-details__form {
-  @apply space-y-8;
-}
-
-.checkout-details__submit {
-  @apply w-full my-6 py-3 bg-primary-700 hover:bg-primary-600 text-white-100 rounded shadow text-sm font-semibold;
-}
-
-.checkout-details__divider {
-  @apply flex items-center justify-between;
-}
-
-.checkout-details__divider-line {
-  @apply w-full border-customgreys-dirtyGrey;
-}
-
-.checkout-details__divider-text {
-  @apply px-4 text-sm text-gray-400 whitespace-nowrap;
-}
-
-.checkout-details__auth {
-  @apply w-full bg-customgreys-secondarybg flex justify-center items-center rounded-lg;
-}
-
-/* Payment Page */
-.payment {
-  @apply flex flex-col w-full;
-}
-
-.payment__container {
-  @apply sm:flex gap-10 mb-6;
-}
-
-.payment__preview {
-  @apply basis-1/2 rounded-lg;
-}
-
-.payment__form-container {
-  @apply basis-1/2;
-}
-
-.payment__form {
-  @apply space-y-4;
-}
-
-.payment__content {
-  @apply flex flex-col gap-4 bg-customgreys-secondarybg px-10 py-10 rounded-lg;
-}
-
-.payment__title {
-  @apply text-2xl font-bold;
-}
-
-.payment__subtitle {
-  @apply text-sm text-gray-400;
-}
-
-.payment__method {
-  @apply flex flex-col gap-2 w-full mt-6;
-}
-
-.payment__method-title {
-  @apply text-md;
-}
-
-.payment__card-container {
-  @apply flex flex-col border-[2px] border-white-100/5 rounded-lg;
-}
-
-.payment__card-header {
-  @apply flex items-center gap-2 bg-white-50/5 py-2 px-2;
-}
-
-.payment__card-element {
-  @apply px-4 py-6;
-}
-
-.payment__actions {
-  @apply flex justify-between items-center w-full mt-6;
-}
-
-.payment__submit {
-  @apply hover:bg-primary-600 bg-primary-700;
-}
-
-/* Billing Page */
-.billing {
-  @apply space-y-8;
-}
-
-.billing__container {
-  @apply space-y-6 bg-customgreys-secondarybg;
-}
-
-.billing__title {
-  @apply text-2xl font-semibold;
-}
-
-.billing__filters {
-  @apply flex space-x-4;
-}
-
-.billing__select {
-  @apply w-[180px] border-none bg-customgreys-primarybg;
-}
-
-.billing__select-content {
-  @apply bg-customgreys-primarybg;
-}
-
-.billing__select-item {
-  @apply hover:!bg-white-50 hover:!text-customgreys-primarybg cursor-pointer;
-}
-
-.billing__grid {
-  @apply h-[400px] w-full;
-}
-
-.billing__amount {
-  @apply font-medium;
-}
-
-.billing__table {
-  @apply text-customgreys-dirtyGrey min-h-[200px];
-}
-
-.billing__table-header {
-  @apply bg-customgreys-darkGrey;
-}
-
-.billing__table-header-row {
-  @apply border-none text-white-50;
-}
-
-.billing__table-cell {
-  @apply border-none p-4;
-}
-
-.billing__table-row {
-  @apply border-none;
-}
-
-.billing__table-row:hover {
-  @apply bg-customgreys-primarybg;
-}
-
-.billing__table-body {
-  @apply bg-customgreys-primarybg min-h-[200px];
-}
-
 /* User Courses Page */
 .user-courses {
   @apply w-full h-full;
@@ -993,9 +814,9 @@ input[type="color"] {
   @apply p-0 flex justify-between;
 }
 
-.course-card__category {
+/* .course-card__category {
   @apply text-sm bg-customgreys-secondarybg rounded-full px-3 py-2 text-gray-400;
-}
+} */
 
 .course-card__price {
   @apply text-primary-500 font-bold text-md;
@@ -1054,7 +875,7 @@ input[type="color"] {
 
 /* Custom Modal */
 .custom-modal__overlay {
-  @apply fixed inset-0 bg-black bg-opacity-50 z-40;
+  @apply fixed inset-0 bg-black z-40;
 }
 
 .custom-modal__content {
@@ -1297,9 +1118,9 @@ input[type="color"] {
   @apply text-primary-50 text-md md:text-lg line-clamp-2 overflow-hidden;
 }
 
-.course-card-teacher__category {
+/* .course-card-teacher__category {
   @apply bg-customgreys-dirtyGrey/50 px-2 py-1 mt-3 mb-3 rounded-xl w-fit text-sm;
-}
+} */
 
 .course-card-teacher__edit-button {
   @apply rounded w-full bg-primary-700 border-none hover:bg-primary-600 hover:text-customgreys-primarybg text-white-100 cursor-pointer;
@@ -1528,4 +1349,70 @@ input[type="color"] {
 
 .dashboard-navbar__sidebar-trigger {
   @apply text-customgreys-dirtyGrey hover:text-white-50 transition-colors;
+}
+
+/* ======== stream css overrides ======== */
+.str-video__call-stats {
+  max-width: 500px;
+  position: relative;
+}
+
+.str-video__speaker-layout__wrapper {
+  max-height: 700px;
+}
+
+.str-video__participant-details {
+  color: white;
+}
+
+.str-video__menu-container {
+  color: white;
+}
+
+.str-video__notification {
+  color: white;
+}
+
+.str-video__participant-list {
+  background-color: #1c1f2e;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+  height: 100%;
+}
+
+.str-video__call-controls__button {
+  height: 40px;
+}
+
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.glassmorphism2 {
+  background: rgba(18, 17, 17, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* animation */
+
+.show-block {
+  width: 100%;
+  max-width: 350px;
+  display: block;
+  animation: show 0.7s forwards linear;
+}
+
+@keyframes show {
+  0% {
+    animation-timing-function: ease-in;
+    width: 0%;
+  }
+
+  100% {
+    animation-timing-function: ease-in;
+    width: 100%;
+  }
 }

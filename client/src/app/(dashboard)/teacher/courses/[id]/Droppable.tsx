@@ -120,7 +120,7 @@ export default function DroppableComponent() {
                     >
                       <Plus className="add-chapter-button__icon" />
                       <span className="add-chapter-button__text">
-                        Add Chapter
+                        Thêm Bài học
                       </span>
                     </Button>
                   </div>

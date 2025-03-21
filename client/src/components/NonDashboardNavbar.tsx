@@ -5,7 +5,6 @@ import { dark } from "@clerk/themes";
 import { Bell, BookOpen } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-
 const NonDashboardNavbar = () => {
   const { user } = useUser();
   const userRole = user?.publicMetadata?.userType as "student" | "teacher";
@@ -15,7 +14,7 @@ const NonDashboardNavbar = () => {
       <div className="nondashboard-navbar__container">
         <div className="nondashboard-navbar__search">
           <Link href="/" className="nondashboard-navbar__brand" scroll={false}>
-            EDROH
+            Eduflip
           </Link>
           <div className="flex items-center gap-4">
             <div className="relative group">
@@ -24,8 +23,8 @@ const NonDashboardNavbar = () => {
                 className="nondashboard-navbar__search-input"
                 scroll={false}
               >
-                <span className="hidden sm:inline">Search Courses</span>
-                <span className="sm:hidden">Search</span>
+                <span className="hidden sm:inline">Tìm kiếm</span>
+                <span className="sm:hidden">Tìm kiếm</span>
               </Link>
               <BookOpen
                 className="nondashboard-navbar__search-icon"
@@ -62,14 +61,14 @@ const NonDashboardNavbar = () => {
               className="nondashboard-navbar__auth-button--login"
               scroll={false}
             >
-              Log in
+              {"auth.signIn"}
             </Link>
             <Link
               href="/signup"
               className="nondashboard-navbar__auth-button--signup"
               scroll={false}
             >
-              Sign up
+              {"auth.signUp"}
             </Link>
           </SignedOut>
         </div>

@@ -1,378 +1,234 @@
 [
   {
-    "courseId": "3a9f3d6c-c391-4b1c-9c3d-6c3f3d6c3f3d",
-    "teacherId": "user_7kFh92JkCpQw3N8M5L4xRzVtYs",
-    "teacherName": "John Doe",
-    "title": "Introduction to Programming",
-    "description": "Learn the basics of programming with this comprehensive course.",
-    "category": "Computer Science",
-    "image": "https://images.pexels.com/photos/5905888/pexels-photo-5905888.jpeg",
-    "price": 4999,
-    "level": "Beginner",
+    "courseId": "course-mathematics-101",
+    "title": "Toán Học Cơ Bản Lớp 10",
+    "description": "Khóa học này cung cấp cho học sinh kiến thức toán học cơ bản dành cho lớp 10, bao gồm đại số, hình học và lượng giác.",
+    "category": "toan-hoc",
+    "teacherId": "teacher-123",
+    "teacherName": "Nguyễn Văn A",
     "status": "Published",
-    "enrollments": [
-      { "userId": "user_2ntu96pUCljUV2T9W0AThzjacQB" },
-      { "userId": "user_9xWp45MnKjL8vRt2Hs6BqDcEy" }
-    ],
-    "sections": [
-      {
-        "sectionId": "2f9d1e8b-5a3c-4b7f-9e6d-8c2a1f0b3d5e",
-        "sectionTitle": "Getting Started",
-        "sectionDescription": "Learn the basics of programming and set up your development environment.",
-        "chapters": [
-          {
-            "chapterId": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
-            "type": "Video",
-            "title": "Welcome to Programming",
-            "content": "https://example.com/videos/welcome.mp4",
-            "video": "https://example.com/videos/welcome.mp4",
-            "comments": [
-              {
-                "commentId": "1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p",
-                "userId": "emma.wilson@hotmail.com",
-                "text": "Great introduction!",
-                "timestamp": "2023-03-10T09:15:00Z"
-              }
-            ]
-          },
-          {
-            "chapterId": "b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7",
-            "type": "Text",
-            "title": "What is Programming?",
-            "content": "Programming is the process of creating instructions for computers to follow...",
-            "comments": []
-          },
-          {
-            "chapterId": "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
-            "type": "Quiz",
-            "title": "Programming Basics Quiz",
-            "content": "1. What is a variable?\n2. What is the difference between a compiler and an interpreter?\n3. Name three popular programming languages.",
-            "comments": []
-          }
-        ]
-      },
-      {
-        "sectionId": "3g0e2f9c-6d4e-5a7f-8b9g-1h2i3j4k5l6m",
-        "sectionTitle": "Basic Programming Concepts",
-        "sectionDescription": "Explore fundamental programming concepts and data types.",
-        "chapters": [
-          {
-            "chapterId": "d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9",
-            "type": "Video",
-            "title": "Variables and Data Types",
-            "content": "https://example.com/videos/variables-data-types.mp4",
-            "video": "https://example.com/videos/variables-data-types.mp4",
-            "comments": []
-          },
-          {
-            "chapterId": "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
-            "type": "Text",
-            "title": "Control Structures",
-            "content": "Control structures are fundamental elements in programming that allow you to control the flow of your program...",
-            "comments": []
-          },
-          {
-            "chapterId": "f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u1",
-            "type": "Quiz",
-            "title": "Control Structures Quiz",
-            "content": "1. What is an if-else statement?\n2. Explain the purpose of a loop.\n3. What is a switch statement?",
-            "comments": []
-          }
-        ]
-      },
-      {
-        "sectionId": "4h1f3g0d-7e5f-6b8g-9c0h-2i3j4k5l6m7n",
-        "sectionTitle": "Functions and Modules",
-        "sectionDescription": "Learn how to organize your code using functions and modules.",
-        "chapters": [
-          {
-            "chapterId": "g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2",
-            "type": "Video",
-            "title": "Introduction to Functions",
-            "content": "https://example.com/videos/intro-to-functions.mp4",
-            "video": "https://example.com/videos/intro-to-functions.mp4",
-            "comments": []
-          },
-          {
-            "chapterId": "h8i9j0k1-l2m3-n4o5-p6q7-r8s9t0u1v2w3",
-            "type": "Text",
-            "title": "Creating and Using Modules",
-            "content": "Modules are a way to organize and reuse code across different parts of your program...",
-            "comments": []
-          },
-          {
-            "chapterId": "i9j0k1l2-m3n4-o5p6-q7r8-s9t0u1v2w3x4",
-            "type": "Quiz",
-            "title": "Functions and Modules Quiz",
-            "content": "1. What is the difference between a function and a method?\n2. How do you import a module in Python?\n3. What is the purpose of the 'return' statement in a function?",
-            "comments": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "courseId": "8b4f7d9c-4b1c-4b1c-8b4f-7d9c8b4f7d9c",
-    "teacherId": "user_4mNj68RtPvXw2Ky9Qc7HbSdAf",
-    "teacherName": "Alice Johnson",
-    "title": "Advanced Machine Learning",
-    "description": "Dive deep into machine learning algorithms and techniques.",
-    "category": "Artificial Intelligence",
-    "image": "https://images.pexels.com/photos/6303596/pexels-photo-6303596.jpeg",
-    "price": 9999,
-    "level": "Advanced",
-    "status": "Published",
-    "enrollments": [
-      { "userId": "user_2ntu96pUCljUV2T9W0AThzjacQB" },
-      { "userId": "user_5vBn23WsLkMp7Jh4Gt8FxYcRz" }
-    ],
-    "sections": [
-      {
-        "sectionId": "1a7b3c5d-9e2f-4g6h-8i0j-2k4l6m8n0p1q",
-        "sectionTitle": "Neural Networks",
-        "sectionDescription": "Learn about neural networks and their applications.",
-        "chapters": [
-          {
-            "chapterId": "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
-            "type": "Video",
-            "title": "Introduction to Neural Networks",
-            "content": "https://example.com/videos/neural-networks-intro.mp4",
-            "videoLength": 1200,
-            "comments": [],
-            "videoUrl": "https://example.com/videos/neural-networks-intro.mp4",
-            "videoUniqueId": "vid_004",
-            "videoType": "hls"
-          },
-          {
-            "chapterId": "d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9",
-            "type": "Quiz",
-            "title": "Neural Networks Quiz",
-            "content": "1. What is a neuron?\n2. Explain backpropagation.\n3. What is an activation function?",
-            "comments": []
-          },
-          {
-            "chapterId": "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
-            "type": "Text",
-            "title": "Types of Neural Networks",
-            "content": "There are various types of neural networks, each designed for specific tasks...",
-            "comments": []
-          }
-        ]
-      },
-      {
-        "sectionId": "2b8c4d6e-0f3g-5h7i-9j1k-3l5m7n9p1q3r",
-        "sectionTitle": "Deep Learning",
-        "sectionDescription": "Explore advanced deep learning techniques and architectures.",
-        "chapters": [
-          {
-            "chapterId": "f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u1",
-            "type": "Video",
-            "title": "Convolutional Neural Networks",
-            "content": "https://example.com/videos/cnn-explained.mp4",
-            "videoLength": 1500,
-            "comments": [],
-            "videoUrl": "https://example.com/videos/cnn-explained.mp4",
-            "videoUniqueId": "vid_005",
-            "videoType": "dash"
-          },
-          {
-            "chapterId": "g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2",
-            "type": "Text",
-            "title": "Recurrent Neural Networks",
-            "content": "Recurrent Neural Networks (RNNs) are a class of neural networks designed to work with sequential data...",
-            "comments": []
-          },
-          {
-            "chapterId": "h8i9j0k1-l2m3-n4o5-p6q7-r8s9t0u1v2w3",
-            "type": "Quiz",
-            "title": "Deep Learning Architectures Quiz",
-            "content": "1. What is the main advantage of CNNs?\n2. Explain the vanishing gradient problem in RNNs.\n3. What is transfer learning?",
-            "comments": []
-          }
-        ]
-      },
-      {
-        "sectionId": "3c9d5e7f-1g4h-6i8j-0k2l-4m6n8p0q2r4s",
-        "sectionTitle": "Advanced ML Algorithms",
-        "sectionDescription": "Study cutting-edge machine learning algorithms and their implementations.",
-        "chapters": [
-          {
-            "chapterId": "i9j0k1l2-m3n4-o5p6-q7r8-s9t0u1v2w3x4",
-            "type": "Video",
-            "title": "Generative Adversarial Networks",
-            "content": "https://example.com/videos/gan-explained.mp4",
-            "videoLength": 1800,
-            "comments": [],
-            "videoUrl": "https://example.com/videos/gan-explained.mp4",
-            "videoUniqueId": "vid_006",
-            "videoType": "mp4"
-          },
-          {
-            "chapterId": "j0k1l2m3-n4o5-p6q7-r8s9-t0u1v2w3x4y5",
-            "type": "Text",
-            "title": "Reinforcement Learning",
-            "content": "Reinforcement Learning is a type of machine learning where an agent learns to make decisions by interacting with an environment...",
-            "comments": []
-          },
-          {
-            "chapterId": "k1l2m3n4-o5p6-q7r8-s9t0-u1v2w3x4y5z6",
-            "type": "Quiz",
-            "title": "Advanced ML Algorithms Quiz",
-            "content": "1. What are the components of a GAN?\n2. Explain the difference between Q-learning and policy gradients.\n3. What is the purpose of the discriminator in a GAN?",
-            "comments": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "courseId": "c5d6e7f8-g9h0-i1j2-k3l4-m5n6o7p8q9r0",
-    "teacherId": "user_7kFh92JkCpQw3N8M5L4xRzVtYs",
-    "teacherName": "John Doe",
-    "title": "Web Development Fundamentals",
-    "description": "Learn the basics of HTML, CSS, and JavaScript to build modern websites.",
-    "category": "Web Development",
-    "image": "https://images.pexels.com/photos/6001397/pexels-photo-6001397.jpeg",
-    "price": 7999,
-    "level": "Beginner",
-    "status": "Published",
-    "enrollments": [
-      { "userId": "user_6tHm89QwNpKj3Fx5Vy2RdLcBs" },
-      { "userId": "user_9xWp45MnKjL8vRt2Hs6BqDcEy" }
-    ],
-    "sections": [
-      {
-        "sectionId": "3e5f7g9h-1i3j-5k7l-9m1n-3o5p7q9r1s3t",
-        "sectionTitle": "HTML Basics",
-        "sectionDescription": "Learn the fundamentals of HTML.",
-        "chapters": [
-          {
-            "chapterId": "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
-            "type": "Video",
-            "title": "Introduction to HTML",
-            "content": "https://example.com/videos/intro-to-html.mp4",
-            "video": "https://example.com/videos/intro-to-html.mp4",
-            "comments": []
-          },
-          {
-            "chapterId": "f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u1",
-            "type": "Quiz",
-            "title": "HTML Tags Quiz",
-            "content": "1. What does HTML stand for?\n2. Name three basic HTML tags.\n3. What is the purpose of the <head> tag?",
-            "comments": []
-          },
-          {
-            "chapterId": "g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2",
-            "type": "Text",
-            "title": "HTML Forms and Input Elements",
-            "content": "HTML forms are used to collect user input. Learn about various input types and form elements...",
-            "comments": []
-          }
-        ]
-      },
-      {
-        "sectionId": "4f6g8h0i-2j4k-6l8m-0n2p-4q6r8s0t2u4v",
-        "sectionTitle": "CSS Styling",
-        "sectionDescription": "Learn how to style your HTML with CSS.",
-        "chapters": [
-          {
-            "chapterId": "h8i9j0k1-l2m3-n4o5-p6q7-r8s9t0u1v2w3",
-            "type": "Video",
-            "title": "CSS Basics",
-            "content": "https://example.com/videos/css-basics.mp4",
-            "video": "https://example.com/videos/css-basics.mp4",
-            "comments": []
-          },
-          {
-            "chapterId": "i9j0k1l2-m3n4-o5p6-q7r8-s9t0u1v2w3x4",
-            "type": "Text",
-            "title": "CSS Layout Techniques",
-            "content": "Learn about different CSS layout techniques including Flexbox and Grid...",
-            "comments": []
-          },
-          {
-            "chapterId": "j0k1l2m3-n4o5-p6q7-r8s9-t0u1v2w3x4y5",
-            "type": "Quiz",
-            "title": "CSS Styling Quiz",
-            "content": "1. What is the box model in CSS?\n2. Explain the difference between inline and block elements.\n3. How do you center an element horizontally and vertically using Flexbox?",
-            "comments": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "courseId": "d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9",
-    "teacherId": "user_3rTg67LmZnXc4Vb8Wd0JyUhEq",
-    "teacherName": "Michael Brown",
-    "title": "Data Science Fundamentals",
-    "description": "Learn the basics of data science, including statistics, data visualization, and machine learning.",
-    "category": "Data Science",
-    "image": "https://images.pexels.com/photos/4491461/pexels-photo-4491461.jpeg",
-    "price": 8999,
     "level": "Intermediate",
-    "status": "Published",
-    "enrollments": [
-      { "userId": "user_6tHm89QwNpKj3Fx5Vy2RdLcBs" },
-      { "userId": "user_9xWp45MnKjL8vRt2Hs6BqDcEy" }
-    ],
+    "image": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop",
+    "meetLink": "abc-defg-hij",
     "sections": [
       {
-        "sectionId": "4u6v8w0x-2y4z-6a8b-0c2d-4e6f8g0h2i4j",
-        "sectionTitle": "Introduction to Data Science",
-        "sectionDescription": "Learn the basics of data science and its applications.",
+        "sectionId": "section-algebra",
+        "sectionTitle": "Đại Số",
+        "sectionDescription": "Các khái niệm cơ bản về đại số và phương trình",
         "chapters": [
           {
-            "chapterId": "g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2",
-            "type": "Video",
-            "title": "What is Data Science?",
-            "content": "https://example.com/videos/what-is-data-science.mp4",
-            "video": "https://example.com/videos/what-is-data-science.mp4",
-            "comments": []
+            "chapterId": "chapter-algebra-intro",
+            "type": "Text",
+            "title": "Giới thiệu về Đại số",
+            "content": "<p>Đại số là một nhánh của toán học nghiên cứu về các ký hiệu và các quy tắc để thao tác với các ký hiệu đó. Trong đại số, các chữ cái và các ký hiệu khác thường được sử dụng để biểu diễn các số và khối lượng.</p><h2>Nội dung chính</h2><ul><li>Khái niệm cơ bản</li><li>Biểu thức đại số</li><li>Phép tính đại số</li></ul>",
+            "video": "https://example.com/videos/algebra-intro.mp4"
           },
           {
-            "chapterId": "h8i9j0k1-l2m3-n4o5-p6q7-r8s9t0u1v2w3",
-            "type": "Quiz",
-            "title": "Data Science Basics Quiz",
-            "content": "1. Define data science.\n2. What are the main components of data science?\n3. How does machine learning relate to data science?",
-            "comments": []
+            "chapterId": "chapter-equations",
+            "type": "Text",
+            "title": "Phương trình bậc nhất",
+            "content": "<p>Phương trình bậc nhất là phương trình có dạng ax + b = 0, trong đó a và b là các hằng số, a ≠ 0, và x là biến số. Giải phương trình bậc nhất là tìm các giá trị của x thỏa mãn phương trình.</p><h2>Các bước giải</h2><ol><li>Chuyển vế để đưa về dạng ax = -b</li><li>Chia hai vế cho a để được x = -b/a</li></ol>",
+            "video": "https://example.com/videos/equations-101.mp4"
+          }
+        ]
+      },
+      {
+        "sectionId": "section-geometry",
+        "sectionTitle": "Hình Học",
+        "sectionDescription": "Khái niệm về không gian và các hình học cơ bản",
+        "chapters": [
+          {
+            "chapterId": "chapter-geometry-intro",
+            "type": "Text",
+            "title": "Giới thiệu về Hình học",
+            "content": "<p>Hình học là nhánh của toán học nghiên cứu về các hình dạng, kích thước, vị trí tương đối của các hình và tính chất của không gian.</p><h2>Các chủ đề chính</h2><ul><li>Điểm, đường thẳng, mặt phẳng</li><li>Các góc và quan hệ</li><li>Tam giác và đa giác</li></ul>",
+            "video": "https://example.com/videos/geometry-intro.mp4"
+          },
+          {
+            "chapterId": "chapter-triangles",
+            "type": "Text",
+            "title": "Tam giác và tính chất",
+            "content": "<p>Tam giác là một đa giác có ba cạnh và ba góc. Tổng ba góc trong tam giác bằng 180 độ.</p><h2>Các loại tam giác</h2><ul><li>Tam giác đều: ba cạnh bằng nhau</li><li>Tam giác cân: hai cạnh bằng nhau</li><li>Tam giác vuông: có một góc 90 độ</li></ul>",
+            "video": "https://example.com/videos/triangles.mp4"
           }
         ]
       }
     ]
   },
   {
-    "courseId": "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
-    "teacherId": "user_7kFh92JkCpQw3N8M5L4xRzVtYs",
-    "teacherName": "John Doe",
-    "title": "Mobile App Development with React Native",
-    "description": "Build cross-platform mobile apps using React Native and JavaScript.",
-    "category": "Mobile Development",
-    "image": "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg",
-    "price": 12999,
-    "level": "Advanced",
+    "courseId": "course-literature-101",
+    "title": "Ngữ Văn Lớp 10",
+    "description": "Khóa học này giới thiệu các tác phẩm văn học Việt Nam và thế giới quan trọng trong chương trình lớp 10.",
+    "category": "ngu-van",
+    "teacherId": "teacher-456",
+    "teacherName": "Trần Thị B",
     "status": "Published",
-    "enrollments": [{ "userId": "user_6tHm89QwNpKj3Fx5Vy2RdLcBs" }],
+    "level": "Beginner",
+    "image": "https://images.unsplash.com/photo-1550399105-c4db5fb85c18?w=800&auto=format&fit=crop",
     "sections": [
       {
-        "sectionId": "5k7l9m1n-3o5p-7q9r-1s3t-5u7v9w1x3y5z",
-        "sectionTitle": "Getting Started with React Native",
-        "sectionDescription": "Learn the basics of React Native development.",
+        "sectionId": "section-vietnamese-lit",
+        "sectionTitle": "Văn học Việt Nam",
+        "sectionDescription": "Các tác phẩm văn học Việt Nam tiêu biểu",
         "chapters": [
           {
-            "chapterId": "i9j0k1l2-m3n4-o5p6-q7r8-s9t0u1v2w3x4",
-            "type": "Video",
-            "title": "Setting Up Your Development Environment",
-            "content": "https://example.com/videos/react-native-setup.mp4",
-            "video": "https://example.com/videos/react-native-setup.mp4",
-            "comments": []
+            "chapterId": "chapter-truyen-kieu",
+            "type": "Text",
+            "title": "Truyện Kiều - Nguyễn Du",
+            "content": "<p>Truyện Kiều là một kiệt tác văn học của Nguyễn Du, được sáng tác vào đầu thế kỷ 19. Tác phẩm kể về cuộc đời đầy biến cố của nàng Kiều.</p><h2>Giá trị nghệ thuật</h2><ul><li>Ngôn ngữ tinh tế</li><li>Miêu tả tâm lý nhân vật sâu sắc</li><li>Phản ánh xã hội phong kiến</li></ul>",
+            "video": "https://example.com/videos/truyen-kieu.mp4"
           },
           {
-            "chapterId": "j0k1l2m3-n4o5-p6q7-r8s9-t0u1v2w3x4y5",
+            "chapterId": "chapter-tay-tien",
             "type": "Text",
-            "title": "React Native Basics",
-            "content": "Learn about functions, objects, and other core concepts in JavaScript...",
-            "comments": []
+            "title": "Tây Tiến - Quang Dũng",
+            "content": "<p>Tây Tiến là bài thơ nổi tiếng của nhà thơ Quang Dũng, viết về đoàn quân Tây Tiến trong kháng chiến chống Pháp.</p><h2>Phân tích</h2><ul><li>Hình ảnh người lính</li><li>Vẻ đẹp thiên nhiên miền Tây</li><li>Tinh thần yêu nước</li></ul>",
+            "video": "https://example.com/videos/tay-tien.mp4"
+          }
+        ]
+      },
+      {
+        "sectionId": "section-world-lit",
+        "sectionTitle": "Văn học Thế giới",
+        "sectionDescription": "Các tác phẩm văn học thế giới tiêu biểu",
+        "chapters": [
+          {
+            "chapterId": "chapter-hamlet",
+            "type": "Text",
+            "title": "Hamlet - William Shakespeare",
+            "content": "<p>Hamlet là một vở bi kịch nổi tiếng của William Shakespeare, kể về hoàng tử Hamlet của Đan Mạch và cuộc báo thù của ông cho cái chết của cha mình.</p><h2>Chủ đề chính</h2><ul><li>Sự phản bội</li><li>Báo thù</li><li>Cái chết và sự điên loạn</li></ul>",
+            "video": "https://example.com/videos/hamlet.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "courseId": "course-physics-101",
+    "title": "Vật Lý Cơ Bản Lớp 10",
+    "description": "Khóa học này giới thiệu các nguyên lý cơ bản về cơ học, nhiệt học và điện học theo chương trình lớp 10.",
+    "category": "vat-ly",
+    "teacherId": "teacher-789",
+    "teacherName": "Lê Văn C",
+    "status": "Published",
+    "level": "Intermediate",
+    "image": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=800&auto=format&fit=crop",
+    "meetLink": "xyz-abcd-efg",
+    "sections": [
+      {
+        "sectionId": "section-mechanics",
+        "sectionTitle": "Cơ Học",
+        "sectionDescription": "Các khái niệm và nguyên lý cơ bản về chuyển động và lực",
+        "chapters": [
+          {
+            "chapterId": "chapter-kinematics",
+            "type": "Text",
+            "title": "Động học",
+            "content": "<p>Động học là phần của cơ học nghiên cứu chuyển động của vật thể mà không xét đến nguyên nhân gây ra chuyển động đó.</p><h2>Các khái niệm cơ bản</h2><ul><li>Vận tốc</li><li>Gia tốc</li><li>Chuyển động đều và biến đổi đều</li></ul>",
+            "video": "https://example.com/videos/kinematics.mp4"
+          },
+          {
+            "chapterId": "chapter-newton-laws",
+            "type": "Text",
+            "title": "Các định luật Newton",
+            "content": "<p>Các định luật Newton về chuyển động là ba định luật vật lý mô tả mối quan hệ giữa chuyển động của một vật và các lực tác dụng lên nó.</p><h2>Ba định luật</h2><ol><li>Định luật quán tính</li><li>Định luật về lực và gia tốc</li><li>Định luật tác dụng và phản tác dụng</li></ol>",
+            "video": "https://example.com/videos/newton-laws.mp4"
+          }
+        ]
+      },
+      {
+        "sectionId": "section-thermodynamics",
+        "sectionTitle": "Nhiệt Học",
+        "sectionDescription": "Các khái niệm về nhiệt và các quá trình nhiệt động học",
+        "chapters": [
+          {
+            "chapterId": "chapter-temperature",
+            "type": "Text",
+            "title": "Nhiệt độ và sự giãn nở nhiệt",
+            "content": "<p>Nhiệt độ là đại lượng vật lý đặc trưng cho mức độ nóng lạnh của vật. Khi nhiệt độ tăng, hầu hết các vật sẽ giãn nở.</p><h2>Các vấn đề chính</h2><ul><li>Thang nhiệt độ</li><li>Sự giãn nở của chất rắn, lỏng, khí</li><li>Ứng dụng thực tế</li></ul>",
+            "video": "https://example.com/videos/temperature.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "courseId": "course-chemistry-101",
+    "title": "Hóa Học Lớp 10",
+    "description": "Khóa học cung cấp kiến thức cơ bản về nguyên tử, phân tử, và các phản ứng hóa học theo chương trình lớp 10.",
+    "category": "hoa-hoc",
+    "teacherId": "teacher-101",
+    "teacherName": "Phạm Thị D",
+    "status": "Published",
+    "level": "Intermediate",
+    "image": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=800&auto=format&fit=crop",
+    "sections": [
+      {
+        "sectionId": "section-atomic-structure",
+        "sectionTitle": "Cấu trúc nguyên tử",
+        "sectionDescription": "Tìm hiểu về cấu trúc và thành phần của nguyên tử",
+        "chapters": [
+          {
+            "chapterId": "chapter-atomic-models",
+            "type": "Text",
+            "title": "Các mô hình nguyên tử",
+            "content": "<p>Mô hình nguyên tử mô tả cấu trúc của nguyên tử dựa trên các lý thuyết và thực nghiệm khoa học.</p><h2>Các mô hình chính</h2><ul><li>Mô hình Dalton</li><li>Mô hình Thomson</li><li>Mô hình Rutherford</li><li>Mô hình Bohr</li></ul>",
+            "video": "https://example.com/videos/atomic-models.mp4"
+          },
+          {
+            "chapterId": "chapter-periodic-table",
+            "type": "Text",
+            "title": "Bảng tuần hoàn các nguyên tố hóa học",
+            "content": "<p>Bảng tuần hoàn là một sự sắp xếp có hệ thống các nguyên tố hóa học, được tổ chức dựa trên cấu trúc điện tử của chúng.</p><h2>Các nhóm và chu kỳ</h2><ul><li>Nhóm A và nhóm B</li><li>Các kim loại và phi kim</li><li>Xu hướng trong bảng tuần hoàn</li></ul>",
+            "video": "https://example.com/videos/periodic-table.mp4"
+          }
+        ]
+      },
+      {
+        "sectionId": "section-chemical-bonds",
+        "sectionTitle": "Liên kết hóa học",
+        "sectionDescription": "Các loại liên kết giữa các nguyên tử trong phân tử",
+        "chapters": [
+          {
+            "chapterId": "chapter-covalent-bonds",
+            "type": "Text",
+            "title": "Liên kết cộng hóa trị",
+            "content": "<p>Liên kết cộng hóa trị là liên kết hóa học được hình thành khi các nguyên tử chia sẻ electron với nhau.</p><h2>Các loại liên kết cộng hóa trị</h2><ul><li>Liên kết đơn</li><li>Liên kết đôi</li><li>Liên kết ba</li></ul>",
+            "video": "https://example.com/videos/covalent-bonds.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "courseId": "course-biology-101",
+    "title": "Sinh Học Lớp 10",
+    "description": "Khóa học cung cấp kiến thức về tế bào, di truyền và sinh thái học theo chương trình lớp 10.",
+    "category": "sinh-hoc",
+    "teacherId": "teacher-202",
+    "teacherName": "Hoàng Văn E",
+    "status": "Published",
+    "level": "Beginner",
+    "image": "https://images.unsplash.com/photo-1627563859026-1f792382671c?w=800&auto=format&fit=crop",
+    "sections": [
+      {
+        "sectionId": "section-cell-biology",
+        "sectionTitle": "Sinh học tế bào",
+        "sectionDescription": "Cấu trúc và chức năng của tế bào sinh vật",
+        "chapters": [
+          {
+            "chapterId": "chapter-cell-structure",
+            "type": "Text",
+            "title": "Cấu trúc tế bào",
+            "content": "<p>Tế bào là đơn vị cấu trúc và chức năng cơ bản của tất cả các sinh vật. Có hai loại tế bào chính: tế bào nhân sơ và tế bào nhân thật.</p><h2>Các bộ phận của tế bào nhân thật</h2><ul><li>Màng tế bào</li><li>Tế bào chất</li><li>Nhân tế bào</li><li>Các bào quan</li></ul>",
+            "video": "https://example.com/videos/cell-structure.mp4"
+          },
+          {
+            "chapterId": "chapter-cell-division",
+            "type": "Text",
+            "title": "Phân bào",
+            "content": "<p>Phân bào là quá trình tế bào nhân đôi thành hai tế bào con. Có hai loại phân bào chính: nguyên phân và giảm phân.</p><h2>Các giai đoạn của nguyên phân</h2><ol><li>Kỳ đầu</li><li>Kỳ giữa</li><li>Kỳ sau</li><li>Kỳ cuối</li></ol>",
+            "video": "https://example.com/videos/cell-division.mp4"
           }
         ]
       }

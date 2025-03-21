@@ -48,6 +48,14 @@ export const useCourseProgressData = () => {
     const section = userProgress.sections.find(
       (s) => s.sectionId === currentSection.sectionId
     );
+
+    if (
+      userProgress.completedChapters &&
+      userProgress.completedChapters.includes(currentChapter.chapterId)
+    ) {
+      return true;
+    }
+
     return (
       section?.chapters.some(
         (c) => c.chapterId === currentChapter.chapterId && c.completed

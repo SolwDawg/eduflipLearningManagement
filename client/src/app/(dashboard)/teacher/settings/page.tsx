@@ -5,8 +5,8 @@ const TeacherSettings = () => {
   return (
     <div className="w-3/5">
       <SharedNotificationSettings
-        title="Teacher Settings"
-        subtitle="Manage your teacher notification settings"
+        title="Cài đặt giáo viên"
+        subtitle="Quản lý cài đặt thông báo giáo viên của bạn"
       />
     </div>
   );

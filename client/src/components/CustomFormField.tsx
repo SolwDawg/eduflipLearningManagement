@@ -57,6 +57,7 @@ interface FormFieldProps {
   multiple?: boolean;
   isIcon?: boolean;
   initialValue?: string | number | boolean | string[];
+  description?: string;
 }
 
 export const CustomFormField: React.FC<FormFieldProps> = ({
@@ -73,6 +74,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
   multiple = false,
   isIcon = false,
   initialValue,
+  description,
 }) => {
   const { control } = useFormContext();
 
@@ -214,6 +216,11 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
               value: field.value !== undefined ? field.value : initialValue,
             })}
           </FormControl>
+          {description && (
+            <p className="text-sm text-customgreys-dirtyGrey mt-1">
+              {description}
+            </p>
+          )}
           <FormMessage className="text-red-400" />
         </FormItem>
       )}

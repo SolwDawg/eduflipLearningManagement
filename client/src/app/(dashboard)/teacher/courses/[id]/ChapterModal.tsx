@@ -19,6 +19,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { useGetCategoriesQuery } from "@/state/api";
 
 const ChapterModal = () => {
   const dispatch = useAppDispatch();
@@ -42,6 +43,8 @@ const ChapterModal = () => {
       video: "",
     },
   });
+
+  const { data: categoriesData } = useGetCategoriesQuery({});
 
   useEffect(() => {
     if (chapter) {
@@ -91,9 +94,7 @@ const ChapterModal = () => {
       );
     }
 
-    toast.success(
-      `Chapter added/updated successfully but you need to save the course to apply the changes`
-    );
+    toast.success(`Bài học đã được thêm/cập nhật thành công`);
     onClose();
   };
 
@@ -101,7 +102,7 @@ const ChapterModal = () => {
     <CustomModal isOpen={isChapterModalOpen} onClose={onClose}>
       <div className="chapter-modal">
         <div className="chapter-modal__header">
-          <h2 className="chapter-modal__title">Add/Edit Chapter</h2>
+          <h2 className="chapter-modal__title">Thêm/Sửa Bài học</h2>
           <button onClick={onClose} className="chapter-modal__close">
             <X className="w-6 h-6" />
           </button>
@@ -114,15 +115,15 @@ const ChapterModal = () => {
           >
             <CustomFormField
               name="title"
-              label="Chapter Title"
-              placeholder="Write chapter title here"
+              label="Tiêu đề bài học"
+              placeholder="Tiêu đề bài học"
             />
 
             <CustomFormField
               name="content"
-              label="Chapter Content"
+              label="Nội dung bài học"
               type="textarea"
-              placeholder="Write chapter content here"
+              placeholder="Nội dung bài học"
             />
 
             <FormField
@@ -131,7 +132,7 @@ const ChapterModal = () => {
               render={({ field: { onChange, value } }) => (
                 <FormItem>
                   <FormLabel className="text-customgreys-dirtyGrey text-sm">
-                    Chapter Video
+                    Video bài học
                   </FormLabel>
                   <FormControl>
                     <div>
@@ -148,12 +149,12 @@ const ChapterModal = () => {
                       />
                       {typeof value === "string" && value && (
                         <div className="my-2 text-sm text-gray-600">
-                          Current video: {value.split("/").pop()}
+                          Video hiện tại: {value.split("/").pop()}
                         </div>
                       )}
                       {value instanceof File && (
                         <div className="my-2 text-sm text-gray-600">
-                          Selected file: {value.name}
+                          Video đã chọn: {value.name}
                         </div>
                       )}
                     </div>
@@ -165,10 +166,10 @@ const ChapterModal = () => {
 
             <div className="chapter-modal__actions">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                Huỷ
               </Button>
               <Button type="submit" className="bg-primary-700">
-                Save
+                Lưu
               </Button>
             </div>
           </form>

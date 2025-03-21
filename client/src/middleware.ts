@@ -1,15 +1,23 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const isStudentRoute = createRouteMatcher(["/user/(.*)"]);
 const isTeacherRoute = createRouteMatcher(["/teacher/(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // LOCALIZATION DISABLED: Skip all locale redirects
+  // Only handle role-based redirects
+
+  // Proceed with user authentication and role checks
   const { sessionClaims } = await auth();
   const userRole =
     (sessionClaims?.metadata as { userType: "student" | "teacher" })
       ?.userType || "student";
 
+  console.log("userRole", userRole);
+
+  // Handle role-based redirections without locale prefixing
   if (isStudentRoute(req)) {
     if (userRole !== "student") {
       const url = new URL("/teacher/courses", req.url);
@@ -23,13 +31,14 @@ export default clerkMiddleware(async (auth, req) => {
   //     return NextResponse.redirect(url);
   //   }
   // }
+
+  // Continue with the request
+  return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
+    // Only run on specific paths - exclude static files
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|js|css|mp3|mp4)$).*)",
   ],
 };

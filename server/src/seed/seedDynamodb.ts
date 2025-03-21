@@ -9,7 +9,9 @@ import dynamoose from "dynamoose";
 import pluralize from "pluralize";
 import Course from "../models/courseModel";
 import UserCourseProgress from "../models/userCourseProgressModel";
+import Category from "../models/categoryModel";
 import dotenv from "dotenv";
+import seedCategories from "./categorySeeder";
 
 dotenv.config();
 let client: DynamoDBClient;
@@ -21,7 +23,7 @@ if (!isProduction) {
   dynamoose.aws.ddb.local();
   client = new DynamoDBClient({
     endpoint: "http://localhost:8000",
-    region: "us-east-2",
+    region: "ap-southeast-1",
     credentials: {
       accessKeyId: "dummyKey123",
       secretAccessKey: "dummyKey123",
@@ -29,7 +31,7 @@ if (!isProduction) {
   });
 } else {
   client = new DynamoDBClient({
-    region: process.env.AWS_REGION || "us-east-2",
+    region: process.env.AWS_REGION || "ap-southeast-1",
   });
 }
 
@@ -44,7 +46,7 @@ console.warn = (message, ...args) => {
 };
 
 async function createTables() {
-  const models = [UserCourseProgress, Course];
+  const models = [UserCourseProgress, Course, Category];
 
   for (const model of models) {
     const tableName = model.name;
@@ -138,6 +140,9 @@ export default async function seed() {
     const filePath = path.join(seedDataPath, file);
     await seedData(tableName, filePath);
   }
+
+  // Seed categories
+  await seedCategories();
 }
 
 if (require.main === module) {

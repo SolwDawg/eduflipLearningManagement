@@ -21,16 +21,53 @@ export const getUserEnrolledCourses = async (
     const enrolledCourses = await UserCourseProgress.query("userId")
       .eq(userId)
       .exec();
+
+    // If no enrolled courses found, return empty array
+    if (!enrolledCourses || enrolledCourses.length === 0) {
+      res.json({
+        message: "No enrolled courses found",
+        data: [],
+      });
+      return;
+    }
+
     const courseIds = enrolledCourses.map((item: any) => item.courseId);
-    const courses = await Course.batchGet(courseIds);
-    res.json({
-      message: "Enrolled courses retrieved successfully",
-      data: courses,
-    });
+
+    // If no courseIds, return empty array
+    if (!courseIds || courseIds.length === 0) {
+      res.json({
+        message: "No course IDs found",
+        data: [],
+      });
+      return;
+    }
+
+    try {
+      const courses = await Course.batchGet(courseIds);
+      res.json({
+        message: "Enrolled courses retrieved successfully",
+        data: courses,
+      });
+    } catch (batchError) {
+      console.error("Error in Course.batchGet:", batchError);
+      // If batch get fails, try to get courses one by one
+      const coursesPromises = courseIds.map((id) =>
+        Course.get(id).catch(() => null)
+      );
+      const coursesResults = await Promise.all(coursesPromises);
+      const validCourses = coursesResults.filter((course) => course !== null);
+
+      res.json({
+        message: "Enrolled courses retrieved with fallback method",
+        data: validCourses,
+      });
+    }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving enrolled courses", error });
+    console.error("Error retrieving enrolled courses:", error);
+    res.status(500).json({
+      message: "Error retrieving enrolled courses",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
@@ -78,6 +115,7 @@ export const updateUserCourseProgress = async (
         overallProgress: 0,
         sections: progressData.sections || [],
         lastAccessedTimestamp: new Date().toISOString(),
+        completedChapters: [],
       });
     } else {
       // Merge existing progress with new progress data
@@ -87,6 +125,26 @@ export const updateUserCourseProgress = async (
       );
       progress.lastAccessedTimestamp = new Date().toISOString();
       progress.overallProgress = calculateOverallProgress(progress.sections);
+
+      // Update completedChapters array
+      if (progressData.sections && progressData.sections.length > 0) {
+        const completedChapters = new Set(progress.completedChapters || []);
+
+        // Check for newly completed chapters
+        progressData.sections.forEach((section: any) => {
+          if (section.chapters && section.chapters.length > 0) {
+            section.chapters.forEach((chapter: any) => {
+              if (chapter.completed) {
+                completedChapters.add(chapter.chapterId);
+              } else {
+                completedChapters.delete(chapter.chapterId);
+              }
+            });
+          }
+        });
+
+        progress.completedChapters = Array.from(completedChapters);
+      }
     }
 
     await progress.save();
@@ -101,5 +159,619 @@ export const updateUserCourseProgress = async (
       message: "Error updating user course progress",
       error,
     });
+  }
+};
+
+export const enrollCourse = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, courseId } = req.params;
+
+  try {
+    // Check if the course exists
+    const course = await Course.get(courseId);
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    // Check if the user has a progress record already
+    const existingProgress = await UserCourseProgress.get({
+      userId,
+      courseId,
+    }).catch(() => null);
+
+    if (existingProgress) {
+      // User already has a progress record
+      res.json({
+        message: "User is already enrolled in this course",
+        data: existingProgress,
+      });
+      return;
+    }
+
+    // Check enrollments list on the course
+    const isEnrolledInCourse =
+      course.enrollments &&
+      course.enrollments.some(
+        (enrollment: any) => enrollment.userId === userId
+      );
+
+    // Create new course progress
+    const initialProgress = new UserCourseProgress({
+      userId,
+      courseId,
+      enrollmentDate: new Date().toISOString(),
+      overallProgress: 0,
+      sections: course.sections.map((section: any) => ({
+        sectionId: section.sectionId,
+        chapters: section.chapters.map((chapter: any) => ({
+          chapterId: chapter.chapterId,
+          completed: false,
+        })),
+      })),
+      lastAccessedTimestamp: new Date().toISOString(),
+      completedChapters: [],
+    });
+
+    await initialProgress.save();
+
+    // Only update course enrollments if user isn't already in the list
+    if (!isEnrolledInCourse) {
+      await Course.update(
+        { courseId },
+        {
+          $ADD: {
+            enrollments: [{ userId }],
+          },
+        }
+      );
+    }
+
+    res.json({
+      message: "Successfully enrolled in course",
+      data: initialProgress,
+    });
+  } catch (error) {
+    console.error("Error enrolling in course:", error);
+    res.status(500).json({
+      message: "Error enrolling in course",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const getMonthlyLeaderboard = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    // Get current month data
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+
+    // Get all user progress data
+    const allUserProgress = await UserCourseProgress.scan().exec();
+
+    // Group by user
+    const userMap = new Map();
+
+    for (const progress of allUserProgress) {
+      const userId = progress.userId;
+
+      // Skip entries with undefined userId
+      if (!userId) continue;
+
+      // Calculate attendance score based on lastAccessedTimestamp
+      // Only consider access within current month
+      let attendanceScore = 0;
+      if (progress.lastAccessedTimestamp) {
+        const lastAccessed = new Date(progress.lastAccessedTimestamp);
+        if (lastAccessed >= firstDayOfMonth) {
+          attendanceScore = 1; // Count 1 point per course accessed this month
+        }
+      }
+
+      // Calculate score based on completed chapters
+      const completionScore = (progress.completedChapters?.length || 0) * 2; // 2 points per completed chapter
+
+      // Calculate overall progress score
+      const progressScore = Math.round((progress.overallProgress || 0) * 10); // 0-10 points based on progress percentage
+
+      // Total score for this course
+      const courseScore = attendanceScore + completionScore + progressScore;
+
+      // Add to user's total score
+      if (userMap.has(userId)) {
+        const userData = userMap.get(userId);
+        userData.totalScore += courseScore;
+        userData.coursesAccessed += attendanceScore > 0 ? 1 : 0;
+        userData.chaptersCompleted += progress.completedChapters?.length || 0;
+      } else {
+        userMap.set(userId, {
+          userId,
+          totalScore: courseScore,
+          coursesAccessed: attendanceScore > 0 ? 1 : 0,
+          chaptersCompleted: progress.completedChapters?.length || 0,
+        });
+      }
+    }
+
+    // Convert map to array and sort by total score
+    const leaderboardArray = Array.from(userMap.values())
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .slice(0, 10);
+
+    // Get user details from user IDs (assuming Clerk integration)
+    // Normally we would fetch full details, but for simplicity we'll just use IDs
+    // In a real app, you would likely make API calls to Clerk or your user service
+    // to get names, avatars, etc.
+
+    const leaderboard = leaderboardArray.map((entry, index) => ({
+      rank: index + 1,
+      userId: entry.userId,
+      totalScore: entry.totalScore,
+      coursesAccessed: entry.coursesAccessed,
+      chaptersCompleted: entry.chaptersCompleted,
+      // These fields would typically come from your user service
+      name: `Student ${index + 1}`,
+      avatarUrl: `https://ui-avatars.com/api/?name=S${
+        index + 1
+      }&background=random`,
+    }));
+
+    res.json({
+      message: "Monthly leaderboard retrieved successfully",
+      data: leaderboard,
+      month: today.toLocaleString("default", { month: "long" }),
+      year: currentYear,
+    });
+  } catch (error) {
+    console.error("Error retrieving leaderboard:", error);
+    res.status(500).json({
+      message: "Error retrieving monthly leaderboard",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const trackMaterialAccess = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, courseId, chapterId } = req.body;
+
+  try {
+    // Get the current progress
+    const progress = await UserCourseProgress.get({
+      userId,
+      courseId,
+    });
+
+    if (!progress) {
+      res.status(404).json({ message: "Progress record not found" });
+      return;
+    }
+
+    // Find the chapter and update its access count
+    let found = false;
+    if (progress.sections) {
+      for (const section of progress.sections) {
+        if (section.chapters) {
+          for (const chapter of section.chapters) {
+            if (chapter.chapterId === chapterId) {
+              chapter.accessCount = (chapter.accessCount || 0) + 1;
+              chapter.lastAccessDate = new Date().toISOString();
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+      }
+    }
+
+    // Update total material access count
+    progress.totalMaterialAccessCount =
+      (progress.totalMaterialAccessCount || 0) + 1;
+    progress.lastAccessedTimestamp = new Date().toISOString();
+
+    // Save the updated progress
+    await progress.save();
+
+    res.status(200).json({
+      message: "Material access tracked successfully",
+      data: { accessCount: progress.totalMaterialAccessCount },
+    });
+  } catch (error) {
+    console.error("Error tracking material access:", error);
+    res.status(500).json({ message: "Failed to track material access" });
+  }
+};
+
+export const trackQuizResult = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, courseId, quizId, score, totalQuestions } = req.body;
+
+  try {
+    // Get the current progress
+    const progress = await UserCourseProgress.get({
+      userId,
+      courseId,
+    });
+
+    if (!progress) {
+      res.status(404).json({ message: "Progress record not found" });
+      return;
+    }
+
+    // Initialize quizResults array if it doesn't exist
+    if (!progress.quizResults) {
+      progress.quizResults = [];
+    }
+
+    // Check if this quiz has been attempted before
+    const existingQuizIndex = progress.quizResults.findIndex(
+      (quiz: any) => quiz.quizId === quizId
+    );
+
+    if (existingQuizIndex >= 0) {
+      // Update existing quiz result
+      progress.quizResults[existingQuizIndex].score = score;
+      progress.quizResults[existingQuizIndex].attemptCount += 1;
+      progress.quizResults[existingQuizIndex].completionDate =
+        new Date().toISOString();
+    } else {
+      // Add new quiz result
+      progress.quizResults.push({
+        quizId,
+        score,
+        totalQuestions,
+        completionDate: new Date().toISOString(),
+        attemptCount: 1,
+      });
+    }
+
+    // Calculate average quiz score
+    const totalScore = progress.quizResults.reduce(
+      (sum: number, quiz: any) => sum + quiz.score,
+      0
+    );
+    progress.averageQuizScore = totalScore / progress.quizResults.length;
+
+    // Save the updated progress
+    await progress.save();
+
+    res.status(200).json({
+      message: "Quiz result tracked successfully",
+      data: {
+        averageScore: progress.averageQuizScore,
+        quizResults: progress.quizResults,
+      },
+    });
+  } catch (error) {
+    console.error("Error tracking quiz result:", error);
+    res.status(500).json({ message: "Failed to track quiz result" });
+  }
+};
+
+export const trackDiscussionActivity = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, courseId, discussionId } = req.body;
+
+  try {
+    // Get the current progress
+    const progress = await UserCourseProgress.get({
+      userId,
+      courseId,
+    });
+
+    if (!progress) {
+      res.status(404).json({ message: "Progress record not found" });
+      return;
+    }
+
+    // Initialize discussionActivity array if it doesn't exist
+    if (!progress.discussionActivity) {
+      progress.discussionActivity = [];
+    }
+
+    // Check if this discussion has activity before
+    const existingDiscussionIndex = progress.discussionActivity.findIndex(
+      (discussion: any) => discussion.discussionId === discussionId
+    );
+
+    if (existingDiscussionIndex >= 0) {
+      // Update existing discussion activity
+      progress.discussionActivity[existingDiscussionIndex].postsCount += 1;
+      progress.discussionActivity[existingDiscussionIndex].lastActivityDate =
+        new Date().toISOString();
+    } else {
+      // Add new discussion activity
+      progress.discussionActivity.push({
+        discussionId,
+        postsCount: 1,
+        lastActivityDate: new Date().toISOString(),
+      });
+    }
+
+    // Calculate participation level
+    const totalPosts = progress.discussionActivity.reduce(
+      (sum: number, discussion: any) => sum + discussion.postsCount,
+      0
+    );
+
+    if (totalPosts >= 20) {
+      progress.participationLevel = "High";
+    } else if (totalPosts >= 10) {
+      progress.participationLevel = "Medium";
+    } else {
+      progress.participationLevel = "Low";
+    }
+
+    // Save the updated progress
+    await progress.save();
+
+    res.status(200).json({
+      message: "Discussion activity tracked successfully",
+      data: {
+        participationLevel: progress.participationLevel,
+        totalPosts,
+      },
+    });
+  } catch (error) {
+    console.error("Error tracking discussion activity:", error);
+    res.status(500).json({ message: "Failed to track discussion activity" });
+  }
+};
+
+export const getStudentProgressAnalytics = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { courseId } = req.params;
+
+  try {
+    // Get all progress records for this course
+    const progressRecords = await UserCourseProgress.query("courseId")
+      .eq(courseId)
+      .exec();
+
+    if (!progressRecords || progressRecords.length === 0) {
+      res
+        .status(404)
+        .json({ message: "No student progress records found for this course" });
+      return;
+    }
+
+    // Compile analytics
+    const analytics = {
+      totalStudents: progressRecords.length,
+      averageProgress: 0,
+      materialAccessData: {
+        totalAccesses: 0,
+        averageAccessesPerStudent: 0,
+        studentsWithNoAccess: 0,
+      },
+      quizData: {
+        averageScore: 0,
+        studentsWithNoQuizzes: 0,
+        completionRate: 0,
+      },
+      discussionData: {
+        totalPosts: 0,
+        averagePostsPerStudent: 0,
+        participationLevels: {
+          high: 0,
+          medium: 0,
+          low: 0,
+          none: 0,
+        },
+      },
+      studentDetails: progressRecords.map((record: any) => ({
+        userId: record.userId,
+        progress: record.overallProgress,
+        materialAccesses: record.totalMaterialAccessCount || 0,
+        quizAverage: record.averageQuizScore || 0,
+        participationLevel: record.participationLevel || "None",
+        lastAccessed: record.lastAccessedTimestamp,
+      })),
+    };
+
+    // Calculate totals and averages
+    let totalProgress = 0;
+    let totalMaterialAccesses = 0;
+    let totalQuizScores = 0;
+    let studentsWithQuizzes = 0;
+    let totalPosts = 0;
+
+    progressRecords.forEach((record: any) => {
+      totalProgress += record.overallProgress || 0;
+      totalMaterialAccesses += record.totalMaterialAccessCount || 0;
+
+      if (record.averageQuizScore) {
+        totalQuizScores += record.averageQuizScore;
+        studentsWithQuizzes++;
+      }
+
+      if (!record.totalMaterialAccessCount) {
+        analytics.materialAccessData.studentsWithNoAccess++;
+      }
+
+      if (!record.quizResults || record.quizResults.length === 0) {
+        analytics.quizData.studentsWithNoQuizzes++;
+      }
+
+      if (record.participationLevel === "High") {
+        analytics.discussionData.participationLevels.high++;
+      } else if (record.participationLevel === "Medium") {
+        analytics.discussionData.participationLevels.medium++;
+      } else if (record.participationLevel === "Low") {
+        analytics.discussionData.participationLevels.low++;
+      } else {
+        analytics.discussionData.participationLevels.none++;
+      }
+
+      if (record.discussionActivity) {
+        record.discussionActivity.forEach((discussion: any) => {
+          totalPosts += discussion.postsCount || 0;
+        });
+      }
+    });
+
+    // Set calculated values
+    analytics.averageProgress = totalProgress / progressRecords.length;
+    analytics.materialAccessData.totalAccesses = totalMaterialAccesses;
+    analytics.materialAccessData.averageAccessesPerStudent =
+      totalMaterialAccesses / progressRecords.length;
+    analytics.quizData.averageScore = studentsWithQuizzes
+      ? totalQuizScores / studentsWithQuizzes
+      : 0;
+    analytics.quizData.completionRate =
+      ((progressRecords.length - analytics.quizData.studentsWithNoQuizzes) /
+        progressRecords.length) *
+      100;
+    analytics.discussionData.totalPosts = totalPosts;
+    analytics.discussionData.averagePostsPerStudent =
+      totalPosts / progressRecords.length;
+
+    res.status(200).json({
+      message: "Student progress analytics retrieved successfully",
+      data: analytics,
+    });
+  } catch (error) {
+    console.error("Error retrieving student progress analytics:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to retrieve student progress analytics" });
+  }
+};
+
+export const getStudentProgressDetails = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { courseId, userId } = req.params;
+
+  try {
+    // Get the user's progress for this course
+    const progress = await UserCourseProgress.get({
+      userId,
+      courseId,
+    });
+
+    if (!progress) {
+      res.status(404).json({ message: "Student progress not found" });
+      return;
+    }
+
+    // For this implementation, use the course model but not user/quiz/discussion models directly
+    // Instead, use the data that's already in the progress record
+
+    // Get course information to get chapter names and section details
+    const course = await Course.get({ id: courseId });
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    // Map sections and chapters with additional information
+    const sectionsWithDetails = course.sections.map((section: any) => {
+      // Find user's progress for this section's chapters
+      const sectionProgress = progress.sections?.find(
+        (s: any) => s.sectionId === section.id
+      );
+
+      // Map chapters with additional information
+      const chaptersWithDetails = section.chapters.map((chapter: any) => {
+        // Find user's progress for this chapter
+        const chapterProgress = sectionProgress?.chapters?.find(
+          (c: any) => c.chapterId === chapter.id
+        ) || { completed: false, accessCount: 0 };
+
+        return {
+          chapterId: chapter.id,
+          title: chapter.title,
+          completed: chapterProgress.completed || false,
+          accessCount: chapterProgress.accessCount || 0,
+          lastAccessDate: chapterProgress.lastAccessDate,
+        };
+      });
+
+      // Calculate section progress based on completed chapters
+      const completedChapters = chaptersWithDetails.filter(
+        (chapter: { completed: boolean }) => chapter.completed
+      ).length;
+      const sectionProgressPercent =
+        chaptersWithDetails.length > 0
+          ? (completedChapters / chaptersWithDetails.length) * 100
+          : 0;
+
+      return {
+        sectionId: section.id,
+        title: section.title,
+        progress: sectionProgressPercent,
+        chapters: chaptersWithDetails,
+      };
+    });
+
+    // Create simplified quiz results (without fetching quiz details)
+    const quizResultsWithDetails =
+      progress.quizResults?.map((result: any) => {
+        return {
+          quizId: result.quizId,
+          title: `Quiz ${result.quizId}`, // Use a placeholder title
+          score: result.score,
+          totalQuestions: result.totalQuestions,
+          attemptCount: result.attemptCount || 1,
+          attemptDate: result.completionDate,
+        };
+      }) || [];
+
+    // Create simplified discussion activity (without fetching discussion details)
+    const discussionActivityWithDetails =
+      progress.discussionActivity?.map((activity: any) => {
+        return {
+          discussionId: activity.discussionId,
+          title: `Discussion ${activity.discussionId}`, // Use a placeholder title
+          postsCount: activity.postsCount,
+          lastActivityDate: activity.lastActivityDate,
+        };
+      }) || [];
+
+    // Prepare detailed student progress response
+    const studentDetails = {
+      userId: userId,
+      name: "Student", // Use a placeholder name
+      email: "student@example.com", // Use a placeholder email
+      profileImage: "", // Use a placeholder image
+      enrollmentDate: progress.enrollmentDate,
+      lastAccessDate: progress.lastAccessedTimestamp,
+      overallProgress: progress.overallProgress || 0,
+      sections: sectionsWithDetails,
+      totalMaterialAccessCount: progress.totalMaterialAccessCount || 0,
+      quizResults: quizResultsWithDetails,
+      averageQuizScore: progress.averageQuizScore || 0,
+      discussionActivity: discussionActivityWithDetails,
+      participationLevel: progress.participationLevel || "None",
+    };
+
+    res.status(200).json({
+      message: "Student progress details fetched successfully",
+      data: studentDetails,
+    });
+  } catch (error) {
+    console.error("Error fetching student progress details:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch student progress details" });
   }
 };

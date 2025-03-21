@@ -36,6 +36,7 @@ declare global {
     image?: string;
     level: "Beginner" | "Intermediate" | "Advanced";
     status: "Draft" | "Published";
+    meetLink?: string;
     sections: Section[];
     enrollments?: Array<{
       userId: string;
@@ -54,6 +55,7 @@ declare global {
     overallProgress: number;
     sections: SectionProgress[];
     lastAccessedTimestamp: string;
+    completedChapters?: string[];
   }
 
   type CreateUserArgs = Omit<User, "userId">;
@@ -85,6 +87,7 @@ declare global {
     video?: string | File;
     freePreview?: boolean;
     type: "Text" | "Quiz" | "Video";
+    resources?: Array<{ title: string; url: string }>;
   }
 
   interface ChapterProgress {
@@ -103,11 +106,6 @@ declare global {
     sectionDescription?: string;
     chapters: Chapter[];
   }
-
-  interface WizardStepperProps {
-    currentStep: number;
-  }
-
   interface AccordionSectionsProps {
     sections: Section[];
   }
@@ -182,6 +180,30 @@ declare global {
     courseDescription: string;
     courseCategory: string;
     courseStatus: boolean;
+  }
+
+  interface Category {
+    name: string;
+    description: string;
+    slug: string;
+    isActive: boolean;
+    order: number;
+  }
+
+  interface Grade {
+    gradeId: string;
+    name: string;
+    description?: string;
+    level: number;
+    courseIds: string[];
+    createdAt?: string;
+    updatedAt?: string;
+  }
+
+  interface GradeFormData {
+    name: string;
+    description: string;
+    level: number;
   }
 }
 

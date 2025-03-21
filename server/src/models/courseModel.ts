@@ -1,5 +1,67 @@
 import { Schema, model } from "dynamoose";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Course:
+ *       type: object
+ *       required:
+ *         - courseId
+ *         - teacherId
+ *         - teacherName
+ *         - title
+ *         - category
+ *         - level
+ *         - status
+ *       properties:
+ *         courseId:
+ *           type: string
+ *           description: The unique identifier for the course
+ *         teacherId:
+ *           type: string
+ *           description: The ID of the teacher who created the course
+ *         teacherName:
+ *           type: string
+ *           description: The name of the teacher
+ *         title:
+ *           type: string
+ *           description: The title of the course
+ *         description:
+ *           type: string
+ *           description: A description of the course
+ *         category:
+ *           type: string
+ *           description: The category of the course
+ *         image:
+ *           type: string
+ *           description: URL to the course image
+ *         level:
+ *           type: string
+ *           enum: [Beginner, Intermediate, Advanced]
+ *           description: The difficulty level of the course
+ *         status:
+ *           type: string
+ *           enum: [Draft, Published]
+ *           description: The publication status of the course
+ *         meetLink:
+ *           type: string
+ *           description: Google Meet link for virtual classroom sessions
+ *         sections:
+ *           type: array
+ *           description: The sections of the course
+ *         enrollments:
+ *           type: array
+ *           description: Students enrolled in the course
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date when the course was created
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date when the course was last updated
+ */
 const commentSchema = new Schema({
   commentId: {
     type: String,
@@ -26,7 +88,7 @@ const chapterSchema = new Schema({
   },
   type: {
     type: String,
-    enum: ["Text", "Quiz", "Video"],
+    enum: ["Text", "Quiz", "Video", "Lecture", "Summary"],
     required: true,
   },
   title: {
@@ -43,6 +105,40 @@ const chapterSchema = new Schema({
   },
   video: {
     type: String,
+  },
+  quiz: {
+    type: Object,
+    schema: new Schema({
+      questions: {
+        type: Array,
+        default: [],
+        schema: [],
+      },
+      timeLimit: Number,
+      passingScore: Number,
+    }),
+    default: {},
+  },
+  summary: {
+    type: String,
+  },
+  discussionForum: {
+    type: Array,
+    schema: [
+      new Schema({
+        postId: String,
+        userId: String,
+        userName: String,
+        content: String,
+        images: {
+          type: Array,
+        },
+        timestamp: String,
+        replies: {
+          type: Array,
+        },
+      }),
+    ],
   },
 });
 
@@ -102,6 +198,10 @@ const courseSchema = new Schema(
       type: String,
       required: true,
       enum: ["Draft", "Published"],
+    },
+    meetLink: {
+      type: String,
+      default: "",
     },
     sections: {
       type: Array,

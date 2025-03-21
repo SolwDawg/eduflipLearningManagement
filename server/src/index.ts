@@ -17,6 +17,11 @@ import courseRoutes from "./routes/courseRoutes";
 import userClerkRoutes from "./routes/userClerkRoutes";
 import enrollmentRoutes from "./routes/enrollmentRoutes";
 import userCourseProgressRoutes from "./routes/userCourseProgressRoutes";
+import gradeRoutes from "./routes/gradeRoutes";
+import discussionRoutes from "./routes/discussionRoutes";
+import categoryRoutes from "./routes/categoryRoutes";
+import quizRoutes from "./routes/quizRoutes";
+import chatRoutes from "./routes/chatRoutes";
 
 /* CONFIGURATIONS */
 dotenv.config();
@@ -41,13 +46,19 @@ app.use(clerkMiddleware());
 
 /* ROUTES */
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.json({ message: "Hello World" });
 });
 
 app.use("/courses", courseRoutes);
 app.use("/users/clerk", requireAuth(), userClerkRoutes);
 app.use("/enrollments", requireAuth(), enrollmentRoutes);
 app.use("/users/course-progress", requireAuth(), userCourseProgressRoutes);
+app.use("/grades", requireAuth(), gradeRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/discussion", discussionRoutes);
+app.use("/quizzes", quizRoutes);
+app.use("/api/chats", requireAuth(), chatRoutes);
 
 /* SERVER */
 const port = process.env.PORT || 3000;

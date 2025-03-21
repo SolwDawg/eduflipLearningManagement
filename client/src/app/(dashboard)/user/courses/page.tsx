@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import { useUser } from "@clerk/nextjs";
 import { useState, useMemo } from "react";
 import Loading from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 
 const Courses = () => {
   const router = useRouter();
@@ -19,6 +20,7 @@ const Courses = () => {
     data: courses,
     isLoading,
     isError,
+    error,
   } = useGetUserEnrolledCoursesQuery(user?.id ?? "", {
     skip: !isLoaded || !user,
   });
@@ -58,16 +60,49 @@ const Courses = () => {
 
   if (!isLoaded || isLoading) return <Loading />;
   if (!user) return <div>Please sign in to view your courses.</div>;
-  if (isError || !courses || courses.length === 0)
-    return <div>You are not enrolled in any courses yet.</div>;
+
+  if (isError) {
+    console.error("Error fetching courses:", error);
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-xl font-bold text-red-500 mb-2">
+          Error loading your courses
+        </h2>
+        <p className="mb-4">
+          There was a problem fetching your enrolled courses. Please try again
+          later.
+        </p>
+        <Button onClick={() => window.location.reload()}>Refresh</Button>
+      </div>
+    );
+  }
+
+  if (!courses || courses.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <Header title="My Courses" subtitle="View your enrolled courses" />
+        <div className="py-12">
+          <h2 className="text-xl font-semibold mb-4">
+            Bạn chưa có khóa học nào
+          </h2>
+          <p className="mb-6 text-muted-foreground">
+            Hãy khám phá danh sách khóa học để tìm kiếm khóa học phù hợp với bạn
+          </p>
+          <Button onClick={() => router.push("/courses")}>
+            Browse Courses
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="user-courses">
       <Header title="My Courses" subtitle="View your enrolled courses" />
-      <Toolbar
+      {/* <Toolbar
         onSearch={setSearchTerm}
         onCategoryChange={setSelectedCategory}
-      />
+      /> */}
       <div className="user-courses__grid">
         {filteredCourses.map((course) => (
           <CourseCard

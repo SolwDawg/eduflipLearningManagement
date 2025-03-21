@@ -9,6 +9,15 @@ const chapterProgressSchema = new Schema({
     type: Boolean,
     required: true,
   },
+  accessCount: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  lastAccessDate: {
+    type: String,
+    required: false,
+  },
 });
 
 const sectionProgressSchema = new Schema({
@@ -19,6 +28,46 @@ const sectionProgressSchema = new Schema({
   chapters: {
     type: Array,
     schema: [chapterProgressSchema],
+  },
+});
+
+const quizResultSchema = new Schema({
+  quizId: {
+    type: String,
+    required: true,
+  },
+  score: {
+    type: Number,
+    required: true,
+  },
+  totalQuestions: {
+    type: Number,
+    required: true,
+  },
+  completionDate: {
+    type: String,
+    required: true,
+  },
+  attemptCount: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
+});
+
+const discussionActivitySchema = new Schema({
+  discussionId: {
+    type: String,
+    required: true,
+  },
+  postsCount: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  lastActivityDate: {
+    type: String,
+    required: true,
   },
 });
 
@@ -49,6 +98,34 @@ const userCourseProgressSchema = new Schema(
     lastAccessedTimestamp: {
       type: String,
       required: true,
+    },
+    completedChapters: {
+      type: Array,
+      schema: [String],
+      default: [],
+    },
+    quizResults: {
+      type: Array,
+      schema: [quizResultSchema],
+      default: [],
+    },
+    discussionActivity: {
+      type: Array,
+      schema: [discussionActivitySchema],
+      default: [],
+    },
+    totalMaterialAccessCount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    averageQuizScore: {
+      type: Number,
+      required: false,
+    },
+    participationLevel: {
+      type: String,
+      required: false,
     },
   },
   {

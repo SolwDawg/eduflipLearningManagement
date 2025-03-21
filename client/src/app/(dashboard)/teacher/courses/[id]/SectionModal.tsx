@@ -67,7 +67,7 @@ const SectionModal = () => {
     }
 
     toast.success(
-      `Section added/updated successfully but you need to save the course to apply the changes`
+      `Chương đã được thêm/cập nhật thành công nhưng bạn cần lưu khoá học để áp dụng thay đổi`
     );
     onClose();
   };
@@ -76,7 +76,7 @@ const SectionModal = () => {
     <CustomModal isOpen={isSectionModalOpen} onClose={onClose}>
       <div className="section-modal">
         <div className="section-modal__header">
-          <h2 className="section-modal__title">Add/Edit Section</h2>
+          <h2 className="section-modal__title">Thêm/Sửa chương</h2>
           <button onClick={onClose} className="section-modal__close">
             <X className="w-6 h-6" />
           </button>
@@ -89,23 +89,23 @@ const SectionModal = () => {
           >
             <CustomFormField
               name="title"
-              label="Section Title"
-              placeholder="Write section title here"
+              label="Tiêu đề chương"
+              placeholder="Tiêu đề chương"
             />
 
             <CustomFormField
               name="description"
-              label="Section Description"
+              label="Mô tả chương"
               type="textarea"
-              placeholder="Write section description here"
+              placeholder="Mô tả chương"
             />
 
             <div className="section-modal__actions">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                Huỷ
               </Button>
               <Button type="submit" className="bg-primary-700">
-                Save
+                Lưu
               </Button>
             </div>
           </form>

@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import ChaptersSidebar from "./user/courses/[courseId]/ChaptersSidebar";
+import ChaptersSidebar from "./courses/[courseId]/ChaptersSidebar";
+import StudentSidebar from "@/components/StudentSidebar";
 
 export default function DashboardLayout({
   children,
@@ -31,12 +32,12 @@ export default function DashboardLayout({
   }, [isCoursePage, pathname]);
 
   if (!isLoaded) return <Loading />;
-  if (!user) return <div>Please sign in to access this page.</div>;
+  if (!user) return <div>Vui lòng đăng nhập để truy cập trang này.</div>;
 
   return (
     <SidebarProvider>
       <div className="dashboard">
-        <AppSidebar />
+        <StudentSidebar />
         <div className="dashboard__content">
           {courseId && <ChaptersSidebar />}
           <div

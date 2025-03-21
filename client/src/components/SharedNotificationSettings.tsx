@@ -15,8 +15,8 @@ import { CustomFormField } from "./CustomFormField";
 import { Button } from "@/components/ui/button";
 
 const SharedNotificationSettings = ({
-  title = "Notification Settings",
-  subtitle = "Manage your notification settings",
+  title = "Cài đặt thông báo",
+  subtitle = "Quản lý cài đặt thông báo của bạn",
 }: SharedNotificationSettingsProps) => {
   const { user } = useUser();
   const [updateUser] = useUpdateUserMutation();
@@ -55,7 +55,7 @@ const SharedNotificationSettings = ({
     }
   };
 
-  if (!user) return <div>Please sign in to manage your settings.</div>;
+  if (!user) return <div>Vui lòng đăng nhập để quản lý cài đặt của bạn.</div>;
 
   return (
     <div className="notification-settings">
@@ -68,34 +68,34 @@ const SharedNotificationSettings = ({
           <div className="notification-settings__fields">
             <CustomFormField
               name="courseNotifications"
-              label="Course Notifications"
+              label="Thông báo khóa học"
               type="switch"
             />
             <CustomFormField
               name="emailAlerts"
-              label="Email Alerts"
+              label="Thông báo email"
               type="switch"
             />
             <CustomFormField
               name="smsAlerts"
-              label="SMS Alerts"
+              label="Thông báo SMS"
               type="switch"
             />
 
             <CustomFormField
               name="notificationFrequency"
-              label="Notification Frequency"
+              label="Tần suất thông báo"
               type="select"
               options={[
-                { value: "immediate", label: "Immediate" },
-                { value: "daily", label: "Daily" },
-                { value: "weekly", label: "Weekly" },
+                { value: "immediate", label: "Ngay lập tức" },
+                { value: "daily", label: "Hàng ngày" },
+                { value: "weekly", label: "Hàng tuần" },
               ]}
             />
           </div>
 
           <Button type="submit" className="notification-settings__submit">
-            Update Settings
+            Cập nhật cài đặt
           </Button>
         </form>
       </Form>

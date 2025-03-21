@@ -5,8 +5,8 @@ const UserSettings = () => {
   return (
     <div className="w-3/5">
       <SharedNotificationSettings
-        title="User Settings"
-        subtitle="Manage your user notification settings"
+        title="Cài đặt tài khoản"
+        subtitle="Quản lý cài đặt thông báo tài khoản của bạn"
       />
     </div>
   );
