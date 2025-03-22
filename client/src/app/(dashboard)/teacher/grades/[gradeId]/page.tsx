@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useGetGradeQuery,
@@ -40,7 +40,9 @@ import {
 } from "@/components/ui/alert-dialog";
 
 type PageParams = {
-  params: { gradeId: string };
+  params: {
+    gradeId: string;
+  };
 };
 
 export default function GradeDetailPage({ params }: PageParams) {
