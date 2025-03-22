@@ -3,20 +3,16 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+  context: { params: { userId: string } }
+): Promise<NextResponse> {
   try {
     const { userId: clerkUserId } = await auth();
 
     if (!clerkUserId) {
-      return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
-        status: 401,
-      });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user ID from route parameters - needs to be awaited in Next.js 14+
-    const paramsData = await params;
-    const userId = paramsData.userId;
+    const { userId } = context.params;
 
     // Make request to backend API for enrolled courses count
     const enrolledCoursesResponse = await fetch(

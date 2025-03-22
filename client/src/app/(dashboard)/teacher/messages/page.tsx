@@ -75,13 +75,16 @@ export default function TeacherMessagesPage() {
               ) : (
                 <div className="space-y-4 mt-4">
                   {teacherCourses.map((course) => (
-                    <div key={course.id} className="border rounded-md p-4">
+                    <div
+                      key={course.courseId}
+                      className="border rounded-md p-4"
+                    >
                       <h4 className="font-medium">{course.title}</h4>
                       <p className="text-sm text-muted-foreground mt-1">
                         {course.description}
                       </p>
                       <p className="text-sm mt-2">
-                        {course.enrolledStudents?.length || 0} students enrolled
+                        {course.enrollments?.length || 0} students enrolled
                       </p>
                     </div>
                   ))}

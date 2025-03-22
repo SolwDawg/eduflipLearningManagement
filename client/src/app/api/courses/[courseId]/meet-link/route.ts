@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { courseId: string } }
-) {
+  context: { params: { courseId: string } }
+): Promise<NextResponse> {
   try {
     const session = await auth();
     const userId = session?.userId;
@@ -13,7 +13,7 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { courseId } = params;
+    const { courseId } = context.params;
     const body = await req.json();
     const { meetLink, generateNew } = body;
 

@@ -2,20 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { courseId: string } }
-) {
+  req: NextRequest,
+  context: { params: { courseId: string } }
+): Promise<NextResponse> {
   try {
     // Verify user authentication
-    const { userId: clerkUserId } = await auth();
-    if (!clerkUserId) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const courseId = params.courseId;
+    const { courseId } = context.params;
     console.log(`Fetching course progress for course ${courseId}`);
 
     // Forward the request to the backend API

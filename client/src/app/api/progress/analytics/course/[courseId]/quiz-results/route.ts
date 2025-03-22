@@ -3,20 +3,16 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { courseId: string } }
-) {
+  context: { params: { courseId: string } }
+): Promise<NextResponse> {
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
-        status: 401,
-      });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Get courseId and ensure it's awaited in Next.js 14+
-    const courseData = await params;
-    const courseId = courseData.courseId;
+    const { courseId } = context.params;
 
     console.log(`Fetching quiz results for course: ${courseId}`);
 
@@ -43,7 +39,7 @@ export async function GET(
       }
 
       console.error("Error response from backend:", errorData);
-      return new NextResponse(JSON.stringify(errorData), {
+      return NextResponse.json(errorData, {
         status: response.status,
       });
     }
@@ -54,11 +50,11 @@ export async function GET(
       data = JSON.parse(text);
     } catch (e) {
       console.error("Failed to parse response JSON:", text);
-      return new NextResponse(
-        JSON.stringify({
+      return NextResponse.json(
+        {
           message: "Failed to parse backend response",
           data: [],
-        }),
+        },
         { status: 500 }
       );
     }
@@ -67,11 +63,11 @@ export async function GET(
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching course quiz results:", error);
-    return new NextResponse(
-      JSON.stringify({
+    return NextResponse.json(
+      {
         message: "Internal server error",
         error: error instanceof Error ? error.message : String(error),
-      }),
+      },
       {
         status: 500,
       }

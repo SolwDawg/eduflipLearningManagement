@@ -325,19 +325,16 @@ const physicsCoursesData = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { courseId: string } }
-) {
+  context: { params: { courseId: string } }
+): Promise<NextResponse> {
   try {
-    // Verify user authentication
-    const { userId: clerkUserId } = await auth();
-    if (!clerkUserId) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { courseId } = params;
+    const { courseId } = context.params;
     console.log(`Fetching course details for course ${courseId}`);
 
     // Check if this is a demo physics course
@@ -420,14 +417,18 @@ export async function GET(
 
     // Return demo data for physics courses if available
     if (
-      params.courseId.startsWith("phys") &&
-      physicsCoursesData[params.courseId as keyof typeof physicsCoursesData]
+      context.params.courseId.startsWith("phys") &&
+      physicsCoursesData[
+        context.params.courseId as keyof typeof physicsCoursesData
+      ]
     ) {
       console.log(
-        `API route error, returning demo data for physics course ${params.courseId}`
+        `API route error, returning demo data for physics course ${context.params.courseId}`
       );
       return NextResponse.json(
-        physicsCoursesData[params.courseId as keyof typeof physicsCoursesData]
+        physicsCoursesData[
+          context.params.courseId as keyof typeof physicsCoursesData
+        ]
       );
     }
 

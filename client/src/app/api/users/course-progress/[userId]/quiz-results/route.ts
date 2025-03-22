@@ -2,22 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+  req: NextRequest,
+  context: { params: { userId: string } }
+): Promise<NextResponse> {
   try {
     // Verify user authentication
-    const { userId: clerkUserId } = await auth();
-    if (!clerkUserId) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    const { userId: currentUserId } = await auth();
+    if (!currentUserId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Get user ID from params
-    const userData = await params;
-    const userId = userData.userId;
+    const { userId } = context.params;
     console.log(`Fetching quiz results for user ${userId}`);
 
     // Debug output

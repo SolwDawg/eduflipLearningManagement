@@ -3,18 +3,16 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+  context: { params: { userId: string } }
+): Promise<NextResponse> {
   try {
     const { userId: currentUserId } = await auth();
 
     if (!currentUserId) {
-      return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
-        status: 401,
-      });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { userId } = params;
+    const { userId } = context.params;
 
     // Get user information from Clerk
     const user = await (await clerkClient()).users.getUser(userId);
@@ -34,8 +32,8 @@ export async function GET(
       JSON.stringify({
         message: "Failed to fetch user information",
         // Provide fallback information if user not found
-        id: params.userId,
-        name: `Student ${params.userId.substring(0, 8)}`,
+        id: context.params.userId,
+        name: `Student ${context.params.userId.substring(0, 8)}`,
         email: "",
         profileImage: "",
       }),
