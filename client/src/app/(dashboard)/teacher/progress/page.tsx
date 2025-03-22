@@ -18,10 +18,11 @@ import {
   BookOpen,
   MessageSquare,
   FileText,
+  RefreshCw,
 } from "lucide-react";
 import PageTitle from "@/components/PageTitle";
 import { Progress } from "@/components/ui/progress";
-import { getPlaceholderAnalytics } from "@/lib/studentProgressApi";
+import { StudentProgressAnalytics } from "@/lib/studentProgressApi";
 
 interface CourseProgress {
   id: string;
@@ -32,33 +33,74 @@ interface CourseProgress {
   materialAccessCount: number;
   quizAverage: number;
   discussionPostCount: number;
+  isPlaceholder: boolean;
 }
+
+// Add a function to create default analytics data
+const createDefaultAnalytics = (
+  courseId: string
+): StudentProgressAnalytics => ({
+  totalStudents: 0,
+  averageProgress: 0,
+  materialAccessData: {
+    totalAccesses: 0,
+    averageAccessesPerStudent: 0,
+    studentsWithNoAccess: 0,
+  },
+  quizData: {
+    averageScore: 0,
+    studentsWithNoQuizzes: 0,
+    completionRate: 0,
+  },
+  discussionData: {
+    totalPosts: 0,
+    averagePostsPerStudent: 0,
+    participationLevels: { high: 0, medium: 0, low: 0, none: 0 },
+  },
+  studentDetails: [],
+});
 
 const TeacherProgressPage = () => {
   const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get("/api/teacher/courses");
+  const fetchCourses = async (isRefresh = false) => {
+    try {
+      if (!isRefresh) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
 
-        // If no courses, use empty array
-        if (!response.data || response.data.length === 0) {
-          setCourses([]);
-          setLoading(false);
-          return;
-        }
+      // Fetch teacher's courses
+      const coursesResponse = await axios.get("/api/teacher/courses");
 
-        // Fetch additional analytics for each course
-        const coursesWithAnalytics = await Promise.all(
-          response.data.map(async (course: any) => {
-            try {
-              // Try to fetch real analytics
-              const analyticsResponse = await axios.get(
-                `/api/progress/analytics/course/${course.id}`
-              );
+      // If no courses, show empty state
+      if (!coursesResponse.data || coursesResponse.data.length === 0) {
+        console.log("No courses found for teacher");
+        setCourses([]);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+
+      console.log(`Found ${coursesResponse.data.length} courses for teacher`);
+
+      // Fetch additional analytics for each course
+      const coursesWithAnalytics = await Promise.all(
+        coursesResponse.data.map(async (course: any) => {
+          try {
+            // Try to fetch real analytics from backend
+            console.log(`Fetching analytics for course ${course.id}`);
+            const analyticsResponse = await axios.get(
+              `/api/progress/analytics/course/${course.id}`
+            );
+
+            // Validate response data
+            if (analyticsResponse.data && analyticsResponse.data.data) {
+              console.log(`Using real analytics data for course ${course.id}`);
               const analytics = analyticsResponse.data.data;
 
               return {
@@ -71,14 +113,13 @@ const TeacherProgressPage = () => {
                   analytics.materialAccessData?.totalAccesses || 0,
                 quizAverage: analytics.quizData?.averageScore || 0,
                 discussionPostCount: analytics.discussionData?.totalPosts || 0,
+                isPlaceholder: false,
               };
-            } catch (error) {
+            } else {
               console.warn(
-                `Using placeholder data for course ${course.id} - API not available`
+                `Empty or invalid analytics response for course ${course.id}, using placeholder data`
               );
-
-              // Use placeholder data if API fails
-              const placeholderData = getPlaceholderAnalytics(course.id);
+              const placeholderData = createDefaultAnalytics(course.id);
 
               return {
                 id: course.id,
@@ -90,20 +131,75 @@ const TeacherProgressPage = () => {
                   placeholderData.materialAccessData.totalAccesses,
                 quizAverage: placeholderData.quizData.averageScore,
                 discussionPostCount: placeholderData.discussionData.totalPosts,
+                isPlaceholder: true,
               };
             }
-          })
-        );
+          } catch (error) {
+            // More detailed error logging
+            if (axios.isAxiosError(error) && error.response) {
+              console.error(
+                `Failed to fetch analytics for course ${course.id}: HTTP ${error.response.status}`,
+                error.response.data || "No response data"
+              );
+            } else {
+              console.error(
+                `Failed to fetch analytics for course ${course.id}:`,
+                error
+              );
+            }
 
-        setCourses(coursesWithAnalytics);
-      } catch (error) {
+            // Use placeholder data if API fails
+            const placeholderData = createDefaultAnalytics(course.id);
+
+            return {
+              id: course.id,
+              title: course.title,
+              studentCount: placeholderData.totalStudents,
+              averageProgress: placeholderData.averageProgress,
+              completionRate: placeholderData.quizData.completionRate,
+              materialAccessCount:
+                placeholderData.materialAccessData.totalAccesses,
+              quizAverage: placeholderData.quizData.averageScore,
+              discussionPostCount: placeholderData.discussionData.totalPosts,
+              isPlaceholder: true,
+            };
+          }
+        })
+      );
+
+      setCourses(coursesWithAnalytics);
+    } catch (error) {
+      // More detailed error logging
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          console.error(
+            `Failed to fetch courses: HTTP ${error.response.status}`,
+            error.response.data || "No response data"
+          );
+        } else if (error.request) {
+          console.error(
+            "Failed to fetch courses: No response received",
+            error.request
+          );
+        } else {
+          console.error(`Failed to fetch courses: ${error.message}`);
+        }
+      } else {
         console.error("Failed to fetch courses:", error);
-        setCourses([]);
-      } finally {
-        setLoading(false);
       }
-    };
 
+      setCourses([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchCourses(true);
+  };
+
+  useEffect(() => {
     fetchCourses();
   }, []);
 
@@ -113,20 +209,34 @@ const TeacherProgressPage = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <PageTitle
-        title="Student Progress Analytics"
-        description="Monitor student progress, material access, quiz results, and discussion participation"
-      />
+      <div className="flex justify-between items-start mb-6">
+        <PageTitle
+          title="Phân tích tiến bộ của học sinh"
+          description="Theo dõi tiến độ của học sinh, quyền truy cập tài liệu, kết quả bài kiểm tra và sự tham gia thảo luận"
+        />
 
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={loading || refreshing}
+          className="mt-1"
+        >
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+          />
+          {refreshing ? "Đang làm mới..." : "Làm mới dữ liệu"}
+        </Button>
+      </div>
       {loading ? (
         <div className="flex justify-center my-10">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : courses.length === 0 ? (
         <div className="text-center py-10">
-          <h3 className="text-lg font-medium">No courses found</h3>
+          <h3 className="text-lg font-medium">Không tìm thấy khóa học</h3>
           <p className="text-muted-foreground mt-2">
-            Create a course to start tracking student progress
+            Tạo khóa học để bắt đầu theo dõi tiến độ học sinh
           </p>
         </div>
       ) : (
@@ -140,14 +250,14 @@ const TeacherProgressPage = () => {
                 <CardTitle>{course.title}</CardTitle>
                 <CardDescription className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
-                  <span>{course.studentCount} students enrolled</span>
+                  <span>{course.studentCount} học sinh đã đăng ký</span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Average Progress</span>
+                      <span>Tiến độ trung bình</span>
                       <span className="font-medium">
                         {Math.round(course.averageProgress)}%
                       </span>
@@ -157,7 +267,7 @@ const TeacherProgressPage = () => {
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Quiz Completion Rate</span>
+                      <span>Tỷ lệ hoàn thành bài kiểm tra</span>
                       <span className="font-medium">
                         {Math.round(course.completionRate)}%
                       </span>
@@ -166,27 +276,31 @@ const TeacherProgressPage = () => {
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 mt-4">
-                    <div className="flex flex-col items-center p-2 bg-slate-50 rounded-md">
+                    <div className="flex flex-col items-center p-2 rounded-md">
                       <BookOpen className="h-5 w-5 text-blue-500 mb-1" />
                       <span className="text-xs text-center">
-                        Material Views
+                        Lượt xem tài liệu
                       </span>
                       <span className="font-semibold">
                         {course.materialAccessCount}
                       </span>
                     </div>
 
-                    <div className="flex flex-col items-center p-2 bg-slate-50 rounded-md">
+                    <div className="flex flex-col items-center p-2 rounded-md">
                       <FileText className="h-5 w-5 text-green-500 mb-1" />
-                      <span className="text-xs text-center">Quiz Avg</span>
+                      <span className="text-xs text-center">
+                        Điểm trung bình bài kiểm tra
+                      </span>
                       <span className="font-semibold">
                         {Math.round(course.quizAverage)}%
                       </span>
                     </div>
 
-                    <div className="flex flex-col items-center p-2 bg-slate-50 rounded-md">
+                    <div className="flex flex-col items-center p-2 rounded-md">
                       <MessageSquare className="h-5 w-5 text-purple-500 mb-1" />
-                      <span className="text-xs text-center">Discussion</span>
+                      <span className="text-xs text-center">
+                        Số bài viết trong thảo luận
+                      </span>
                       <span className="font-semibold">
                         {course.discussionPostCount}
                       </span>
@@ -200,7 +314,7 @@ const TeacherProgressPage = () => {
                   >
                     <span className="flex items-center">
                       <BarChart className="mr-2 h-4 w-4" />
-                      View Detailed Analytics
+                      Xem phân tích chi tiết
                     </span>
                     <ChevronRight className="h-4 w-4" />
                   </Button>

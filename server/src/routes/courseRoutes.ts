@@ -9,6 +9,7 @@ import {
   getUploadVideoUrl,
   getUploadImageUrl,
   updateMeetLink,
+  searchCourses,
 } from "../controllers/courseController";
 import {
   getChapterComments,
@@ -26,6 +27,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.get("/", listCourses as RequestHandler);
+router.get("/search", searchCourses as RequestHandler);
 router.post("/", requireAuth(), createCourse as RequestHandler);
 
 router.get("/:courseId", getCourse as RequestHandler);

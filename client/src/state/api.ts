@@ -87,7 +87,13 @@ const customBaseQuery = async (
       const isQuizzesEndpoint =
         typeof args === "string"
           ? args.includes("/quizzes/course/")
-          : args.url.includes("/quizzes/course/");
+          : args.url?.includes("/quizzes/course/");
+
+      // Check if this is a search endpoint
+      const isSearchEndpoint =
+        typeof args === "string"
+          ? args.includes("/courses/search")
+          : args.url?.includes("/courses/search");
 
       // Check if this is a course progress endpoint
       const isCourseProgressEndpoint =
@@ -105,19 +111,24 @@ const customBaseQuery = async (
         result.error.status === 404 &&
         errorMessage.includes("Course progress not found");
 
+      // 2. Don't show errors for search with no results (404)
+      const isSearchWithNoResults =
+        isSearchEndpoint && result.error.status === 404;
+
       // Skip showing toast for certain errors
       if (
         !(isEnrolledCoursesEndpoint && result.error.status === 500) &&
         !(isCoursesEndpoint && result.error.status === 500) &&
         !(isQuizzesEndpoint && result.error.status === 500) &&
         !isCourseProgressNotFound && // Don't show toast for course progress not found
+        !isSearchWithNoResults && // Don't show toast for search with no results
         result.error.status !== "PARSING_ERROR" // Skip showing toast for parsing errors
       ) {
         toast.error(`Error: ${errorMessage}`);
       }
 
       // Log detailed error information (except for expected "not found" cases)
-      if (!isCourseProgressNotFound) {
+      if (!isCourseProgressNotFound && !isSearchWithNoResults) {
         console.error(
           `API Error (${result?.error?.status || "UNKNOWN"}):`,
           errorMessage || "Unknown message",
@@ -205,23 +216,33 @@ const customBaseQuery = async (
 
 export const api = createApi({
   baseQuery: customBaseQuery,
-  reducerPath: "api",
+  reducerPath: "adminApi",
   tagTypes: [
+    "Auth",
     "Courses",
-    "Users",
-    "UserCourseProgress",
+    "Course",
+    "Lectures",
+    "Lecture",
+    "Grade",
     "Grades",
+    "Enrollments",
+    "Users",
+    "Progress",
+    "UserCourseProgress",
+    "Discussions",
+    "Discussion",
     "Comments",
     "Quizzes",
-    "Course",
-    "CourseProgress",
-    "Enrollments",
-    "CourseProgressByChapter",
-    "EnrolledCourses",
     "Quiz",
+    "CourseProgress",
+    "EnrolledCourses",
     "QuizAttempt",
-    "Discussions",
     "Leaderboard",
+    "HomepageImages",
+    "UserCourses",
+    "StudyBuddies",
+    "ChatMessages",
+    "Conversations",
   ],
   endpoints: (build) => ({
     /* 
@@ -452,7 +473,7 @@ export const api = createApi({
     =============== 
     */
     getGrades: build.query<Grade[], void>({
-      query: () => `grades`,
+      query: () => `api/grades`,
       providesTags: ["Grades"],
       transformResponse: (response: any) => {
         if (!response) return [];
@@ -745,6 +766,117 @@ export const api = createApi({
         { type: "Quizzes", id: quizId },
       ],
     }),
+
+    // Homepage Images endpoints
+    getHomepageImages: build.query({
+      query: () => `api/homepage-images`,
+      providesTags: ["HomepageImages"],
+    }),
+
+    getHomepageImageById: build.query({
+      query: (imageId) => `api/homepage-images/${imageId}`,
+      providesTags: (result, error, imageId) => [
+        { type: "HomepageImages", id: imageId },
+      ],
+    }),
+
+    getUploadUrls: build.mutation({
+      query: (files) => ({
+        url: `api/homepage-images/upload-urls`,
+        method: "POST",
+        body: { files },
+      }),
+    }),
+
+    addHomepageImages: build.mutation({
+      query: (imageUrls) => ({
+        url: `api/homepage-images`,
+        method: "POST",
+        body: { imageUrls },
+      }),
+      invalidatesTags: ["HomepageImages"],
+    }),
+
+    updateHomepageImage: build.mutation({
+      query: ({ imageId, imageUrl }) => ({
+        url: `api/homepage-images/${imageId}`,
+        method: "PUT",
+        body: { imageUrl },
+      }),
+      invalidatesTags: (result, error, { imageId }) => [
+        { type: "HomepageImages", id: imageId },
+        "HomepageImages",
+      ],
+    }),
+
+    deleteHomepageImage: build.mutation({
+      query: (imageId) => ({
+        url: `api/homepage-images/${imageId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["HomepageImages"],
+    }),
+
+    searchCourses: build.query({
+      query: (searchTerm) => ({
+        url: `courses/search?query=${encodeURIComponent(searchTerm)}`,
+        method: "GET",
+      }),
+    }),
+
+    /* 
+    ===============
+    CHAT
+    =============== 
+    */
+    getUserConversations: build.query<any, void>({
+      query: () => ({
+        url: "chats/conversations",
+        method: "GET",
+      }),
+      providesTags: ["Conversations"],
+    }),
+
+    getConversationMessages: build.query<
+      any,
+      { courseId: string; userId: string }
+    >({
+      query: ({ courseId, userId }) => ({
+        url: `chats/conversations/${courseId}/${userId}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, { courseId, userId }) => [
+        { type: "ChatMessages", id: `${courseId}-${userId}` },
+      ],
+    }),
+
+    sendChatMessage: build.mutation<
+      any,
+      {
+        courseId: string;
+        recipientId: string;
+        content: string;
+        attachments?: string[];
+      }
+    >({
+      query: (body) => ({
+        url: "chats/messages",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { courseId, recipientId }) => [
+        { type: "ChatMessages", id: `${courseId}-${recipientId}` },
+        "Conversations",
+      ],
+    }),
+
+    markMessageAsRead: build.mutation<any, string>({
+      query: (messageId) => ({
+        url: `chats/messages/${messageId}/read`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["ChatMessages", "Conversations"],
+    }),
   }),
 });
 
@@ -782,4 +914,15 @@ export const {
   useUpdateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
   useGetMonthlyLeaderboardQuery,
+  useGetHomepageImagesQuery,
+  useGetHomepageImageByIdQuery,
+  useGetUploadUrlsMutation,
+  useAddHomepageImagesMutation,
+  useUpdateHomepageImageMutation,
+  useDeleteHomepageImageMutation,
+  useSearchCoursesQuery,
+  useGetUserConversationsQuery,
+  useGetConversationMessagesQuery,
+  useSendChatMessageMutation,
+  useMarkMessageAsReadMutation,
 } = api;

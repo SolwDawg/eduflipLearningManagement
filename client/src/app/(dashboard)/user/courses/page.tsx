@@ -59,18 +59,19 @@ const Courses = () => {
   };
 
   if (!isLoaded || isLoading) return <Loading />;
-  if (!user) return <div>Please sign in to view your courses.</div>;
+  if (!user)
+    return <div>Vui lòng đăng nhập để xem danh sách khóa học của bạn.</div>;
 
   if (isError) {
     console.error("Error fetching courses:", error);
     return (
       <div className="p-8 text-center">
         <h2 className="text-xl font-bold text-red-500 mb-2">
-          Error loading your courses
+          Lỗi khi tải danh sách khóa học của bạn
         </h2>
         <p className="mb-4">
-          There was a problem fetching your enrolled courses. Please try again
-          later.
+          Có lỗi xảy ra khi tải danh sách khóa học của bạn. Vui lòng thử lại
+          sau.
         </p>
         <Button onClick={() => window.location.reload()}>Refresh</Button>
       </div>
@@ -80,7 +81,10 @@ const Courses = () => {
   if (!courses || courses.length === 0) {
     return (
       <div className="p-8 text-center">
-        <Header title="My Courses" subtitle="View your enrolled courses" />
+        <Header
+          title="Khóa học của tôi"
+          subtitle="Xem khóa học đã đăng ký của bạn"
+        />
         <div className="py-12">
           <h2 className="text-xl font-semibold mb-4">
             Bạn chưa có khóa học nào
@@ -98,7 +102,10 @@ const Courses = () => {
 
   return (
     <div className="user-courses">
-      <Header title="My Courses" subtitle="View your enrolled courses" />
+      <Header
+        title="Khóa học của tôi"
+        subtitle="Xem khóa học đã đăng ký của bạn"
+      />
       {/* <Toolbar
         onSearch={setSearchTerm}
         onCategoryChange={setSelectedCategory}

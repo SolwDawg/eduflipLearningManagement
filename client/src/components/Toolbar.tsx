@@ -14,7 +14,7 @@ const Toolbar = ({ onSearch }: ToolbarProps) => {
         type="text"
         value={searchTerm}
         onChange={(e) => handleSearch(e.target.value)}
-        placeholder="Search courses"
+        placeholder="Tìm kiếm khóa học"
         className="toolbar__search"
       />
     </div>

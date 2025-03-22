@@ -1,97 +1,137 @@
-"use client";
-
 import React from "react";
 import { useGetMonthlyLeaderboardQuery } from "@/state/api";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, User } from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { Trophy } from "lucide-react";
 
-const LoadingSkeleton = () => {
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <Skeleton className="h-8 w-3/4" />
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center space-x-4">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-3 w-1/3" />
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
+interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  name: string;
+  avatarUrl: string;
+  totalScore: number;
+  coursesAccessed: number;
+  chaptersCompleted: number;
+}
+
+const TopRankIcon = ({ rank }: { rank: number }) => {
+  if (rank === 1) {
+    return <Trophy className="h-5 w-5 text-yellow-500" />;
+  }
+  if (rank === 2) {
+    return <Trophy className="h-5 w-5 text-gray-400" />;
+  }
+  if (rank === 3) {
+    return <Trophy className="h-5 w-5 text-amber-700" />;
+  }
+  return <span className="font-semibold">{rank}</span>;
 };
 
 const MonthlyLeaderboard = () => {
-  const { data: leaderboardData, isLoading } = useGetMonthlyLeaderboardQuery();
+  const { data, isLoading, error } = useGetMonthlyLeaderboardQuery();
 
-  if (isLoading) return <LoadingSkeleton />;
+  if (isLoading) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl text-center">
+            Đang tải bảng xếp hạng...
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 py-3 border-b last:border-0"
+            >
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-4 w-40 mb-2" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+              <Skeleton className="h-6 w-14" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
 
-  // If there's an error or no data, return nothing
-  if (!leaderboardData?.data || leaderboardData.data.length === 0) return null;
+  if (error) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl text-center">
+            Không thể tải bảng xếp hạng
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-red-500">
+            Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  // Get top 3 students only
-  const topStudents = leaderboardData.data.slice(0, 3);
+  const leaderboard: LeaderboardEntry[] = data?.data || [];
+  const month = data?.month || "tháng này";
+  const year = data?.year || new Date().getFullYear();
+
+  if (leaderboard.length === 0) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl text-center">{`Bảng xếp hạng ${month} ${year}`}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-gray-500 py-4">
+            Chưa có dữ liệu xếp hạng cho tháng này. Hãy là người đầu tiên hoàn
+            thành các bài học!
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="w-full max-w-md shadow-md">
+    <Card className="w-full max-w-2xl mx-auto">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center justify-between">
-          <span className="text-xl font-bold">
-            Bảng xếp hạng tháng {leaderboardData.month} {leaderboardData.year}
-          </span>
-          <Trophy className="h-6 w-6 text-yellow-500" />
-        </CardTitle>
+        <CardTitle className="text-xl text-center">{`Bảng xếp hạng ${month} ${year}`}</CardTitle>
       </CardHeader>
-      <CardContent className="pt-4">
-        {topStudents.map((student: any, index: number) => (
+      <CardContent>
+        {leaderboard.map((entry) => (
           <div
-            key={student.userId}
-            className={cn(
-              "flex items-center p-3 rounded-lg mb-3",
-              index === 0
-                ? "bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-200"
-                : index === 1
-                ? "bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200"
-                : index === 2
-                ? "bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200"
+            key={entry.userId}
+            className={`flex items-center gap-3 py-3 border-b last:border-0 ${
+              entry.rank <= 3
+                ? "bg-gradient-to-r from-transparent to-amber-50/30 px-2 rounded-lg"
                 : ""
-            )}
+            }`}
           >
-            <div
-              className={cn(
-                "relative flex-shrink-0 w-10 h-10 rounded-full mr-4 flex items-center justify-center text-white font-bold",
-                index === 0
-                  ? "bg-yellow-500"
-                  : index === 1
-                  ? "bg-slate-400"
-                  : "bg-amber-600"
-              )}
-            >
-              {index + 1}
+            <div className="flex items-center justify-center h-8 w-8">
+              <TopRankIcon rank={entry.rank} />
             </div>
-            <div className="flex-shrink-0 relative h-12 w-12 rounded-full overflow-hidden border-2 border-white">
-              <Image
-                src={student.avatarUrl || "/default-avatar.png"}
-                alt={student.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="ml-3 flex-1">
-              <h3 className="font-semibold text-sm">{student.name}</h3>
-              <div className="flex text-xs text-gray-500 mt-1 space-x-3">
-                <span>{student.totalScore} điểm</span>
-                <span>{student.chaptersCompleted} bài học</span>
+
+            <Avatar className="h-10 w-10 border-2 border-primary/10">
+              <AvatarImage src={entry.avatarUrl} alt={entry.name} />
+              <AvatarFallback>{entry.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1">
+              <p className="font-medium">{entry.name}</p>
+              <div className="flex gap-2 text-xs text-gray-500">
+                <span>{entry.chaptersCompleted} chương hoàn thành</span>
+                <span>•</span>
+                <span>{entry.coursesAccessed} khóa học</span>
               </div>
             </div>
+
+            <Badge variant="secondary" className="ml-auto">
+              {entry.totalScore} điểm
+            </Badge>
           </div>
         ))}
       </CardContent>

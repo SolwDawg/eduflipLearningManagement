@@ -51,11 +51,11 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
     if (!useGoogleViewer) {
       // If Microsoft viewer fails, try Google viewer
       setUseGoogleViewer(true);
-      toast.info("Switching to alternative viewer...");
+      toast.info("Đang chuyển sang trình xem thay thế...");
     } else {
       // If both viewers fail, show error
       setError(true);
-      toast.error("Unable to display presentation. Try downloading instead.");
+      toast.error("Không thể hiển thị bài trình bày. Hãy tải xuống thay thế.");
     }
     setLoading(false);
   };
@@ -69,7 +69,9 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
     setLoading(true);
     setError(false);
     toast.info(
-      `Switching to ${useGoogleViewer ? "Microsoft" : "Google"} viewer...`
+      `Đang chuyển sang trình xem ${
+        useGoogleViewer ? "Microsoft" : "Google"
+      }...`
     );
   };
 
@@ -84,7 +86,7 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
           className="text-xs"
         >
           <RefreshCcw className="w-3 h-3 mr-1" />
-          Try {useGoogleViewer ? "Microsoft" : "Google"} Viewer
+          Thử {useGoogleViewer ? "Microsoft" : "Google"}
         </Button>
 
         <Button
@@ -94,7 +96,7 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
           className="text-xs"
         >
           <FileDown className="w-3 h-3 mr-1" />
-          Download
+          Tải xuống
         </Button>
 
         <Button
@@ -104,7 +106,7 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
           className="text-xs"
         >
           <ExternalLink className="w-3 h-3 mr-1" />
-          Open in New Tab
+          Mở trong tab mới
         </Button>
       </div>
 
@@ -113,7 +115,7 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
         <div className="flex items-center justify-center h-20 bg-muted/20">
           <div className="loader"></div>
           <p className="ml-2 text-sm text-muted-foreground">
-            Loading presentation...
+            Đang tải bài trình bày...
           </p>
         </div>
       )}
@@ -122,19 +124,18 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
       {error && (
         <div className="flex flex-col items-center justify-center p-6 border rounded-md bg-muted/10 h-[300px]">
           <div className="text-destructive mb-4 text-lg">
-            Unable to display presentation
+            Không thể hiển thị bài trình bày
           </div>
           <p className="text-sm text-muted-foreground mb-4 text-center">
-            The presentation viewer cannot access this file. This might be
-            because the file is not publicly accessible or the format is not
-            supported.
+            Trình xem bài trình bày không thể truy cập tệp này. Điều này có thể
+            do tệp không công khai hoặc định dạng không được hỗ trợ.
           </p>
           <Button
             onClick={() => window.open(fileUrl, "_blank")}
             variant="default"
           >
             <FileDown className="w-4 h-4 mr-2" />
-            Download Presentation Instead
+            Tải xuống bài trình bày thay thế
           </Button>
         </div>
       )}
@@ -146,7 +147,7 @@ const PowerPointViewer: React.FC<PowerPointViewerProps> = ({
           width={width}
           height={height}
           frameBorder="0"
-          title="PowerPoint Presentation"
+          title="Bài trình bày PowerPoint"
           className="rounded-md border"
           allowFullScreen
           onError={handleIframeError}

@@ -66,7 +66,7 @@ export default function ChapterComments({
       await refetch();
     } catch (error) {
       console.error("Failed to add comment:", error);
-      toast.error("Failed to add comment. Please try again.");
+      toast.error("Không thể thêm bình luận. Vui lòng thử lại.");
     }
   };
 
@@ -79,11 +79,11 @@ export default function ChapterComments({
         commentId,
       }).unwrap();
 
-      toast.success("Comment deleted successfully");
+      toast.success("Bình luận đã được xóa thành công");
       await refetch();
     } catch (error) {
-      console.error("Failed to delete comment:", error);
-      toast.error("Failed to delete comment. Please try again.");
+      console.error("Không thể xóa bình luận:", error);
+      toast.error("Không thể xóa bình luận. Vui lòng thử lại.");
     }
   };
 
@@ -124,7 +124,7 @@ export default function ChapterComments({
             className="resize-none min-h-[80px]"
           />
           <p className="text-xs text-muted-foreground mt-1">
-            Press Ctrl+Enter to submit
+            Nhấn Ctrl+Enter để gửi
           </p>
 
           <div className="flex justify-end">
@@ -139,7 +139,7 @@ export default function ChapterComments({
               ) : (
                 <Send className="h-3 w-3" />
               )}
-              Comment
+              Gửi
             </Button>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function ChapterComments({
         ) : comments?.length === 0 ? (
           <Card>
             <CardContent className="p-4 text-center text-muted-foreground">
-              No comments yet. Be the first to comment!
+              Chưa có bình luận. Hãy là người đầu tiên bình luận!
             </CardContent>
           </Card>
         ) : (
@@ -168,7 +168,7 @@ export default function ChapterComments({
                 <div className="bg-muted rounded-lg p-3">
                   <div className="flex justify-between items-center mb-1">
                     <div className="font-medium text-sm">
-                      {comment.userId === user?.id ? "You" : "User"}
+                      {comment.userId === user?.id ? "Bạn" : "Người dùng"}
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-xs text-muted-foreground">
@@ -196,7 +196,7 @@ export default function ChapterComments({
                               className="text-destructive focus:text-destructive"
                             >
                               <Trash2 className="h-3 w-3 mr-2" />
-                              Delete
+                              Xóa
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -65,67 +65,38 @@ export interface StudentProgressDetails {
   participationLevel: string;
 }
 
-// Placeholder analytics data for development/testing
-export const getPlaceholderAnalytics = (
-  courseId: string
-): StudentProgressAnalytics => ({
-  totalStudents: 25,
-  averageProgress: 68,
-  materialAccessData: {
-    totalAccesses: 342,
-    averageAccessesPerStudent: 13.7,
-    studentsWithNoAccess: 2,
-  },
-  quizData: {
-    averageScore: 78,
-    studentsWithNoQuizzes: 3,
-    completionRate: 85,
-  },
-  discussionData: {
-    totalPosts: 89,
-    averagePostsPerStudent: 3.6,
-    participationLevels: {
-      high: 7,
-      medium: 9,
-      low: 6,
-      none: 3,
-    },
-  },
-  studentDetails: Array(25)
-    .fill(0)
-    .map((_, i) => ({
-      userId: `student_${i + 1}`,
-      progress: Math.floor(Math.random() * 100),
-      materialAccesses: Math.floor(Math.random() * 30),
-      quizAverage: Math.floor(Math.random() * 100),
-      participationLevel: ["High", "Medium", "Low", "None"][
-        Math.floor(Math.random() * 4)
-      ],
-      lastAccessed: new Date(
-        Date.now() - Math.floor(Math.random() * 14 * 24 * 60 * 60 * 1000)
-      ).toISOString(),
-    })),
-});
+export interface QuizResultSummary {
+  quizId: string;
+  score: number;
+  totalQuestions: number;
+  completionDate: string;
+  attemptCount: number;
+  courseId: string;
+}
+
+export interface ProgressSummary {
+  enrolledCourses: number;
+  completedQuizzes: number;
+  achievements: number;
+  courseProgress: CourseProgressItem[];
+}
+
+export interface CourseProgressItem {
+  courseId: string;
+  title: string;
+  enrollmentDate: string;
+  progress: number;
+}
 
 // API service functions
 export const fetchCourseProgressAnalytics = async (
   courseId: string
 ): Promise<StudentProgressAnalytics> => {
   try {
-    // First try to fetch from actual API
-    try {
-      const response = await axios.get(
-        `/api/progress/analytics/course/${courseId}`
-      );
-      return response.data.data;
-    } catch (error) {
-      console.warn(
-        "Using placeholder data for course analytics - API not available:",
-        error
-      );
-      // Fall back to placeholder data if API fails
-      return getPlaceholderAnalytics(courseId);
-    }
+    const response = await axios.get(
+      `/api/progress/analytics/course/${courseId}`
+    );
+    return response.data.data;
   } catch (error) {
     console.error("Error fetching course progress analytics:", error);
     throw error;
@@ -143,113 +114,8 @@ export const fetchStudentProgressDetails = async (
     return response.data.data;
   } catch (error) {
     console.error("Error fetching student progress details:", error);
-    // Return placeholder data if API call fails
-    return getPlaceholderStudentDetails(userId, courseId);
+    throw error;
   }
-};
-
-// Placeholder student details for development/testing
-export const getPlaceholderStudentDetails = (
-  userId: string,
-  courseId: string
-): StudentProgressDetails => {
-  return {
-    userId,
-    courseId,
-    overallProgress: 68,
-    enrollmentDate: new Date(
-      Date.now() - 30 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-    lastAccessed: new Date().toISOString(),
-    materialAccessCount: 15,
-    chapters: [
-      {
-        chapterId: "chapter1",
-        completed: true,
-        accessCount: 5,
-        lastAccessDate: new Date(
-          Date.now() - 2 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-      {
-        chapterId: "chapter2",
-        completed: true,
-        accessCount: 3,
-        lastAccessDate: new Date(
-          Date.now() - 25 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-      {
-        chapterId: "chapter3",
-        completed: true,
-        accessCount: 4,
-        lastAccessDate: new Date(
-          Date.now() - 15 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-      {
-        chapterId: "chapter4",
-        completed: false,
-        accessCount: 2,
-        lastAccessDate: new Date(
-          Date.now() - 10 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-      {
-        chapterId: "chapter5",
-        completed: false,
-        accessCount: 1,
-        lastAccessDate: new Date(
-          Date.now() - 5 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-    ],
-    quizResults: [
-      {
-        quizId: "quiz1",
-        score: 8,
-        totalQuestions: 10,
-        completionDate: new Date(
-          Date.now() - 20 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        attemptCount: 1,
-      },
-      {
-        quizId: "quiz2",
-        score: 7,
-        totalQuestions: 10,
-        completionDate: new Date(
-          Date.now() - 10 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        attemptCount: 1,
-      },
-    ],
-    averageQuizScore: 75,
-    discussionActivity: [
-      {
-        discussionId: "discussion1",
-        postsCount: 2,
-        lastActivityDate: new Date(
-          Date.now() - 28 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-      {
-        discussionId: "discussion2",
-        postsCount: 3,
-        lastActivityDate: new Date(
-          Date.now() - 18 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-      {
-        discussionId: "discussion3",
-        postsCount: 1,
-        lastActivityDate: new Date(
-          Date.now() - 8 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-      },
-    ],
-    participationLevel: "Medium",
-  };
 };
 
 export const trackMaterialAccess = async (
@@ -310,5 +176,98 @@ export const trackDiscussionActivity = async (
   } catch (error) {
     console.error("Error tracking discussion activity:", error);
     throw error;
+  }
+};
+
+export const getUserQuizResults = async (
+  userId: string
+): Promise<QuizResultSummary[]> => {
+  try {
+    // Use the route that matches the registered server endpoint
+    const url = `/api/users/course-progress/${userId}/quiz-results`;
+    console.log("Fetching quiz results from URL:", url);
+
+    const response = await axios.get(url);
+    console.log("Quiz results raw response:", response.data);
+
+    // If the response is completely empty or null
+    if (!response.data) {
+      console.log("Empty response from quiz results API");
+      return [];
+    }
+
+    // If response has the expected structure with data property containing array
+    if (response.data.data && Array.isArray(response.data.data)) {
+      console.log(`Found ${response.data.data.length} quiz results`);
+      return response.data.data;
+    }
+
+    // If data is directly an array (fallback for unexpected structure)
+    if (Array.isArray(response.data)) {
+      console.log("Response data is directly an array, using it");
+      return response.data;
+    }
+
+    // If data exists but is an empty object
+    if (
+      typeof response.data === "object" &&
+      Object.keys(response.data).length === 0
+    ) {
+      console.log("Response data is an empty object, returning empty array");
+      return [];
+    }
+
+    // If data exists but not in expected format
+    console.error("Unexpected response format:", response.data);
+    return [];
+  } catch (error) {
+    console.error("Error getting user quiz results:", error);
+    return [];
+  }
+};
+
+// New interface for student quiz results
+export interface StudentQuizResult extends QuizResultSummary {
+  userId: string;
+  studentName?: string;
+}
+
+// Get all quiz results for a course (teacher view)
+export const getCourseQuizResults = async (
+  courseId: string
+): Promise<{
+  allResults: StudentQuizResult[];
+  byQuiz: { [quizId: string]: StudentQuizResult[] };
+}> => {
+  try {
+    const response = await axios.get(
+      `/api/progress/analytics/course/${courseId}/quiz-results`
+    );
+
+    if (!response.data || !response.data.data) {
+      return { allResults: [], byQuiz: {} };
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error getting course quiz results:", error);
+    return { allResults: [], byQuiz: {} };
+  }
+};
+
+export const getUserProgressSummary = async (
+  userId: string
+): Promise<ProgressSummary> => {
+  try {
+    const response = await axios.get(`/api/progress/${userId}/summary`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error getting user progress summary:", error);
+    return {
+      enrolledCourses: 0,
+      completedQuizzes: 0,
+      achievements: 0,
+      courseProgress: [],
+    };
   }
 };

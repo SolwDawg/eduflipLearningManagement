@@ -39,6 +39,14 @@ const NonDashboardNavbar = () => {
             <Bell className="nondashboard-navbar__notification-icon" />
           </button>
 
+          <Link
+            href="/user/dashboard"
+            className="nondashboard-navbar__auth-button--signup"
+            scroll={false}
+          >
+            Dashboard
+          </Link>
+
           <SignedIn>
             <UserButton
               appearance={{
@@ -61,14 +69,14 @@ const NonDashboardNavbar = () => {
               className="nondashboard-navbar__auth-button--login"
               scroll={false}
             >
-              {"auth.signIn"}
+              Đặng Nhập
             </Link>
             <Link
               href="/signup"
               className="nondashboard-navbar__auth-button--signup"
               scroll={false}
             >
-              {"auth.signUp"}
+              Đăng ký
             </Link>
           </SignedOut>
         </div>

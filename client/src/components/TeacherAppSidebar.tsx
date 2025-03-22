@@ -33,8 +33,8 @@ const AppSidebar = () => {
 
   const navLinks = {
     teacher: [
-      { icon: BookOpen, label: "Courses", href: "/teacher/courses" },
-      { icon: Briefcase, label: "Grades", href: "/teacher/grades" },
+      { icon: BookOpen, label: "Khóa học", href: "/teacher/courses" },
+      { icon: Briefcase, label: "Lớp học", href: "/teacher/grades" },
       { icon: User, label: "Hồ sơ", href: "/teacher/profile" },
       { icon: Settings, label: "Cài đặt", href: "/teacher/settings" },
     ],
@@ -130,6 +130,11 @@ const AppSidebar = () => {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/">
+                <span>Trang chủ</span>
+              </Link>
+            </SidebarMenuButton>
             <SidebarMenuButton asChild>
               <button
                 onClick={() => signOut()}

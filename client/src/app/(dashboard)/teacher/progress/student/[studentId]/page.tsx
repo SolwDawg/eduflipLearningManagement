@@ -109,22 +109,37 @@ const StudentProgressPage = () => {
             const courseResponse = await axios.get(
               `/api/teacher/courses/${courseId}`
             );
-            setCourse(courseResponse.data);
+            if (courseResponse.data) {
+              setCourse(courseResponse.data);
+            } else {
+              console.warn("Empty course data received");
+              setCourse({ id: courseId, title: "Course Details" });
+            }
           } catch (courseError) {
-            console.warn("Could not fetch course details");
+            console.error("Could not fetch course details:", courseError);
             setCourse({ id: courseId, title: "Course Details" });
           }
+        } else {
+          setError("Missing course ID parameter");
+          return;
         }
 
         // Fetch student progress details
-        const progressResponse = await axios.get(
-          `/api/progress/analytics/course/${courseId}/student/${studentId}`
-        );
+        try {
+          const progressResponse = await axios.get(
+            `/api/progress/analytics/course/${courseId}/student/${studentId}`
+          );
 
-        if (progressResponse.data && progressResponse.data.data) {
-          setStudent(progressResponse.data.data);
-        } else {
-          setError("No student progress data found");
+          if (progressResponse.data && progressResponse.data.data) {
+            console.log("Student progress data received from backend");
+            setStudent(progressResponse.data.data);
+          } else {
+            console.error("Invalid or empty student progress data received");
+            setError("No valid student progress data found");
+          }
+        } catch (progressError) {
+          console.error("Failed to fetch student progress:", progressError);
+          setError("Could not load student progress data from backend");
         }
       } catch (error) {
         console.error("Failed to fetch student progress:", error);
@@ -178,11 +193,14 @@ const StudentProgressPage = () => {
     return (
       <div className="container mx-auto p-6">
         <div className="flex flex-col items-center justify-center h-64">
-          <h2 className="text-xl font-semibold text-red-500 mb-2">Error</h2>
-          <p className="text-gray-600">{error}</p>
+          <h2 className="text-xl font-semibold text-red-500 mb-2">Lỗi</h2>
+          <p className="text-gray-600 mb-2">{error}</p>
+          <p className="text-sm text-gray-500 mb-4">
+            Vui lòng kiểm tra kết nối mạng và đảm bảo backend API đang chạy.
+          </p>
           <Button className="mt-4" onClick={handleBackToCourse}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Course
+            Quay lại khóa học
           </Button>
         </div>
       </div>
@@ -194,7 +212,7 @@ const StudentProgressPage = () => {
       <div className="mb-6">
         <Button variant="ghost" onClick={handleBackToCourse}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to {course?.title || "Course"}
+          Quay lại {course?.title || "Khóa học"}
         </Button>
       </div>
 
@@ -203,7 +221,7 @@ const StudentProgressPage = () => {
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
               <User className="mr-2 h-5 w-5 text-primary" />
-              Student Profile
+              Hồ sơ học sinh
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -227,7 +245,7 @@ const StudentProgressPage = () => {
               <div>
                 <h4 className="text-sm font-medium flex items-center">
                   <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Enrolled
+                  Đã đăng ký
                 </h4>
                 <p className="text-sm pl-6">
                   {formatDate(student?.enrollmentDate)}
@@ -237,7 +255,7 @@ const StudentProgressPage = () => {
               <div>
                 <h4 className="text-sm font-medium flex items-center">
                   <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Last Activity
+                  Lần truy cập cuối
                 </h4>
                 <p className="text-sm pl-6">
                   {formatDateTime(student?.lastAccessDate)}
@@ -247,7 +265,7 @@ const StudentProgressPage = () => {
               <div>
                 <h4 className="text-sm font-medium flex items-center">
                   <MessageSquare className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Participation Level
+                  Mức tham gia
                 </h4>
                 <p className="text-sm pl-6">
                   <span
@@ -269,7 +287,7 @@ const StudentProgressPage = () => {
               <div>
                 <h4 className="text-sm font-medium flex items-center">
                   <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Material Views
+                  Lượt xem tài liệu
                 </h4>
                 <p className="text-sm pl-6">
                   {student?.totalMaterialAccessCount || 0} views
@@ -279,12 +297,12 @@ const StudentProgressPage = () => {
               <div>
                 <h4 className="text-sm font-medium flex items-center">
                   <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Average Quiz Score
+                  Điểm trung bình bài kiểm tra
                 </h4>
                 <p className="text-sm pl-6">
                   {student?.averageQuizScore
                     ? `${Math.round(student.averageQuizScore)}%`
-                    : "No quizzes taken"}
+                    : "Không làm bài kiểm tra"}
                 </p>
               </div>
             </div>
@@ -293,9 +311,9 @@ const StudentProgressPage = () => {
 
         <Card className="w-full md:w-2/3">
           <CardHeader>
-            <CardTitle className="text-lg">Course Progress</CardTitle>
+            <CardTitle className="text-lg">Tiến độ khóa học</CardTitle>
             <CardDescription>
-              Overall progress: {Math.round(student?.overallProgress || 0)}%
+              Tiến độ chung: {Math.round(student?.overallProgress || 0)}%
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -306,9 +324,9 @@ const StudentProgressPage = () => {
 
             <Tabs defaultValue="overview" className="mt-6">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="materials">Materials</TabsTrigger>
-                <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+                <TabsTrigger value="overview">Tổng quan</TabsTrigger>
+                <TabsTrigger value="materials">Tài liệu</TabsTrigger>
+                <TabsTrigger value="quizzes">Bài kiểm tra</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="pt-4">
@@ -318,7 +336,7 @@ const StudentProgressPage = () => {
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm flex items-center">
                           <BookOpen className="mr-2 h-4 w-4 text-primary" />
-                          Materials
+                          Tài liệu
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -326,7 +344,7 @@ const StudentProgressPage = () => {
                           {student?.totalMaterialAccessCount || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Total views
+                          Tổng lượt xem tài liệu
                         </p>
                       </CardContent>
                     </Card>
@@ -335,7 +353,7 @@ const StudentProgressPage = () => {
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm flex items-center">
                           <FileText className="mr-2 h-4 w-4 text-blue-500" />
-                          Quizzes
+                          Bài kiểm tra
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -343,7 +361,7 @@ const StudentProgressPage = () => {
                           {student?.quizResults?.length || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Attempts
+                          Lần làm bài
                         </p>
                       </CardContent>
                     </Card>
@@ -352,7 +370,7 @@ const StudentProgressPage = () => {
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm flex items-center">
                           <MessageSquare className="mr-2 h-4 w-4 text-green-500" />
-                          Discussions
+                          Thảo luận
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -364,7 +382,7 @@ const StudentProgressPage = () => {
                           ) || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Total posts
+                          Tổng bài viết
                         </p>
                       </CardContent>
                     </Card>
@@ -372,9 +390,7 @@ const StudentProgressPage = () => {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm">
-                        Section Progress
-                      </CardTitle>
+                      <CardTitle className="text-sm">Tiến độ Chương</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
@@ -401,9 +417,9 @@ const StudentProgressPage = () => {
               <TabsContent value="materials" className="pt-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Material Access</CardTitle>
+                    <CardTitle className="text-sm">Lượt xem tài liệu</CardTitle>
                     <CardDescription>
-                      Phân tích chi tiết về truy cập tài liệu của sinh viên
+                      Phân tích chi tiết về lượt xem tài liệu của học sinh
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -412,10 +428,10 @@ const StudentProgressPage = () => {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Chapter</TableHead>
-                              <TableHead>Views</TableHead>
-                              <TableHead>Last Accessed</TableHead>
-                              <TableHead>Status</TableHead>
+                              <TableHead>Chương</TableHead>
+                              <TableHead>Lượt xem</TableHead>
+                              <TableHead>Lần truy cập cuối</TableHead>
+                              <TableHead>Trạng thái</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -438,8 +454,8 @@ const StudentProgressPage = () => {
                                       }`}
                                     >
                                       {chapter.completed
-                                        ? "Completed"
-                                        : "In Progress"}
+                                        ? "Đã hoàn thành"
+                                        : "Đang tiến hành"}
                                     </span>
                                   </TableCell>
                                 </TableRow>
@@ -450,7 +466,7 @@ const StudentProgressPage = () => {
                       </div>
                     ) : (
                       <div className="text-center py-6 text-muted-foreground">
-                        No material access data available
+                        Không có dữ liệu lượt xem tài liệu
                       </div>
                     )}
                   </CardContent>
@@ -460,9 +476,11 @@ const StudentProgressPage = () => {
               <TabsContent value="quizzes" className="pt-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Kết quả thi</CardTitle>
+                    <CardTitle className="text-sm">
+                      Kết quả bài kiểm tra
+                    </CardTitle>
                     <CardDescription>
-                      Kết quả thi của sinh viên trong khóa học
+                      Kết quả bài kiểm tra của học sinh trong khóa học này
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -471,9 +489,9 @@ const StudentProgressPage = () => {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Quiz</TableHead>
-                              <TableHead>Score</TableHead>
-                              <TableHead>Date Taken</TableHead>
+                              <TableHead>Bài kiểm tra</TableHead>
+                              <TableHead>Điểm</TableHead>
+                              <TableHead>Ngày làm bài</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -508,7 +526,7 @@ const StudentProgressPage = () => {
                       </div>
                     ) : (
                       <div className="text-center py-6 text-muted-foreground">
-                        No quiz results available
+                        Không có kết quả bài kiểm tra
                       </div>
                     )}
                   </CardContent>
@@ -523,7 +541,7 @@ const StudentProgressPage = () => {
         <CardHeader>
           <CardTitle className="text-lg flex items-center">
             <MessageSquare className="mr-2 h-5 w-5 text-primary" />
-            Discussion Activity
+            Hoạt động thảo luận
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -532,9 +550,9 @@ const StudentProgressPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Discussion Topic</TableHead>
-                    <TableHead>Posts</TableHead>
-                    <TableHead>Last Activity</TableHead>
+                    <TableHead>Chủ đề thảo luận</TableHead>
+                    <TableHead>Bài viết</TableHead>
+                    <TableHead>Lần truy cập cuối</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -554,7 +572,7 @@ const StudentProgressPage = () => {
             </div>
           ) : (
             <div className="text-center py-6 text-muted-foreground">
-              No discussion activity available
+              Không có hoạt động thảo luận
             </div>
           )}
         </CardContent>

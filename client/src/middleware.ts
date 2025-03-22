@@ -6,13 +6,11 @@ const isStudentRoute = createRouteMatcher(["/user/(.*)"]);
 const isTeacherRoute = createRouteMatcher(["/teacher/(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // LOCALIZATION DISABLED: Skip all locale redirects
-  // Only handle role-based redirects
-
   // Proceed with user authentication and role checks
   const { sessionClaims } = await auth();
+  console.log("sessionClaims", sessionClaims);
   const userRole =
-    (sessionClaims?.metadata as { userType: "student" | "teacher" })
+    (sessionClaims?.publicMetadata as { userType?: "student" | "teacher" })
       ?.userType || "student";
 
   console.log("userRole", userRole);

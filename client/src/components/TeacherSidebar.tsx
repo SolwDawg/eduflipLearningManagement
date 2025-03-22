@@ -20,6 +20,10 @@ import {
   Settings,
   User,
   BarChart,
+  Image as ImageIcon,
+  MessageSquare,
+  ListChecks,
+  Users,
 } from "lucide-react";
 import Loading from "./Loading";
 import Image from "next/image";
@@ -37,8 +41,12 @@ const TeacherSidebar = () => {
     { icon: Briefcase, label: "Lớp", href: "/teacher/grades" },
     { icon: User, label: "Hồ sơ", href: "/teacher/profile" },
     { icon: Settings, label: "Cài đặt", href: "/teacher/settings" },
-    { icon: Presentation, label: "Materials", href: "/teacher/materials" },
-    { icon: BarChart, label: "Progress", href: "/teacher/progress" },
+    {
+      icon: ImageIcon,
+      label: "Hình ảnh trang chủ",
+      href: "/teacher/homepage-images",
+    },
+    // { icon: MessageSquare, label: "Messages", href: "/teacher/messages" },
   ];
 
   if (!isLoaded) return <Loading />;

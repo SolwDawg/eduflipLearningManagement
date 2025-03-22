@@ -1416,3 +1416,35 @@ input[type="color"] {
     width: 100%;
   }
 }
+
+/* Dashboard Layout */
+.dashboard-layout__header {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+
+.dashboard-layout__header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-layout__header-left {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-layout__header-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.dashboard-layout__header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

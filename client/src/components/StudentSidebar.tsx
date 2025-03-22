@@ -28,6 +28,7 @@ import {
   PackageCheck,
   Settings2,
   Users,
+  MessageSquare,
 } from "lucide-react";
 import Loading from "./Loading";
 import Image from "next/image";
@@ -41,7 +42,9 @@ const StudentSidebar = () => {
   const { toggleSidebar } = useSidebar();
 
   const studentNavLinks = [
-    { icon: BookOpen, label: "Courses", href: "/user/courses" },
+    { icon: BookOpen, label: "Khoá học", href: "/user/courses" },
+    { icon: BarChart, label: "Tiến độ", href: "/user/progress" },
+    // { icon: MessageSquare, label: "Tin nhắn", href: "/student/messages" },
     { icon: User, label: "Hồ sơ", href: "/user/profile" },
     { icon: Settings, label: "Cài đặt", href: "/user/settings" },
   ];
@@ -55,6 +58,7 @@ const StudentSidebar = () => {
         { href: "/user/enrolled", label: "My Courses", icon: GraduationCap },
         { href: "/user/schedule", label: "My Schedule", icon: CalendarCheck },
         { href: "/user/progress", label: "My Progress", icon: BarChart },
+        { href: "/student/messages", label: "Messages", icon: MessageSquare },
       ],
     },
   ];
@@ -140,6 +144,11 @@ const StudentSidebar = () => {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/" className="app-sidebar__signout">
+                <span>Trang chủ</span>
+              </Link>
+            </SidebarMenuButton>
             <SidebarMenuButton asChild>
               <button
                 onClick={() => signOut()}

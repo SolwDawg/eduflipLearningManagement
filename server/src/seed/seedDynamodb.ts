@@ -10,8 +10,10 @@ import pluralize from "pluralize";
 import Course from "../models/courseModel";
 import UserCourseProgress from "../models/userCourseProgressModel";
 import Grade from "../models/gradeModel";
+import { HomepageImage } from "../models/homepageImageModel";
 import dotenv from "dotenv";
 import seedGrades from "./gradeSeeder";
+import seedHomepageImages from "./homepageImageSeeder";
 
 dotenv.config();
 let client: DynamoDBClient;
@@ -143,6 +145,7 @@ export default async function seed() {
 
   // Seed grades
   await seedGrades();
+  await seedHomepageImages();
 }
 
 if (require.main === module) {

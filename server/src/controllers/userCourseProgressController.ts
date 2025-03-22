@@ -775,3 +775,139 @@ export const getStudentProgressDetails = async (
       .json({ message: "Failed to fetch student progress details" });
   }
 };
+
+export const getUserQuizResults = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId } = req.params;
+
+  try {
+    console.log(`Fetching quiz results for user ${userId}`);
+
+    // Get all progress records for this user
+    const progressRecords = await UserCourseProgress.query("userId")
+      .eq(userId)
+      .exec();
+
+    console.log(
+      `Found ${
+        progressRecords?.length || 0
+      } progress records for user ${userId}`
+    );
+
+    if (!progressRecords || progressRecords.length === 0) {
+      console.log(
+        `No progress records found for user ${userId}, returning empty array`
+      );
+      res.status(200).json({
+        message: "No progress records found for this user",
+        data: [],
+      });
+      return;
+    }
+
+    // Compile all quiz results from all courses
+    const allQuizResults = progressRecords.reduce(
+      (results: any[], record: any) => {
+        if (record.quizResults && record.quizResults.length > 0) {
+          // Add course information to each quiz result
+          const quizResultsWithCourse = record.quizResults.map(
+            (result: any) => ({
+              ...result,
+              courseId: record.courseId,
+            })
+          );
+          results.push(...quizResultsWithCourse);
+        }
+        return results;
+      },
+      []
+    );
+
+    console.log(
+      `Compiled ${allQuizResults.length} quiz results for user ${userId}`
+    );
+
+    // Sort by completion date (most recent first)
+    allQuizResults.sort((a: any, b: any) => {
+      return (
+        new Date(b.completionDate).getTime() -
+        new Date(a.completionDate).getTime()
+      );
+    });
+
+    res.status(200).json({
+      message: "User quiz results retrieved successfully",
+      data: allQuizResults,
+    });
+  } catch (error) {
+    console.error("Error retrieving user quiz results:", error);
+    res.status(500).json({
+      message: "Failed to retrieve user quiz results",
+      error: error instanceof Error ? error.message : String(error),
+      data: [],
+    });
+  }
+};
+
+export const getCourseQuizResults = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { courseId } = req.params;
+
+  try {
+    // Get all progress records for this course
+    const progressRecords = await UserCourseProgress.query("courseId")
+      .eq(courseId)
+      .exec();
+
+    if (!progressRecords || progressRecords.length === 0) {
+      res.status(404).json({
+        message: "No progress records found for this course",
+      });
+      return;
+    }
+
+    // Compile all quiz results from all students in this course
+    const allStudentQuizResults = progressRecords.reduce(
+      (results: any[], record: any) => {
+        if (record.quizResults && record.quizResults.length > 0) {
+          // Add user information to each quiz result
+          const quizResultsWithUser = record.quizResults.map((result: any) => ({
+            ...result,
+            userId: record.userId,
+          }));
+          results.push(...quizResultsWithUser);
+        }
+        return results;
+      },
+      []
+    );
+
+    // Group by quizId
+    const resultsByQuiz = allStudentQuizResults.reduce(
+      (grouped: { [key: string]: any[] }, result: any) => {
+        const quizId = result.quizId;
+        if (!grouped[quizId]) {
+          grouped[quizId] = [];
+        }
+        grouped[quizId].push(result);
+        return grouped;
+      },
+      {}
+    );
+
+    res.status(200).json({
+      message: "Course quiz results retrieved successfully",
+      data: {
+        allResults: allStudentQuizResults,
+        byQuiz: resultsByQuiz,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving course quiz results:", error);
+    res.status(500).json({ message: "Failed to retrieve course quiz results" });
+  }
+};

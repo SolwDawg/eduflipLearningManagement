@@ -171,10 +171,9 @@ export default function CourseView() {
                   <Link size={20} />
                 </div>
                 <div>
-                  <h3 className="font-medium">Virtual Classroom Available</h3>
+                  <h3 className="font-medium">Phòng học ảo</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Your teacher has created a virtual meeting room for this
-                    course
+                    Giáo viên đã tạo phòng học ảo cho khóa học này
                   </p>
                 </div>
               </div>
@@ -184,7 +183,7 @@ export default function CourseView() {
                 }
                 className="bg-primary-700 hover:bg-primary-600"
               >
-                Join Class
+                Tham gia lớp
               </Button>
             </div>
           )}
@@ -206,7 +205,7 @@ export default function CourseView() {
           <Separator className="my-8" />
 
           <div>
-            <h2 className="text-xl font-semibold">Course Content</h2>
+            <h2 className="text-xl font-semibold">Nội dung khóa học </h2>
 
             {/* Add course-level quizzes */}
             <div className="mb-6">
@@ -218,7 +217,7 @@ export default function CourseView() {
                 <Card key={section.sectionId}>
                   <CardHeader>
                     <CardTitle>
-                      Section {i + 1}: {section.sectionTitle}
+                      Chương {i + 1}: {section.sectionTitle}
                     </CardTitle>
                     <CardDescription>
                       {section.sectionDescription}
@@ -293,7 +292,7 @@ export default function CourseView() {
                 <div className="py-3 border rounded-lg p-3 bg-blue-50 dark:bg-blue-950/30">
                   <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5">
                     <Link size={16} className="text-primary-700" />
-                    Virtual Classroom
+                    Phòng học ảo
                   </h3>
                   <div className="flex flex-col gap-2">
                     <a
@@ -302,7 +301,7 @@ export default function CourseView() {
                       rel="noopener noreferrer"
                       className="text-sm bg-primary-700 text-white py-2 px-3 rounded-md flex items-center justify-center gap-2 hover:bg-primary-600 transition-colors"
                     >
-                      Join Google Meet Class
+                      Tham gia Google Meet
                       <ExternalLink size={14} />
                     </a>
                     <div className="flex items-center gap-2 mt-1">
@@ -321,7 +320,7 @@ export default function CourseView() {
                                   formatMeetLink(course.meetLink || "")
                                 );
                                 toast.success(
-                                  "Google Meet link copied to clipboard"
+                                  "Liên kết Google Meet đã được sao chép vào bộ nhớ"
                                 );
                               }}
                               className="h-8 w-8 text-primary-700"
@@ -330,7 +329,7 @@ export default function CourseView() {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Copy link</p>
+                            <p>Sao chép liên kết</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

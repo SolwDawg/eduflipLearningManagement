@@ -12,6 +12,13 @@ import {
   createClerkClient,
   requireAuth,
 } from "@clerk/express";
+import {
+  ClerkExpressRequireAuth,
+  ClerkExpressWithAuth,
+} from "@clerk/clerk-sdk-node";
+import AWS from "aws-sdk";
+import rateLimit from "express-rate-limit";
+import logger from "./config/logger";
 /* ROUTE IMPORTS */
 import courseRoutes from "./routes/courseRoutes";
 import userClerkRoutes from "./routes/userClerkRoutes";
@@ -21,6 +28,9 @@ import gradeRoutes from "./routes/gradeRoutes";
 import discussionRoutes from "./routes/discussionRoutes";
 import quizRoutes from "./routes/quizRoutes";
 import chatRoutes from "./routes/chatRoutes";
+import homepageImageRoutes from "./routes/homepageImageRoutes";
+import commentRoutes from "./routes/commentRoutes";
+import { logRoutes } from "./routes/index";
 
 /* CONFIGURATIONS */
 dotenv.config();
@@ -80,11 +90,19 @@ app.use("/courses", courseRoutes);
 app.use("/users/clerk", requireAuth(), userClerkRoutes);
 app.use("/enrollments", requireAuth(), enrollmentRoutes);
 app.use("/users/course-progress", requireAuth(), userCourseProgressRoutes);
+// Add legacy route mapping for client backward compatibility
+app.use("/api/progress", requireAuth(), userCourseProgressRoutes);
 app.use("/grades", requireAuth(), gradeRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/discussion", discussionRoutes);
+app.use("/api/grades", gradeRoutes);
 app.use("/quizzes", quizRoutes);
 app.use("/api/chats", requireAuth(), chatRoutes);
+app.use("/api/homepage-images", homepageImageRoutes);
+app.use("/comments", commentRoutes);
+
+// Log all registered routes
+logRoutes(app);
 
 /* SERVER */
 const port = process.env.PORT || 3000;

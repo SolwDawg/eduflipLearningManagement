@@ -225,7 +225,7 @@ export default function GradesPage() {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>Hủy bỏ</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-destructive text-destructive-foreground"
                         onClick={() => handleDeleteGrade(grade.gradeId)}
@@ -308,7 +308,7 @@ export default function GradesPage() {
                   variant="outline"
                   onClick={handleCloseDialog}
                 >
-                  Cancel
+                  Hủy bỏ
                 </Button>
                 <Button type="submit" disabled={isCreating || isUpdating}>
                   {(isCreating || isUpdating) && (

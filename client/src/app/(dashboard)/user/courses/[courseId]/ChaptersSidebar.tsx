@@ -49,7 +49,7 @@ export default function ChaptersSidebar() {
   if (!course)
     return (
       <div className="p-3 sm:p-4 text-muted-foreground text-sm">
-        Course not found
+        Không tìm thấy khóa học
       </div>
     );
 
@@ -67,7 +67,7 @@ export default function ChaptersSidebar() {
         </h3>
         <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 mt-1">
           <BookOpen className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          <span>Course content</span>
+          <span>Nội dung khóa học</span>
         </div>
       </div>
 

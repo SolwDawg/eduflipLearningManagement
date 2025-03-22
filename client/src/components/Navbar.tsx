@@ -7,6 +7,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import SmartSearch from "./SmartSearch";
 
 const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
   const { user } = useUser();
@@ -20,6 +21,7 @@ const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
             <SidebarTrigger className="dashboard-navbar__sidebar-trigger" />
           </div>
         </div>
+        <SmartSearch placeholder="Search for courses..." />
 
         <div className="dashboard-navbar__actions">
           <button className="nondashboard-navbar__notification-button">

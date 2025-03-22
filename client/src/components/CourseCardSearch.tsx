@@ -36,7 +36,7 @@ const CourseCardSearch = ({
           <p className="course-card-search__teacher">By {course.teacherName}</p>
           <div className="course-card-search__footer">
             <span className="course-card-search__enrollment">
-              {course.enrollments?.length} Enrolled
+              {course.enrollments?.length} Đã đăng ký
             </span>
           </div>
         </div>

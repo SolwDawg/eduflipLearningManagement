@@ -10,6 +10,8 @@ import {
   trackDiscussionActivity,
   getStudentProgressAnalytics,
   getStudentProgressDetails,
+  getUserQuizResults,
+  getCourseQuizResults,
 } from "../controllers/userCourseProgressController";
 
 const router = express.Router();
@@ -48,6 +50,14 @@ router.get(
 router.get(
   "/analytics/course/:courseId/student/:userId",
   getStudentProgressDetails as RequestHandler
+);
+
+router.get("/:userId/quiz-results", getUserQuizResults as RequestHandler);
+
+// New route for teacher to view all quiz results in a course
+router.get(
+  "/analytics/course/:courseId/quiz-results",
+  getCourseQuizResults as RequestHandler
 );
 
 export default router;

@@ -49,9 +49,9 @@ const UploadMaterialDialog = ({
 
         if (!fileExt || !validExtensions.includes(fileExt)) {
           toast({
-            title: "Invalid file type",
+            title: "Định dạng tệp không hợp lệ",
             description:
-              "Please select a valid PowerPoint file (.ppt, .pptx, .pps, .ppsx)",
+              "Vui lòng chọn một tệp PowerPoint hợp lệ (.ppt, .pptx, .pps, .ppsx)",
             variant: "destructive",
           });
           return;
@@ -230,8 +230,8 @@ const UploadMaterialDialog = ({
   const handleUpload = async () => {
     if (!file) {
       toast({
-        title: "No file selected",
-        description: "Please select a file to upload.",
+        title: "Không có tệp được chọn",
+        description: "Vui lòng chọn một tệp để tải lên.",
         variant: "destructive",
       });
       return;
@@ -267,10 +267,10 @@ const UploadMaterialDialog = ({
       }
 
       toast({
-        title: "Upload successful",
+        title: "Tải lên thành công",
         description: `${
-          type === "presentation" ? "PowerPoint presentation" : "Video"
-        } uploaded successfully.`,
+          type === "presentation" ? "Bài trình bày PowerPoint" : "Video"
+        } đã được tải lên thành công.`,
       });
       onOpenChange(false);
     } catch (error) {
@@ -280,10 +280,10 @@ const UploadMaterialDialog = ({
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "There was an error uploading your file. Please try again.";
+          : "Đã xảy ra lỗi khi tải lên tệp. Vui lòng thử lại.";
 
       toast({
-        title: "Upload failed",
+        title: "Tải lên thất bại",
         description: errorMessage,
         variant: "destructive",
       });
@@ -298,19 +298,19 @@ const UploadMaterialDialog = ({
         <DialogHeader>
           <DialogTitle>
             {type === "presentation"
-              ? "Upload Presentation"
-              : "Upload Video Lecture"}
+              ? "Tải lên bài trình bày PowerPoint"
+              : "Tải lên bài giảng video"}
           </DialogTitle>
           <DialogDescription>
             {type === "presentation"
-              ? "Upload a PowerPoint presentation for this chapter."
-              : "Upload a video lecture for this chapter."}
+              ? "Tải lên bài trình bày PowerPoint cho chương này."
+              : "Tải lên bài giảng video cho chương này."}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="file">
-              {type === "presentation" ? "PowerPoint File" : "Video File"}
+              {type === "presentation" ? "Tệp PowerPoint" : "Tệp video"}
             </Label>
             <Input
               id="file"
@@ -324,13 +324,13 @@ const UploadMaterialDialog = ({
             />
             {type === "presentation" && (
               <div className="text-xs text-gray-500 mt-1">
-                Supported formats: .ppt, .pptx, .pps, .ppsx
+                Định dạng hỗ trợ: .ppt, .pptx, .pps, .ppsx
               </div>
             )}
           </div>
           {file && (
             <div className="text-sm">
-              Selected file: <span className="font-medium">{file.name}</span> (
+              Tệp đã chọn: <span className="font-medium">{file.name}</span> (
               {(file.size / 1024 / 1024).toFixed(2)} MB)
             </div>
           )}
@@ -341,7 +341,7 @@ const UploadMaterialDialog = ({
                 style={{ width: `${uploadProgress}%` }}
               ></div>
               <div className="text-xs text-center mt-1">
-                {uploadProgress}% uploaded
+                {uploadProgress}% đã tải lên
               </div>
             </div>
           )}
@@ -352,7 +352,7 @@ const UploadMaterialDialog = ({
             onClick={() => onOpenChange(false)}
             disabled={loading}
           >
-            Cancel
+            Hủy bỏ
           </Button>
           <Button
             onClick={handleUpload}
@@ -364,7 +364,7 @@ const UploadMaterialDialog = ({
             ) : (
               <UploadCloud className="mr-2 h-4 w-4" />
             )}
-            {loading ? "Uploading..." : "Upload"}
+            {loading ? "Đang tải lên..." : "Tải lên"}
           </Button>
         </DialogFooter>
       </DialogContent>

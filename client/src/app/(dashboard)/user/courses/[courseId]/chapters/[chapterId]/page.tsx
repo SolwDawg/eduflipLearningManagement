@@ -160,8 +160,8 @@ const ChapterPage = () => {
                 <Link href={`/user/courses/${courseId}`}>
                   <Button variant="ghost" size="sm" className="h-9 px-3">
                     <ChevronLeft className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Back to course</span>
-                    <span className="sm:hidden">Back</span>
+                    <span className="hidden sm:inline">Trở lại khóa học</span>
+                    <span className="sm:hidden">Trở lại</span>
                   </Button>
                 </Link>
               </div>
@@ -171,7 +171,7 @@ const ChapterPage = () => {
                 {isChapterCompleted() ? (
                   <span className="flex items-center text-xs font-medium text-green-500 bg-green-50 px-2 py-1 rounded-full">
                     <CheckCircle className="h-3 w-3 mr-1" />
-                    Completed
+                    Đã hoàn thành
                   </span>
                 ) : (
                   <Button
@@ -186,7 +186,7 @@ const ChapterPage = () => {
                       )
                     }
                   >
-                    Mark
+                    Đánh dấu hoàn thành
                   </Button>
                 )}
               </div>
@@ -197,7 +197,7 @@ const ChapterPage = () => {
               {isChapterCompleted() ? (
                 <span className="flex items-center text-sm font-medium text-green-500 bg-green-50 px-3 py-1.5 rounded-full">
                   <CheckCircle className="h-4 w-4 mr-1.5" />
-                  Completed
+                  Đã hoàn thành
                 </span>
               ) : (
                 <Button
@@ -212,7 +212,7 @@ const ChapterPage = () => {
                     )
                   }
                 >
-                  Mark as complete
+                  Đánh dấu hoàn thành
                 </Button>
               )}
             </div>
@@ -248,8 +248,7 @@ const ChapterPage = () => {
                       <div className="flex items-center gap-2">
                         <LinkIcon size={16} className="text-primary-700" />
                         <span className="text-sm">
-                          Join this course&apos;s virtual classroom with your
-                          teacher
+                          Tham gia phòng học ảo của khóa học này với giáo viên
                         </span>
                       </div>
                       <Button
@@ -261,10 +260,11 @@ const ChapterPage = () => {
                             formatMeetLink(course.meetLink || ""),
                             "_blank"
                           );
-                          toast.success("Opening Google Meet in a new tab");
+                          toast.success("Đang mở Google Meet trong tab mới");
                         }}
                       >
-                        Join Meeting <ExternalLink className="ml-1" size={14} />
+                        Tham gia cuộc họp{" "}
+                        <ExternalLink className="ml-1" size={14} />
                       </Button>
                     </div>
                   )}
@@ -307,25 +307,25 @@ const ChapterPage = () => {
                       value="content"
                       className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
                     >
-                      Content
+                      Nội dung
                     </TabsTrigger>
                     <TabsTrigger
                       value="resources"
                       className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
                     >
-                      Resources
+                      Tài liệu
                     </TabsTrigger>
                     <TabsTrigger
                       value="quizzes"
                       className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
                     >
-                      Quizzes
+                      Bài kiểm tra
                     </TabsTrigger>
                     <TabsTrigger
                       value="comments"
                       className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
                     >
-                      Comments
+                      Bình luận
                     </TabsTrigger>
                   </TabsList>
 
@@ -347,7 +347,7 @@ const ChapterPage = () => {
                       <CardHeader className="pb-2 sm:pb-3">
                         <CardTitle className="text-base sm:text-lg flex items-center">
                           <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
-                          Resources
+                          Tài liệu
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -374,7 +374,7 @@ const ChapterPage = () => {
                           </ul>
                         ) : (
                           <p className="text-muted-foreground text-xs sm:text-sm">
-                            No resources available for this chapter.
+                            Không có tài liệu nào cho chương này.
                           </p>
                         )}
                       </CardContent>
@@ -410,7 +410,7 @@ const ChapterPage = () => {
                       }
                     >
                       <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                      Prev
+                      Trước
                     </Button>
                   ) : (
                     <div />
@@ -425,7 +425,7 @@ const ChapterPage = () => {
                         )
                       }
                     >
-                      Next
+                      Tiếp theo
                       <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 ml-1.5 sm:ml-2" />
                     </Button>
                   ) : (
@@ -433,7 +433,7 @@ const ChapterPage = () => {
                       className="shadow-sm text-xs sm:text-sm h-9 px-2 sm:px-4"
                       onClick={() => router.push(`/user/courses/${courseId}`)}
                     >
-                      Finish Course
+                      Hoàn tất khóa học
                     </Button>
                   )}
                 </div>

@@ -445,3 +445,106 @@ export const updateMeetLink = async (
     });
   }
 };
+
+/**
+ * Search courses by keywords
+ * This endpoint allows searching through course titles, descriptions, and section/chapter content
+ */
+export const searchCourses = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { query } = req.query;
+
+    if (!query || typeof query !== "string" || query.trim() === "") {
+      res.status(200).json({ courses: [] });
+      return;
+    }
+
+    const searchTerm = query.toLowerCase();
+
+    // Get all published courses
+    const courses = await Course.scan("status").eq("Published").exec();
+
+    if (!courses || courses.length === 0) {
+      res.status(200).json({ courses: [] });
+      return;
+    }
+
+    // Score and filter courses based on search relevance
+    const scoredCourses = courses.map((course) => {
+      const courseObj = course.toJSON();
+      let score = 0;
+
+      // Check title (highest weight)
+      if (courseObj.title.toLowerCase().includes(searchTerm)) {
+        score += 10;
+      }
+
+      // Check description (medium weight)
+      if (
+        courseObj.description &&
+        courseObj.description.toLowerCase().includes(searchTerm)
+      ) {
+        score += 5;
+      }
+
+      // Check teacher name
+      if (courseObj.teacherName.toLowerCase().includes(searchTerm)) {
+        score += 3;
+      }
+
+      // Check category
+      if (
+        courseObj.category &&
+        courseObj.category.toLowerCase().includes(searchTerm)
+      ) {
+        score += 3;
+      }
+
+      // Check through sections and chapters (lower weight)
+      if (courseObj.sections && Array.isArray(courseObj.sections)) {
+        courseObj.sections.forEach((section) => {
+          // Check section titles
+          if (section.sectionTitle.toLowerCase().includes(searchTerm)) {
+            score += 2;
+          }
+
+          // Check chapters
+          if (section.chapters && Array.isArray(section.chapters)) {
+            section.chapters.forEach(
+              (chapter: { title: string; type?: string; content?: string }) => {
+                // Check chapter titles
+                if (chapter.title.toLowerCase().includes(searchTerm)) {
+                  score += 1;
+                }
+
+                // Check chapter content for text chapters
+                if (chapter.type === "Text" && chapter.content) {
+                  if (chapter.content.toLowerCase().includes(searchTerm)) {
+                    score += 1;
+                  }
+                }
+              }
+            );
+          }
+        });
+      }
+
+      return { course: courseObj, score };
+    });
+
+    // Filter out courses with no relevance and sort by score
+    const relevantCourses = scoredCourses
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((item) => item.course);
+
+    res.status(200).json({ courses: relevantCourses });
+  } catch (error) {
+    console.error("Error searching courses:", error);
+    // Return empty array instead of error
+    res.status(200).json({ courses: [] });
+  }
+};

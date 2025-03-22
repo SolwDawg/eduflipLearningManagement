@@ -8,6 +8,11 @@ import { useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ChaptersSidebar from "./courses/[courseId]/ChaptersSidebar";
+import { Toaster } from "sonner";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import SmartSearch from "@/components/SmartSearch";
+import { UserButton } from "@clerk/nextjs";
 import StudentSidebar from "@/components/StudentSidebar";
 
 export default function DashboardLayout({

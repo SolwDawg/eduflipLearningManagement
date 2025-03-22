@@ -25,7 +25,7 @@ const CoursePreview = ({ course }: CoursePreviewProps) => {
 
         <div>
           <h4 className="text-white-50/90 font-semibold mb-2">
-            Course Content
+            Nội dung khóa học
           </h4>
           <AccordionSections sections={course.sections} />
         </div>

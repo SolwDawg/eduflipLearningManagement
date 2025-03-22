@@ -6,7 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCarousel } from "@/hooks/useCarousel";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetCoursesQuery, useGetGradesQuery } from "@/state/api";
+import {
+  useGetCoursesQuery,
+  useGetGradesQuery,
+  useGetHomepageImagesQuery,
+} from "@/state/api";
 import { useRouter } from "next/navigation";
 import CourseCardSearch from "@/components/CourseCardSearch";
 import { useUser } from "@clerk/nextjs";
@@ -18,6 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import MonthlyLeaderboard from "@/components/MonthlyLeaderboard";
+
+// Add this interface near imports
+interface HomepageImage {
+  imageId: string;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt?: string;
+}
 
 const LoadingSkeleton = () => {
   return (
@@ -54,7 +66,9 @@ const LoadingSkeleton = () => {
 
 const Landing = () => {
   const router = useRouter();
-  const currentImage = useCarousel({ totalImages: 3 });
+  const { data: homepageImages } = useGetHomepageImagesQuery(undefined);
+  const totalImages = homepageImages?.length || 0;
+  const currentImage = useCarousel({ totalImages: Math.max(1, totalImages) });
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
   const {
     data: grades,
@@ -71,8 +85,16 @@ const Landing = () => {
   // Debug grades data
   useEffect(() => {
     console.log("Grades data:", grades);
+    console.log("Is grades loading:", isGradesLoading);
     console.log("Grades error:", gradesError);
-  }, [grades, gradesError]);
+
+    if (gradesError) {
+      console.error(
+        "Detailed grades error:",
+        JSON.stringify(gradesError, null, 2)
+      );
+    }
+  }, [grades, gradesError, isGradesLoading]);
 
   // Filter courses based on selected grade
   useEffect(() => {
@@ -111,6 +133,12 @@ const Landing = () => {
   // Handle errors loading grades
   const hasGrades = grades && Array.isArray(grades) && grades.length > 0;
 
+  // Default fallback images if no images from API
+  const heroImages =
+    homepageImages && homepageImages.length > 0
+      ? homepageImages.map((img: HomepageImage) => img.imageUrl)
+      : ["/hero1.jpg", "/hero2.jpg", "/hero3.jpg"];
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -127,9 +155,9 @@ const Landing = () => {
         <div className="landing__hero-content">
           <h1 className="landing__title">Khoá học</h1>
           <p className="landing__description">
-            Đây là danh sách các khóa học bạn có thể đăng ký.
+            Chào mừng đến với nền tảng học tập của chúng tôi.
             <br />
-            Khóa học khi bạn cần chúng và muốn chúng.
+            Vui lòng chọn khối lớp của bạn để bắt đầu.
           </p>
           <div className="landing__cta">
             <Link href="/search" scroll={false}>
@@ -138,7 +166,7 @@ const Landing = () => {
           </div>
         </div>
         <div className="landing__hero-images">
-          {["/hero1.jpg", "/hero2.jpg", "/hero3.jpg"].map((src, index) => (
+          {heroImages.map((src: string, index: number) => (
             <Image
               key={src}
               src={src}
@@ -168,6 +196,55 @@ const Landing = () => {
         <MonthlyLeaderboard />
       </motion.div>
 
+      {/* Grade Selection Component - Moved up for prominence */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ amount: 0.3, once: true }}
+        className="landing__grade-selection mt-60 mb-8 p-6  rounded-lg shadow-sm max-w-3xl mx-auto"
+      >
+        <h2 className="text-2xl font-semibold mb-4 text-center">
+          Bước 1: Chọn khối lớp của bạn
+        </h2>
+        <p className="text-center mb-4 text-slate-600">
+          Để đăng ký các khóa học, trước tiên bạn cần chọn khối lớp phù hợp với
+          bạn. Mỗi khối lớp có những khóa học được thiết kế riêng theo trình độ.
+        </p>
+        {gradesError ? (
+          <p className="text-red-500 mb-2 text-center">
+            Không thể tải danh sách khối lớp. Vui lòng thử lại sau.
+          </p>
+        ) : !hasGrades ? (
+          <p className="text-amber-500 mb-2 text-center">
+            Chưa có khối lớp nào. Liên hệ quản trị viên để tạo khối lớp.
+          </p>
+        ) : null}
+        <Select
+          onValueChange={handleGradeChange}
+          value={selectedGradeId || undefined}
+        >
+          <SelectTrigger className="w-full max-w-md mx-auto">
+            <SelectValue placeholder="Chọn khối lớp của bạn" />
+          </SelectTrigger>
+          <SelectContent>
+            {grades &&
+              Array.isArray(grades) &&
+              grades.map((grade) => (
+                <SelectItem key={grade.gradeId} value={grade.gradeId}>
+                  {grade.name}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+
+        {selectedGradeId && (
+          <div className="mt-4 text-center text-emerald-600 font-medium">
+            Bạn đã chọn khối lớp. Hãy xem các khóa học phù hợp bên dưới!
+          </div>
+        )}
+      </motion.div>
+
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
@@ -175,43 +252,16 @@ const Landing = () => {
         viewport={{ amount: 0.3, once: true }}
         className="landing__featured"
       >
-        <h2 className="landing__featured-title">Khoá học hữu ích</h2>
+        <h2 className="landing__featured-title">
+          {selectedGradeId
+            ? "Bước 2: Chọn khóa học phù hợp"
+            : "Khoá học hữu ích"}
+        </h2>
         <p className="landing__featured-description">
-          Từ người mới bắt đầu đến người nâng cao, trong tất cả các ngành, chúng
-          tôi có khóa học chính xác chỉ dành cho bạn và chuẩn bị hành trình của
-          bạn từ việc học tập đến việc làm việc và tạo ra nhiều điều tốt nhất.
+          {selectedGradeId
+            ? "Dưới đây là các khóa học được thiết kế dành riêng cho khối lớp bạn đã chọn. Chọn một khóa học để xem chi tiết và đăng ký."
+            : "Vui lòng chọn khối lớp ở trên để xem danh sách các khóa học phù hợp với trình độ của bạn."}
         </p>
-
-        {/* Grade Selection Component */}
-        <div className="landing__grade-selection my-6">
-          <h3 className="text-lg font-medium mb-2">Chọn khối lớp</h3>
-          {gradesError ? (
-            <p className="text-red-500 mb-2">
-              Không thể tải danh sách khối lớp. Vui lòng thử lại sau.
-            </p>
-          ) : !hasGrades ? (
-            <p className="text-amber-500 mb-2">
-              {/* Chưa có khối lớp nào. Liên hệ quản trị viên để tạo khối lớp. */}
-            </p>
-          ) : null}
-          <Select
-            onValueChange={handleGradeChange}
-            value={selectedGradeId || undefined}
-          >
-            <SelectTrigger className="w-full md:w-72">
-              <SelectValue placeholder="Chọn khối lớp để xem khoá học" />
-            </SelectTrigger>
-            <SelectContent>
-              {grades &&
-                Array.isArray(grades) &&
-                grades.map((grade) => (
-                  <SelectItem key={grade.gradeId} value={grade.gradeId}>
-                    {grade.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
 
         <div className="landing__courses">
           {selectedGradeId ? (
