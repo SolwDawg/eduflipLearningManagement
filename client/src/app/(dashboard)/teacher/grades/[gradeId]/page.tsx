@@ -39,11 +39,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function GradeDetailPage({
-  params,
-}: {
+type PageParams = {
   params: { gradeId: string };
-}) {
+};
+
+export default function GradeDetailPage({ params }: PageParams) {
   const router = useRouter();
   const { gradeId } = params;
 
