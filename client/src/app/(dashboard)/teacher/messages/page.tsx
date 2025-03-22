@@ -67,7 +67,7 @@ export default function TeacherMessagesPage() {
                 <div className="text-center p-8 text-muted-foreground">
                   <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>
-                    You don't have any courses yet.
+                    You don&apos;t have any courses yet.
                     <br />
                     Create a course to start receiving messages from students.
                   </p>
