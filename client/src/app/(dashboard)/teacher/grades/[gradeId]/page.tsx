@@ -60,8 +60,11 @@ export default function GradeDetailPage({
     refetch: refetchCourses,
   } = useGetGradeCoursesQuery(gradeId);
 
-  const { data: allCourses, isLoading: isAllCoursesLoading } =
-    useGetCoursesQuery({});
+  const {
+    data: allCourses,
+    isLoading: isAllCoursesLoading,
+    isError: isAllCoursesError,
+  } = useGetCoursesQuery();
   const [addCourseToGrade, { isLoading: isAdding }] =
     useAddCourseToGradeMutation();
   const [removeCourseFromGrade, { isLoading: isRemoving }] =

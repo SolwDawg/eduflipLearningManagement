@@ -20,7 +20,6 @@ import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import StudentQuizList from "@/components/StudentQuizList";
 import { BookCheck } from "lucide-react";
-import RelatedCourses from "@/components/RelatedCourses";
 
 export default function CoursePreviewPage() {
   const { courseId } = useParams();
@@ -156,14 +155,6 @@ export default function CoursePreviewPage() {
                 </Card>
               ))}
             </div>
-
-            {/* Add Related Courses section */}
-            <div className="mt-8">
-              <RelatedCourses 
-                categorySlug={course.category} 
-                currentCourseId={courseId as string} 
-              />
-            </div>
           </div>
         </div>
 
@@ -173,10 +164,6 @@ export default function CoursePreviewPage() {
               <CardTitle>Course Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium mb-1">Category</h3>
-                <p className="text-muted-foreground">{course.category}</p>
-              </div>
               <div>
                 <h3 className="text-sm font-medium mb-1">Level</h3>
                 <p className="text-muted-foreground">{course.level}</p>

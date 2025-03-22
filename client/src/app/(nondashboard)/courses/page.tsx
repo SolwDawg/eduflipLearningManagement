@@ -20,13 +20,7 @@ export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const {
-    data: courses,
-    isLoading,
-    error,
-  } = useGetCoursesQuery({
-    category: selectedCategory === "all" ? undefined : selectedCategory,
-  });
+  const { data: courses, isLoading, isError } = useGetCoursesQuery();
 
   const filteredCourses = useMemo(() => {
     if (!courses) return [];
@@ -46,7 +40,7 @@ export default function CoursesPage() {
 
   if (isLoading) return <Loading />;
 
-  if (error || !courses) {
+  if (isError || !courses) {
     return (
       <div className="container max-w-6xl mx-auto py-12 px-4">
         <div className="text-center">

@@ -17,17 +17,12 @@ import React, { useMemo, useState } from "react";
 const Courses = () => {
   const router = useRouter();
   const { user } = useUser();
-  const {
-    data: courses,
-    isLoading,
-    isError,
-  } = useGetCoursesQuery({ category: "all" });
+  const { data: courses, isLoading, isError } = useGetCoursesQuery();
 
   const [createCourse] = useCreateCourseMutation();
   const [deleteCourse] = useDeleteCourseMutation();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const filteredCourses = useMemo(() => {
     if (!courses) return [];
@@ -36,11 +31,9 @@ const Courses = () => {
       const matchesSearch = course.title
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "all" || course.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      return matchesSearch;
     });
-  }, [courses, searchTerm, selectedCategory]);
+  }, [courses, searchTerm]);
 
   const handleEdit = (course: Course) => {
     router.push(`/teacher/courses/${course.courseId}`, {
@@ -83,10 +76,7 @@ const Courses = () => {
           </Button>
         }
       />
-      <Toolbar
-        onSearch={setSearchTerm}
-        onCategoryChange={setSelectedCategory}
-      />
+      <Toolbar onSearch={setSearchTerm} />
       <div className="teacher-courses__grid">
         {filteredCourses.map((course) => (
           <TeacherCourseCard

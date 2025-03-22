@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/tooltip";
 import StudentQuizList from "@/components/StudentQuizList";
 import ChaptersSidebar from "./ChaptersSidebar";
-import RelatedCourses from "@/components/RelatedCourses";
 
 // Add a helper function to format the meeting link
 const formatMeetLink = (meetLink: string): string => {
@@ -343,14 +342,6 @@ export default function CourseView() {
               <Button onClick={handleStartLearning} className="w-full mt-4">
                 {completedChapters > 0 ? "Tiếp tục học tập" : "Bắt đầu học tập"}
               </Button>
-
-              {/* Related courses based on category */}
-              {course.category && (
-                <RelatedCourses
-                  categorySlug={course.category}
-                  currentCourseId={courseId}
-                />
-              )}
             </CardContent>
           </Card>
         </div>

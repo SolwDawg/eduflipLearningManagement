@@ -9,10 +9,8 @@ import dynamoose from "dynamoose";
 import pluralize from "pluralize";
 import Course from "../models/courseModel";
 import UserCourseProgress from "../models/userCourseProgressModel";
-import Category from "../models/categoryModel";
 import Grade from "../models/gradeModel";
 import dotenv from "dotenv";
-import seedCategories from "./categorySeeder";
 import seedGrades from "./gradeSeeder";
 
 dotenv.config();
@@ -48,7 +46,7 @@ console.warn = (message, ...args) => {
 };
 
 async function createTables() {
-  const models = [UserCourseProgress, Course, Category, Grade];
+  const models = [UserCourseProgress, Course, Grade];
 
   for (const model of models) {
     const tableName = model.name;
@@ -142,9 +140,6 @@ export default async function seed() {
     const filePath = path.join(seedDataPath, file);
     await seedData(tableName, filePath);
   }
-
-  // Seed categories
-  await seedCategories();
 
   // Seed grades
   await seedGrades();

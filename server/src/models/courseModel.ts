@@ -183,6 +183,7 @@ const courseSchema = new Schema(
     },
     category: {
       type: String,
+      required: false,
     },
     image: {
       type: String,

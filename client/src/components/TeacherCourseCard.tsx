@@ -37,10 +37,6 @@ const TeacherCourseCard = ({
               {course.title}
             </CardTitle>
 
-            <CardDescription className="course-card-teacher__category">
-              {course.category}
-            </CardDescription>
-
             <p className="text-sm mb-2">
               Trạng thái:{" "}
               <span

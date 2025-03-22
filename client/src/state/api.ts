@@ -78,7 +78,7 @@ const customBaseQuery = async (
         args.includes("/users/course-progress/") &&
         args.includes("/enrolled-courses");
 
-      // Check if this is the courses endpoint with category
+      // Check if this is the courses endpoint
       const isCoursesEndpoint =
         (typeof args === "string" && args === "courses") ||
         (typeof args === "object" && args.url === "courses");
@@ -88,11 +88,6 @@ const customBaseQuery = async (
         typeof args === "string"
           ? args.includes("/quizzes/course/")
           : args.url.includes("/quizzes/course/");
-
-      // Check if this is a categories endpoint
-      const isCategoriesEndpoint =
-        (typeof args === "string" && args === "categories") ||
-        (typeof args === "object" && args.url === "categories");
 
       // Check if this is a course progress endpoint
       const isCourseProgressEndpoint =
@@ -115,7 +110,6 @@ const customBaseQuery = async (
         !(isEnrolledCoursesEndpoint && result.error.status === 500) &&
         !(isCoursesEndpoint && result.error.status === 500) &&
         !(isQuizzesEndpoint && result.error.status === 500) &&
-        !(isCategoriesEndpoint && result.error.status === 500) &&
         !isCourseProgressNotFound && // Don't show toast for course progress not found
         result.error.status !== "PARSING_ERROR" // Skip showing toast for parsing errors
       ) {
@@ -136,16 +130,11 @@ const customBaseQuery = async (
       if (
         (isEnrolledCoursesEndpoint && result.error.status === 500) ||
         (isCoursesEndpoint && result.error.status === 500) ||
-        (isQuizzesEndpoint && result.error.status === 500) ||
-        (isCategoriesEndpoint && result.error.status === 500)
+        (isQuizzesEndpoint && result.error.status === 500)
       ) {
         console.log(
           `Returning empty array for failed ${
-            isQuizzesEndpoint
-              ? "quizzes"
-              : isCategoriesEndpoint
-              ? "categories"
-              : "courses"
+            isQuizzesEndpoint ? "quizzes" : "courses"
           } request`
         );
         return { data: [] };
@@ -254,10 +243,10 @@ export const api = createApi({
     COURSES
     =============== 
     */
-    getCourses: build.query<Course[], { category?: string }>({
-      query: ({ category }) => ({
+    getCourses: build.query<Course[], void>({
+      query: () => ({
         url: "courses",
-        params: category && category !== "all" ? { category } : undefined,
+        method: "GET",
       }),
       providesTags: ["Courses"],
     }),
@@ -756,14 +745,6 @@ export const api = createApi({
         { type: "Quizzes", id: quizId },
       ],
     }),
-
-    // Course-related endpoints with category suggestions
-    getRelatedCourses: build.query({
-      query: (categorySlug) => `courses/category/${categorySlug}`,
-      providesTags: (result, error, categorySlug) => [
-        { type: "Course", id: `category-${categorySlug}` },
-      ],
-    }),
   }),
 });
 
@@ -800,6 +781,5 @@ export const {
   useAddQuizQuestionMutation,
   useUpdateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
-  useGetRelatedCoursesQuery,
   useGetMonthlyLeaderboardQuery,
 } = api;

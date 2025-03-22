@@ -181,14 +181,6 @@ declare global {
     courseStatus: boolean;
   }
 
-  interface Category {
-    name: string;
-    description: string;
-    slug: string;
-    isActive: boolean;
-    order: number;
-  }
-
   interface Grade {
     gradeId: string;
     name: string;

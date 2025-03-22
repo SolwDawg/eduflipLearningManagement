@@ -26,9 +26,9 @@ const Search = () => {
   const { data: grades, isLoading: isGradesLoading } = useGetGradesQuery();
   const {
     data: courses,
-    isLoading: isCoursesLoading,
-    isError,
-  } = useGetCoursesQuery({});
+    isLoading: coursesLoading,
+    isError: coursesError,
+  } = useGetCoursesQuery();
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const router = useRouter();
@@ -113,8 +113,8 @@ const Search = () => {
     });
   };
 
-  if (isCoursesLoading || isGradesLoading) return <Loading />;
-  if (isError || !courses) return <div>Lỗi khi tải khoá học</div>;
+  if (coursesLoading || isGradesLoading) return <Loading />;
+  if (coursesError || !courses) return <div>Lỗi khi tải khoá học</div>;
 
   return (
     <motion.div

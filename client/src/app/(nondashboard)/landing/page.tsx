@@ -63,9 +63,9 @@ const Landing = () => {
   } = useGetGradesQuery();
   const {
     data: courses,
-    isLoading: isCoursesLoading,
-    isError,
-  } = useGetCoursesQuery({});
+    isLoading: coursesLoading,
+    isError: coursesError,
+  } = useGetCoursesQuery();
   const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
 
   // Debug grades data
@@ -106,7 +106,7 @@ const Landing = () => {
     setSelectedGradeId(gradeId);
   };
 
-  if (isCoursesLoading || isGradesLoading) return <LoadingSkeleton />;
+  if (coursesLoading || isGradesLoading) return <LoadingSkeleton />;
 
   // Handle errors loading grades
   const hasGrades = grades && Array.isArray(grades) && grades.length > 0;

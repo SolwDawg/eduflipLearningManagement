@@ -38,10 +38,6 @@ const CourseCard = ({ course, onGoToCourse }: CourseCardProps) => {
             {course.teacherName}
           </p>
         </div>
-
-        <CardFooter className="course-card__footer">
-          <div className="course-card__category">{course.category}</div>
-        </CardFooter>
       </CardContent>
     </Card>
   );
