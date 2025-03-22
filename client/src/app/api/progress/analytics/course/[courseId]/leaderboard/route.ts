@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ): Promise<NextResponse> {
   try {
     // Verify user authentication
@@ -13,7 +13,7 @@ export async function GET(
     }
 
     // Get course ID from params
-    const { courseId } = context.params;
+    const { courseId } = await params;
     console.log(`Fetching leaderboard for course ${courseId}`);
 
     // Debug output

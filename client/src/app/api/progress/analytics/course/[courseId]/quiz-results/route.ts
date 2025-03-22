@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ): Promise<NextResponse> {
   try {
     const { userId } = await auth();
@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { courseId } = context.params;
+    const { courseId } = await params;
 
     console.log(`Fetching quiz results for course: ${courseId}`);
 

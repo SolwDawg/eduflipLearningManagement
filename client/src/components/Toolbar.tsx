@@ -1,6 +1,14 @@
 import React, { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { courseCategories } from "@/lib/utils";
 
-const Toolbar = ({ onSearch }: ToolbarProps) => {
+const Toolbar = ({ onSearch, onCategoryChange }: ToolbarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (value: string) => {
@@ -17,6 +25,27 @@ const Toolbar = ({ onSearch }: ToolbarProps) => {
         placeholder="Tìm kiếm khóa học"
         className="toolbar__search"
       />
+      {onCategoryChange && (
+        <Select onValueChange={onCategoryChange}>
+          <SelectTrigger className="toolbar__select">
+            <SelectValue placeholder="Danh mục" />
+          </SelectTrigger>
+          <SelectContent className="bg-customgreys-primarybg hover:bg-customgreys-primarybg">
+            <SelectItem value="all" className="toolbar__select-item">
+              Tất cả
+            </SelectItem>
+            {courseCategories.map((category) => (
+              <SelectItem
+                key={category.value}
+                value={category.value}
+                className="toolbar__select-item"
+              >
+                {category.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 };

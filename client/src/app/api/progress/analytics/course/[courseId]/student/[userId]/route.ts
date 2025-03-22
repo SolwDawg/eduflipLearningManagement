@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { courseId: string; userId: string } }
+  { params }: { params: Promise<{ courseId: string; userId: string }> }
 ): Promise<NextResponse> {
   try {
     const { userId: currentUserId } = await auth();
@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { courseId, userId } = context.params;
+    const { courseId, userId } = await params;
 
     console.log(
       `Fetching analytics for course: ${courseId}, student: ${userId}`

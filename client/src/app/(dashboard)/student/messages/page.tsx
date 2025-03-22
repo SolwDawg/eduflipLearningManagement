@@ -17,7 +17,7 @@ export default function MessagesPage() {
     user?.id || ""
   );
 
-  const enrolledCourses = enrolledCoursesData?.data || [];
+  const enrolledCourses = enrolledCoursesData || [];
 
   const handleSelectConversation = (conversation: any) => {
     setSelectedConversation(conversation);
@@ -77,11 +77,11 @@ export default function MessagesPage() {
                 <div className="space-y-4 mt-4">
                   {enrolledCourses.map((course) => (
                     <button
-                      key={course.id}
+                      key={course.courseId}
                       className="w-full flex items-start gap-4 p-4 rounded-md hover:bg-accent text-left transition-colors"
                       onClick={() =>
                         setSelectedConversation({
-                          courseId: course.id,
+                          courseId: course.courseId,
                           courseName: course.title,
                           otherUserId: course.teacherId,
                           otherUserName: course.teacherName,

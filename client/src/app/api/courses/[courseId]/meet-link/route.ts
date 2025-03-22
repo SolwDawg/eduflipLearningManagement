@@ -1,10 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
+// Update the type definition to match Next.js 15 expectations
 export async function PUT(
   req: NextRequest,
-  context: { params: { courseId: string } }
-): Promise<NextResponse> {
+  { params }: { params: Promise<{ courseId: string }> }
+) {
   try {
     const session = await auth();
     const userId = session?.userId;
@@ -13,7 +14,7 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { courseId } = context.params;
+    const { courseId } = await params
     const body = await req.json();
     const { meetLink, generateNew } = body;
 

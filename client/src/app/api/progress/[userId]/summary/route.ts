@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ): Promise<NextResponse> {
   try {
     const { userId: clerkUserId } = await auth();
@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { userId } = context.params;
+    const { userId } = await params;
 
     // Make request to backend API for enrolled courses count
     const enrolledCoursesResponse = await fetch(

@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ): Promise<NextResponse> {
   try {
     // Verify user authentication
@@ -13,7 +13,7 @@ export async function GET(
     }
 
     // Get user ID from params
-    const { userId } = context.params;
+    const { userId } = await params;
     console.log(`Fetching quiz results for user ${userId}`);
 
     // Debug output
