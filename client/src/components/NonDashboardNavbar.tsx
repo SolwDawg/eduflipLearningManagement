@@ -39,15 +39,15 @@ const NonDashboardNavbar = () => {
             <Bell className="nondashboard-navbar__notification-icon" />
           </button>
 
-          <Link
-            href="/user/dashboard"
-            className="nondashboard-navbar__auth-button--signup"
-            scroll={false}
-          >
-            Dashboard
-          </Link>
-
           <SignedIn>
+            <Link
+              href="/user/courses"
+              className="nondashboard-navbar__auth-button--signup"
+              scroll={false}
+            >
+              Dashboard
+            </Link>
+
             <UserButton
               appearance={{
                 baseTheme: dark,
