@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import {
   useGetGradeQuery,
   useGetGradeCoursesQuery,
@@ -39,15 +39,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface PageProps {
-  params: {
-    gradeId: string;
-  };
-}
-
-export default function GradeDetailPage({ params }: PageProps) {
+export default function GradeDetailPage() {
   const router = useRouter();
-  const { gradeId } = params;
+  const params = useParams();
+  const gradeId = params.gradeId as string;
 
   const {
     data: grade,
