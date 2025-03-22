@@ -45,8 +45,7 @@ export default function GradeDetailPage({
   params: { gradeId: string };
 }) {
   const router = useRouter();
-  const unwrappedParams = use(params);
-  const { gradeId } = unwrappedParams;
+  const { gradeId } = params;
 
   const {
     data: grade,
