@@ -5,15 +5,44 @@ import AWS from "aws-sdk";
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION || "us-east-1",
+  region: process.env.AWS_REGION || "ap-southeast-1",
 });
 
 const s3 = new AWS.S3({
   signatureVersion: "v4",
 });
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || "eduflip-media";
+const BUCKET_NAME = process.env.S3_BUCKET_NAME || "eduflip-s3";
 const EXPIRES_IN = 3600; // URL expires in 1 hour
+
+/**
+ * Check if a bucket exists in S3
+ * @param bucketName The name of the bucket to check
+ * @returns True if the bucket exists, false otherwise
+ */
+export const checkBucketExists = async (
+  bucketName: string
+): Promise<boolean> => {
+  try {
+    console.log(`Checking if bucket "${bucketName}" exists...`);
+    await s3.headBucket({ Bucket: bucketName }).promise();
+    console.log(`Bucket "${bucketName}" exists and is accessible.`);
+    return true;
+  } catch (error: any) {
+    if (error.code === "NotFound" || error.code === "NoSuchBucket") {
+      console.error(`Bucket "${bucketName}" does not exist.`);
+      return false;
+    } else if (error.code === "Forbidden") {
+      console.error(
+        `Bucket "${bucketName}" exists but you don't have permission to access it.`
+      );
+      return false;
+    } else {
+      console.error(`Error checking if bucket "${bucketName}" exists:`, error);
+      return false;
+    }
+  }
+};
 
 /**
  * Generates a pre-signed URL for uploading files to S3
@@ -23,16 +52,38 @@ const EXPIRES_IN = 3600; // URL expires in 1 hour
 export const generateUploadUrl = async (
   fileKey: string
 ): Promise<{ uploadUrl: string; fileUrl: string }> => {
+  // Check if bucket exists first
+  const bucketExists = await checkBucketExists(BUCKET_NAME);
+  if (!bucketExists) {
+    console.error(
+      `The S3 bucket "${BUCKET_NAME}" does not exist or is not accessible.`
+    );
+    throw new Error(
+      `S3 bucket "${BUCKET_NAME}" is not available. Please check your configuration.`
+    );
+  }
+
+  // Get file's content type for proper header configuration
+  const contentType = getContentType(fileKey);
+  console.log(
+    `Generating pre-signed URL for ${fileKey} with content type: ${contentType}`
+  );
+
   const params = {
     Bucket: BUCKET_NAME,
     Key: fileKey,
     Expires: EXPIRES_IN,
-    ContentType: getContentType(fileKey),
-    ACL: "public-read",
+    ContentType: contentType,
   };
 
   try {
     const uploadUrl = await s3.getSignedUrlPromise("putObject", params);
+    // Log sanitized version of URL for debugging
+    const sanitizedUrl = uploadUrl.split("?")[0]; // Remove query parameters containing keys
+    console.log(
+      `Generated pre-signed URL: ${sanitizedUrl}?[signature-removed]`
+    );
+
     const fileUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${fileKey}`;
 
     return {
@@ -61,9 +112,14 @@ const getContentType = (filename: string): string => {
       return "image/gif";
     case "pdf":
       return "application/pdf";
+    // PowerPoint formats
     case "ppt":
-    case "pptx":
+    case "pps":
       return "application/vnd.ms-powerpoint";
+    case "pptx":
+      return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    case "ppsx":
+      return "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
     case "doc":
     case "docx":
       return "application/msword";

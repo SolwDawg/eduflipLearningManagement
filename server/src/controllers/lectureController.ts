@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import Course from "../models/courseModel";
 import { getAuth } from "@clerk/express";
 import { generateUploadUrl } from "../utils/mediaStorage";
+import AWS from "aws-sdk";
+import path from "path";
 
 // Create a new lecture
 export const createLecture = async (
@@ -173,8 +175,25 @@ export const getPPTUploadUrl = async (
   res: Response
 ): Promise<void> => {
   const { courseId, sectionId, chapterId } = req.params;
-  const { filename } = req.body;
+  const { fileName, fileType } = req.body;
   const { userId } = getAuth(req);
+
+  if (!fileName || !fileType) {
+    res.status(400).json({ message: "File name and type are required" });
+    return;
+  }
+
+  // Validate file extension
+  const fileExtension = fileName.split(".").pop()?.toLowerCase();
+  const validExtensions = ["ppt", "pptx", "pps", "ppsx"];
+
+  if (!fileExtension || !validExtensions.includes(fileExtension)) {
+    res.status(400).json({
+      message:
+        "Invalid file type. Only PowerPoint files (.ppt, .pptx, .pps, .ppsx) are allowed.",
+    });
+    return;
+  }
 
   try {
     const course = await Course.get(courseId);
@@ -190,14 +209,21 @@ export const getPPTUploadUrl = async (
       return;
     }
 
-    const fileKey = `lectures/${courseId}/${sectionId}/${chapterId}/ppt/${uuidv4()}-${filename}`;
+    const uniqueId = uuidv4();
+    const fileKey = `lectures/${courseId}/${sectionId}/${chapterId}/ppt/${uniqueId}-${fileName}`;
     const { uploadUrl, fileUrl } = await generateUploadUrl(fileKey);
+
+    console.log(
+      `Generated PowerPoint upload URL for file: ${fileName} (${fileType})`
+    );
+    console.log(`File will be stored at: ${fileKey}`);
 
     res.json({
       uploadUrl,
-      fileUrl,
+      presentationUrl: fileUrl,
     });
   } catch (error) {
+    console.error("Error generating PowerPoint upload URL:", error);
     res.status(500).json({ message: "Error generating upload URL", error });
   }
 };
@@ -208,8 +234,25 @@ export const getVideoUploadUrl = async (
   res: Response
 ): Promise<void> => {
   const { courseId, sectionId, chapterId } = req.params;
-  const { filename } = req.body;
+  const { fileName, fileType } = req.body;
   const { userId } = getAuth(req);
+
+  if (!fileName || !fileType) {
+    res.status(400).json({ message: "File name and type are required" });
+    return;
+  }
+
+  // Validate file extension
+  const fileExtension = fileName.split(".").pop()?.toLowerCase();
+  const validExtensions = ["mp4", "webm", "m3u8", "mpd", "ts"];
+
+  if (!fileExtension || !validExtensions.includes(fileExtension)) {
+    res.status(400).json({
+      message:
+        "Invalid file type. Only video files (.mp4, .webm, .m3u8, .mpd, .ts) are allowed.",
+    });
+    return;
+  }
 
   try {
     const course = await Course.get(courseId);
@@ -225,14 +268,21 @@ export const getVideoUploadUrl = async (
       return;
     }
 
-    const fileKey = `lectures/${courseId}/${sectionId}/${chapterId}/video/${uuidv4()}-${filename}`;
+    const uniqueId = uuidv4();
+    const fileKey = `lectures/${courseId}/${sectionId}/${chapterId}/video/${uniqueId}-${fileName}`;
     const { uploadUrl, fileUrl } = await generateUploadUrl(fileKey);
+
+    console.log(
+      `Generated video upload URL for file: ${fileName} (${fileType})`
+    );
+    console.log(`File will be stored at: ${fileKey}`);
 
     res.json({
       uploadUrl,
       videoUrl: fileUrl,
     });
   } catch (error) {
+    console.error("Error generating video upload URL:", error);
     res.status(500).json({ message: "Error generating upload URL", error });
   }
 };
@@ -287,5 +337,125 @@ export const publishLecture = async (
     });
   } catch (error) {
     res.status(500).json({ message: "Error publishing lecture", error });
+  }
+};
+
+// Upload PowerPoint file directly (server-side)
+export const uploadPowerPoint = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId, sectionId, chapterId } = req.params;
+    const { userId } = getAuth(req);
+
+    // Ensure this is a multipart request with a file
+    if (!req.file) {
+      res.status(400).json({ message: "No file uploaded" });
+      return;
+    }
+
+    // Get the file details
+    const file = req.file;
+    const originalFileName = file.originalname;
+    const fileExtension = originalFileName.split(".").pop()?.toLowerCase();
+
+    // Validate file extension
+    const validExtensions = ["ppt", "pptx", "pps", "ppsx"];
+    if (!fileExtension || !validExtensions.includes(fileExtension)) {
+      res.status(400).json({
+        message:
+          "Invalid file type. Only PowerPoint files (.ppt, .pptx, .pps, .ppsx) are allowed.",
+      });
+      return;
+    }
+
+    console.log(
+      `Processing PowerPoint file upload: ${originalFileName} (${fileExtension} format)`
+    );
+
+    // Check permission
+    const course = await Course.get(courseId);
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== userId) {
+      res.status(403).json({ message: "Not authorized to edit this course" });
+      return;
+    }
+
+    // Configure S3 upload
+    const uniqueId = uuidv4();
+    const s3Key = `lectures/${courseId}/${sectionId}/${chapterId}/ppt/${uniqueId}-${originalFileName}`;
+
+    const s3 = new AWS.S3({
+      signatureVersion: "v4",
+    });
+
+    const bucketName = process.env.S3_BUCKET_NAME || "eduflip-s3";
+    const contentType = getContentTypeForPresentation(originalFileName);
+
+    // Upload to S3 with proper content type
+    const params = {
+      Bucket: bucketName,
+      Key: s3Key,
+      Body: file.buffer,
+      ContentType: contentType,
+    };
+
+    console.log(
+      `Uploading PowerPoint file (${file.size} bytes) to S3: ${s3Key}`
+    );
+    console.log(`Using content type: ${contentType}`);
+
+    // Perform the upload
+    const uploadResult = await s3.upload(params).promise();
+
+    // Construct the URL for the uploaded file
+    const fileUrl = `https://${bucketName}.s3.amazonaws.com/${s3Key}`;
+
+    console.log(`PowerPoint file uploaded successfully: ${fileUrl}`);
+    console.log(
+      `S3 upload result: ${JSON.stringify({
+        Location: uploadResult.Location,
+        Key: uploadResult.Key,
+        Bucket: uploadResult.Bucket,
+      })}`
+    );
+
+    // Return the success response
+    res.status(200).json({
+      message: "PowerPoint file uploaded successfully",
+      data: {
+        presentationUrl: fileUrl,
+        fileName: originalFileName,
+        fileSize: file.size,
+        fileType: contentType,
+      },
+    });
+  } catch (error) {
+    console.error("Error uploading PowerPoint file:", error);
+    res.status(500).json({
+      message: "Error uploading PowerPoint file",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+// Helper function to determine content type based on file extension
+const getContentTypeForPresentation = (filename: string): string => {
+  const extension = path.extname(filename).toLowerCase();
+
+  switch (extension) {
+    case ".ppt":
+    case ".pps":
+      return "application/vnd.ms-powerpoint";
+    case ".pptx":
+    case ".ppsx":
+      return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    default:
+      return "application/octet-stream";
   }
 };

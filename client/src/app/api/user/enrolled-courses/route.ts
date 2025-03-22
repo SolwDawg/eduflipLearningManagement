@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { chatId: string } }
-) {
+export async function GET(req: NextRequest) {
   try {
     const { userId } = await auth();
 
@@ -12,18 +9,14 @@ export async function POST(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { chatId } = params;
-    const messageData = await req.json();
-
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/chats/${chatId}/messages`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/enrollments/student/${userId}`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.API_SECRET_KEY}`,
         },
-        body: JSON.stringify(messageData),
       }
     );
 
@@ -36,9 +29,20 @@ export async function POST(
       );
     }
 
-    return NextResponse.json(data);
+    // Format course data for the chat UI
+    const coursesForChat = data.data.map((enrollment: any) => ({
+      id: enrollment.courseId,
+      title: enrollment.courseTitle,
+      teacherId: enrollment.teacherId,
+      teacherName: enrollment.teacherName,
+    }));
+
+    return NextResponse.json({
+      message: "Courses retrieved successfully",
+      data: coursesForChat,
+    });
   } catch (error) {
-    console.error("Error sending message:", error);
+    console.error("Error fetching enrolled courses:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

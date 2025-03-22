@@ -28,6 +28,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import ChapterComments from "@/components/ChapterComments";
 import StudentQuizList from "@/components/StudentQuizList";
+import PowerPointViewer from "@/components/PowerPointViewer";
 
 // Dynamically import ReactPlayer to reduce initial load time
 const ReactPlayer = dynamic(() => import("react-player"), {
@@ -281,6 +282,20 @@ const ChapterPage = () => {
                           onProgress={handleProgress}
                           ref={playerRef}
                         />
+                      </div>
+                    ) : null}
+
+                    {currentChapter?.presentation ? (
+                      <div className="mt-4">
+                        <h3 className="text-lg font-semibold mb-2">
+                          Presentation
+                        </h3>
+                        <div className="relative overflow-hidden rounded-lg border">
+                          <PowerPointViewer
+                            fileUrl={currentChapter.presentation as string}
+                            height={500}
+                          />
+                        </div>
                       </div>
                     ) : null}
                   </div>

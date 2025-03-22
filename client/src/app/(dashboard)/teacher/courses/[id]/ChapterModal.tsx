@@ -14,12 +14,11 @@ import { ChapterFormData, chapterSchema } from "@/lib/schemas";
 import { addChapter, closeChapterModal, editChapter } from "@/state";
 import { useAppDispatch, useAppSelector } from "@/state/redux";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { FileUp, Video, X } from "lucide-react";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { useGetCategoriesQuery } from "@/state/api";
 
 const ChapterModal = () => {
   const dispatch = useAppDispatch();
@@ -41,10 +40,9 @@ const ChapterModal = () => {
       title: "",
       content: "",
       video: "",
+      presentation: "",
     },
   });
-
-  const { data: categoriesData } = useGetCategoriesQuery({});
 
   useEffect(() => {
     if (chapter) {
@@ -52,12 +50,14 @@ const ChapterModal = () => {
         title: chapter.title,
         content: chapter.content,
         video: chapter.video || "",
+        presentation: chapter.presentation || "",
       });
     } else {
       methods.reset({
         title: "",
         content: "",
         video: "",
+        presentation: "",
       });
     }
   }, [chapter, methods]);
@@ -74,8 +74,14 @@ const ChapterModal = () => {
       title: data.title,
       content: data.content,
       type: data.video ? "Video" : "Text",
-      video: data.video,
+      video: typeof data.video === "string" ? data.video : "",
+      presentation:
+        typeof data.presentation === "string" ? data.presentation : "",
     };
+
+    const videoFile = data.video instanceof File ? data.video : null;
+    const presentationFile =
+      data.presentation instanceof File ? data.presentation : null;
 
     if (selectedChapterIndex === null) {
       dispatch(
@@ -92,6 +98,14 @@ const ChapterModal = () => {
           chapter: newChapter,
         })
       );
+    }
+
+    if (videoFile || presentationFile) {
+      if (window.chapterFiles === undefined) window.chapterFiles = {};
+      window.chapterFiles[newChapter.chapterId] = {
+        video: videoFile,
+        presentation: presentationFile,
+      };
     }
 
     toast.success(`Bài học đã được thêm/cập nhật thành công`);
@@ -132,7 +146,7 @@ const ChapterModal = () => {
               render={({ field: { onChange, value } }) => (
                 <FormItem>
                   <FormLabel className="text-customgreys-dirtyGrey text-sm">
-                    Video bài học
+                    <Video className="w-4 h-4 inline mr-1" /> Video bài học
                   </FormLabel>
                   <FormControl>
                     <div>
@@ -155,6 +169,49 @@ const ChapterModal = () => {
                       {value instanceof File && (
                         <div className="my-2 text-sm text-gray-600">
                           Video đã chọn: {value.name}
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-red-400" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={methods.control}
+              name="presentation"
+              render={({ field: { onChange, value } }) => (
+                <FormItem>
+                  <FormLabel className="text-customgreys-dirtyGrey text-sm">
+                    <FileUp className="w-4 h-4 inline mr-1" /> PowerPoint
+                    Presentation
+                  </FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input
+                        type="file"
+                        accept=".ppt,.pptx,.pps,.ppsx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slideshow"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            onChange(file);
+                          }
+                        }}
+                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer"
+                      />
+                      <div className="text-xs text-gray-400 mt-1">
+                        Supported formats: .ppt, .pptx, .pps, .ppsx
+                      </div>
+                      {typeof value === "string" && value && (
+                        <div className="my-2 text-sm text-gray-600">
+                          Current presentation: {value.split("/").pop()}
+                        </div>
+                      )}
+                      {value instanceof File && (
+                        <div className="my-2 text-sm text-gray-600">
+                          Selected presentation: {value.name} (
+                          {(value.size / (1024 * 1024)).toFixed(2)} MB)
                         </div>
                       )}
                     </div>

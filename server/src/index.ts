@@ -41,7 +41,35 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+
+// Enhanced CORS configuration
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? [
+            "https://eduflip-learning-management.vercel.app",
+            "https://eduflip.com",
+            /\.eduflip\.com$/,
+          ]
+        : ["http://localhost:3000", "http://localhost:3001"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+      "Access-Control-Allow-Headers",
+    ],
+    credentials: true,
+    maxAge: 86400, // 24 hours
+  })
+);
+
+// Additional CORS handling for S3 pre-flight requests
+app.options("*", cors());
+
 app.use(clerkMiddleware());
 
 /* ROUTES */

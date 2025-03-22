@@ -21,7 +21,18 @@ export const updateCourseVideoInfo = (
 };
 
 export const validateUploadedFiles = (files: any) => {
-  const allowedExtensions = [".mp4", ".m3u8", ".mpd", ".ts", ".m4s"];
+  const allowedExtensions = [
+    ".mp4",
+    ".webm",
+    ".m3u8",
+    ".mpd",
+    ".ts",
+    ".m4s",
+    ".ppt",
+    ".pptx",
+    ".pps",
+    ".ppsx",
+  ];
   for (const file of files) {
     const ext = path.extname(file.originalname).toLowerCase();
     if (!allowedExtensions.includes(ext)) {
@@ -35,6 +46,8 @@ export const getContentType = (filename: string) => {
   switch (ext) {
     case ".mp4":
       return "video/mp4";
+    case ".webm":
+      return "video/webm";
     case ".m3u8":
       return "application/vnd.apple.mpegurl";
     case ".mpd":
@@ -43,6 +56,12 @@ export const getContentType = (filename: string) => {
       return "video/MP2T";
     case ".m4s":
       return "video/iso.segment";
+    case ".ppt":
+    case ".pps":
+      return "application/vnd.ms-powerpoint";
+    case ".pptx":
+    case ".ppsx":
+      return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
     default:
       return "application/octet-stream";
   }

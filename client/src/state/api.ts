@@ -10,6 +10,24 @@ const customBaseQuery = async (
   api: BaseQueryApi,
   extraOptions: any
 ) => {
+  // Special debug logging for course updates
+  if (
+    typeof args === "object" &&
+    args.url &&
+    args.url.includes("courses/") &&
+    args.method === "PUT"
+  ) {
+    console.log("[API:DEBUG] Processing course update request:", {
+      url: args.url,
+      method: args.method,
+      bodyType: args.body instanceof FormData ? "FormData" : typeof args.body,
+      bodyKeys:
+        args.body instanceof FormData
+          ? Array.from((args.body as FormData).keys())
+          : "not FormData",
+    });
+  }
+
   const baseQuery = fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
@@ -22,6 +40,19 @@ const customBaseQuery = async (
   });
 
   try {
+    // More detailed logging for course update requests
+    if (
+      typeof args === "object" &&
+      args.url &&
+      args.url.includes("courses/") &&
+      args.method === "PUT"
+    ) {
+      console.log(
+        "[API:DEBUG] Sending course update request to:",
+        process.env.NEXT_PUBLIC_API_BASE_URL + "/" + args.url
+      );
+    }
+
     const result: any = await baseQuery(args, api, extraOptions);
 
     if (result.error) {
@@ -190,7 +221,6 @@ export const api = createApi({
     "Courses",
     "Users",
     "UserCourseProgress",
-    "Categories",
     "Grades",
     "Comments",
     "Quizzes",
@@ -202,7 +232,6 @@ export const api = createApi({
     "Quiz",
     "QuizAttempt",
     "Discussions",
-    "Category",
     "Leaderboard",
   ],
   endpoints: (build) => ({
@@ -254,11 +283,43 @@ export const api = createApi({
       Course,
       { courseId: string; formData: FormData }
     >({
-      query: ({ courseId, formData }) => ({
-        url: `courses/${courseId}`,
-        method: "PUT",
-        body: formData,
-      }),
+      query: ({ courseId, formData }) => {
+        console.log(
+          `[updateCourseMutation] Starting course update for ID: ${courseId}`
+        );
+
+        // Create an AbortController with a timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          console.error(
+            "[updateCourseMutation] Request timed out after 30 seconds"
+          );
+          controller.abort();
+        }, 30000);
+
+        return {
+          url: `courses/${courseId}`,
+          method: "PUT",
+          body: formData,
+          // Important: do NOT let RTK Query process the FormData
+          formData: true,
+          // We'll use content-type: multipart/form-data and let the browser handle it
+          // No prepareHeaders needed
+          signal: controller.signal,
+          validateStatus: (response, result) => {
+            // Clear the timeout if we get any response
+            clearTimeout(timeoutId);
+
+            console.log("[updateCourseMutation] Received response:", {
+              status: response.status,
+              ok: response.ok,
+              statusText: response.statusText,
+            });
+
+            return response.ok;
+          },
+        };
+      },
       invalidatesTags: (result, error, { courseId }) => [
         { type: "Courses", id: courseId },
       ],
@@ -284,6 +345,23 @@ export const api = createApi({
     >({
       query: ({ courseId, sectionId, chapterId, fileName, fileType }) => ({
         url: `courses/${courseId}/sections/${sectionId}/chapters/${chapterId}/get-upload-url`,
+        method: "POST",
+        body: { fileName, fileType },
+      }),
+    }),
+
+    getUploadPresentationUrl: build.mutation<
+      { uploadUrl: string; presentationUrl: string },
+      {
+        courseId: string;
+        chapterId: string;
+        sectionId: string;
+        fileName: string;
+        fileType: string;
+      }
+    >({
+      query: ({ courseId, sectionId, chapterId, fileName, fileType }) => ({
+        url: `courses/${courseId}/sections/${sectionId}/chapters/${chapterId}/get-ppt-upload-url`,
         method: "POST",
         body: { fileName, fileType },
       }),
@@ -377,47 +455,6 @@ export const api = createApi({
     getMonthlyLeaderboard: build.query<any, void>({
       query: () => "users/course-progress/leaderboard/monthly",
       providesTags: ["Leaderboard"],
-    }),
-
-    /* 
-    ===============
-    CATEGORIES
-    =============== 
-    */
-    getCategories: build.query({
-      query: () => "categories",
-      providesTags: ["Categories"],
-    }),
-
-    getCategory: build.query({
-      query: (slug) => `categories/${slug}`,
-      providesTags: (result, error, slug) => [{ type: "Category", id: slug }],
-    }),
-
-    createCategory: build.mutation({
-      query: (body) => ({
-        url: "categories",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["Categories"],
-    }),
-
-    updateCategory: build.mutation({
-      query: ({ slug, ...body }) => ({
-        url: `categories/${slug}`,
-        method: "PUT",
-        body,
-      }),
-      invalidatesTags: ["Categories"],
-    }),
-
-    deleteCategory: build.mutation({
-      query: (slug) => ({
-        url: `categories/${slug}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Categories"],
     }),
 
     /* 
@@ -738,14 +775,11 @@ export const {
   useGetCoursesQuery,
   useGetCourseQuery,
   useGetUploadVideoUrlMutation,
+  useGetUploadPresentationUrlMutation,
   useGetUploadImageUrlMutation,
   useGetUserEnrolledCoursesQuery,
   useGetUserCourseProgressQuery,
   useUpdateUserCourseProgressMutation,
-  useGetCategoriesQuery,
-  useCreateCategoryMutation,
-  useUpdateCategoryMutation,
-  useDeleteCategoryMutation,
   useGetGradesQuery,
   useGetGradeQuery,
   useCreateGradeMutation,

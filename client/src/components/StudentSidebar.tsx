@@ -14,10 +14,20 @@ import {
 import {
   BookOpen,
   LogOut,
-  MessageSquare,
   PanelLeft,
   Settings,
   User,
+  Home,
+  BarChart,
+  CalendarCheck,
+  ChevronDown,
+  GraduationCap,
+  Grid,
+  Library,
+  ListChecks,
+  PackageCheck,
+  Settings2,
+  Users,
 } from "lucide-react";
 import Loading from "./Loading";
 import Image from "next/image";
@@ -32,9 +42,21 @@ const StudentSidebar = () => {
 
   const studentNavLinks = [
     { icon: BookOpen, label: "Courses", href: "/user/courses" },
-    { icon: MessageSquare, label: "Messages", href: "/user/messages" },
     { icon: User, label: "Hồ sơ", href: "/user/profile" },
     { icon: Settings, label: "Cài đặt", href: "/user/settings" },
+  ];
+
+  const navLinks = [
+    {
+      heading: "Dashboard",
+      links: [
+        { href: "/user", label: "Home", icon: Home },
+        { href: "/user/explore", label: "Explore Courses", icon: Library },
+        { href: "/user/enrolled", label: "My Courses", icon: GraduationCap },
+        { href: "/user/schedule", label: "My Schedule", icon: CalendarCheck },
+        { href: "/user/progress", label: "My Progress", icon: BarChart },
+      ],
+    },
   ];
 
   if (!isLoaded) return <Loading />;

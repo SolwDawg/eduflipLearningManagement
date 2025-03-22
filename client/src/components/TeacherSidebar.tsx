@@ -20,7 +20,6 @@ import {
   Settings,
   User,
   BarChart,
-  MessageSquare,
 } from "lucide-react";
 import Loading from "./Loading";
 import Image from "next/image";
@@ -36,7 +35,6 @@ const TeacherSidebar = () => {
   const teacherNavLinks = [
     { icon: BookOpen, label: "Khoá học", href: "/teacher/courses" },
     { icon: Briefcase, label: "Lớp", href: "/teacher/grades" },
-    { icon: MessageSquare, label: "Messages", href: "/teacher/messages" },
     { icon: User, label: "Hồ sơ", href: "/teacher/profile" },
     { icon: Settings, label: "Cài đặt", href: "/teacher/settings" },
     { icon: Presentation, label: "Materials", href: "/teacher/materials" },

@@ -9,7 +9,6 @@ import {
   getUploadVideoUrl,
   getUploadImageUrl,
   updateMeetLink,
-  getCoursesByCategory,
 } from "../controllers/courseController";
 import {
   getChapterComments,
@@ -18,6 +17,10 @@ import {
 } from "../controllers/commentController";
 import { requireAuth } from "@clerk/express";
 import { RequestHandler } from "express";
+import {
+  getPPTUploadUrl,
+  uploadPowerPoint,
+} from "../controllers/lectureController";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -53,6 +56,20 @@ router.post(
   getUploadVideoUrl as RequestHandler
 );
 
+router.post(
+  "/:courseId/sections/:sectionId/chapters/:chapterId/get-ppt-upload-url",
+  requireAuth(),
+  getPPTUploadUrl as RequestHandler
+);
+
+// Direct server-side PowerPoint upload route
+router.post(
+  "/:courseId/sections/:sectionId/chapters/:chapterId/upload-ppt",
+  requireAuth(),
+  upload.single("file"),
+  uploadPowerPoint as RequestHandler
+);
+
 // Chapter comments routes
 router.get(
   "/:courseId/sections/:sectionId/chapters/:chapterId/comments",
@@ -70,8 +87,5 @@ router.delete(
   requireAuth(),
   deleteChapterComment as RequestHandler
 );
-
-// GET /courses/category/:categorySlug - Get all courses by category
-router.get("/category/:categorySlug", getCoursesByCategory);
 
 export default router;

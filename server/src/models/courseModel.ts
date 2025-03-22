@@ -11,7 +11,6 @@ import { Schema, model } from "dynamoose";
  *         - teacherId
  *         - teacherName
  *         - title
- *         - category
  *         - level
  *         - status
  *       properties:
@@ -30,9 +29,6 @@ import { Schema, model } from "dynamoose";
  *         description:
  *           type: string
  *           description: A description of the course
- *         category:
- *           type: string
- *           description: The category of the course
  *         image:
  *           type: string
  *           description: URL to the course image
@@ -104,6 +100,9 @@ const chapterSchema = new Schema({
     schema: [commentSchema],
   },
   video: {
+    type: String,
+  },
+  presentation: {
     type: String,
   },
   quiz: {
@@ -184,7 +183,6 @@ const courseSchema = new Schema(
     },
     category: {
       type: String,
-      required: true,
     },
     image: {
       type: String,
@@ -225,4 +223,5 @@ const courseSchema = new Schema(
 );
 
 const Course = model("Course", courseSchema);
+
 export default Course;

@@ -19,7 +19,8 @@ export async function PUT(
 
     // Hardcode the backend URL - more reliable than dynamic detection
     // Make sure this matches your actual backend URL
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3300";
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8001";
 
     console.log(
       "Sending request to backend:",

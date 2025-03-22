@@ -1,0 +1,183 @@
+[
+  {
+    "gradeId": "math-elementary",
+    "name": "Toán học cơ bản",
+    "description": "Lớp học toán dành cho học sinh tiểu học, cung cấp kiến thức nền tảng",
+    "level": 1,
+    "courseIds": ["course-math-101", "course-math-201", "course-math-301"]
+  },
+  {
+    "gradeId": "math-intermediate",
+    "name": "Toán học trung cấp",
+    "description": "Lớp học toán dành cho học sinh trung học cơ sở, phát triển tư duy logic và đại số",
+    "level": 2,
+    "courseIds": [
+      "course-mathematics-601",
+      "course-mathematics-701",
+      "course-mathematics-801",
+      "course-mathematics-901"
+    ]
+  },
+  {
+    "gradeId": "math-advanced",
+    "name": "Toán học nâng cao",
+    "description": "Lớp học toán dành cho học sinh trung học phổ thông, chuẩn bị cho kỳ thi đại học",
+    "level": 3,
+    "courseIds": [
+      "course-mathematics-101",
+      "course-mathematics-1101",
+      "course-mathematics-1201"
+    ]
+  },
+  {
+    "gradeId": "physics-basic",
+    "name": "Vật lý cơ bản",
+    "description": "Lớp học vật lý dành cho học sinh trung học cơ sở, giới thiệu các khái niệm cơ bản",
+    "level": 2,
+    "courseIds": [
+      "course-physics-701",
+      "course-physics-801",
+      "course-physics-901"
+    ]
+  },
+  {
+    "gradeId": "physics-advanced",
+    "name": "Vật lý nâng cao",
+    "description": "Lớp học vật lý dành cho học sinh trung học phổ thông, đi sâu vào các lý thuyết và bài toán phức tạp",
+    "level": 3,
+    "courseIds": [
+      "course-physics-1001",
+      "course-physics-1101",
+      "course-physics-1201"
+    ]
+  },
+  {
+    "gradeId": "chemistry-basic",
+    "name": "Hóa học cơ bản",
+    "description": "Lớp học hóa học dành cho học sinh trung học cơ sở, giới thiệu các khái niệm cơ bản",
+    "level": 2,
+    "courseIds": ["course-chemistry-801", "course-chemistry-901"]
+  },
+  {
+    "gradeId": "chemistry-advanced",
+    "name": "Hóa học nâng cao",
+    "description": "Lớp học hóa học dành cho học sinh trung học phổ thông, đi sâu vào hóa hữu cơ và vô cơ",
+    "level": 3,
+    "courseIds": [
+      "course-chemistry-1001",
+      "course-chemistry-1101",
+      "course-chemistry-1201"
+    ]
+  },
+  {
+    "gradeId": "biology-basic",
+    "name": "Sinh học cơ bản",
+    "description": "Lớp học sinh học dành cho học sinh trung học cơ sở, giới thiệu về sinh vật học",
+    "level": 2,
+    "courseIds": ["course-biology-701"]
+  },
+  {
+    "gradeId": "biology-advanced",
+    "name": "Sinh học nâng cao",
+    "description": "Lớp học sinh học dành cho học sinh trung học phổ thông, đi sâu vào di truyền học và sinh lý học",
+    "level": 3,
+    "courseIds": [
+      "course-biology-1001",
+      "course-biology-1101",
+      "course-biology-1201"
+    ]
+  },
+  {
+    "gradeId": "literature-elementary",
+    "name": "Văn học tiểu học",
+    "description": "Lớp học văn học dành cho học sinh tiểu học, phát triển kỹ năng đọc và viết cơ bản",
+    "level": 1,
+    "courseIds": [
+      "course-reading-101",
+      "course-reading-201",
+      "course-reading-301",
+      "course-reading-401",
+      "course-reading-501"
+    ]
+  },
+  {
+    "gradeId": "literature-intermediate",
+    "name": "Văn học trung học cơ sở",
+    "description": "Lớp học văn học dành cho học sinh trung học cơ sở, giới thiệu các tác phẩm văn học Việt Nam và thế giới",
+    "level": 2,
+    "courseIds": [
+      "course-literature-601",
+      "course-literature-701",
+      "course-literature-801",
+      "course-literature-901"
+    ]
+  },
+  {
+    "gradeId": "literature-advanced",
+    "name": "Văn học trung học phổ thông",
+    "description": "Lớp học văn học dành cho học sinh trung học phổ thông, phân tích chuyên sâu các tác phẩm văn học",
+    "level": 3,
+    "courseIds": [
+      "course-literature-1001",
+      "course-literature-1101",
+      "course-literature-1201"
+    ]
+  },
+  {
+    "gradeId": "english-beginner",
+    "name": "Tiếng Anh cơ bản",
+    "description": "Lớp học tiếng Anh dành cho người mới bắt đầu, cung cấp kiến thức cơ bản về ngữ pháp và từ vựng",
+    "level": 1,
+    "courseIds": ["course-english-101", "course-english-102"]
+  },
+  {
+    "gradeId": "english-intermediate",
+    "name": "Tiếng Anh trung cấp",
+    "description": "Lớp học tiếng Anh dành cho người học có kiến thức cơ bản, phát triển kỹ năng giao tiếp",
+    "level": 2,
+    "courseIds": ["course-english-201", "course-english-202"]
+  },
+  {
+    "gradeId": "english-advanced",
+    "name": "Tiếng Anh nâng cao",
+    "description": "Lớp học tiếng Anh dành cho người học muốn đạt trình độ cao, chuẩn bị cho các kỳ thi quốc tế",
+    "level": 3,
+    "courseIds": ["course-english-301", "course-english-302"]
+  },
+  {
+    "gradeId": "programming-beginner",
+    "name": "Lập trình cơ bản",
+    "description": "Khóa học lập trình dành cho người mới bắt đầu, giới thiệu các khái niệm cơ bản",
+    "level": 1,
+    "courseIds": ["course-programming-101"]
+  },
+  {
+    "gradeId": "programming-intermediate",
+    "name": "Lập trình trung cấp",
+    "description": "Khóa học lập trình cho người đã có kiến thức cơ bản, đi sâu vào các thuật toán và cấu trúc dữ liệu",
+    "level": 2,
+    "courseIds": ["course-algorithm-201", "course-data-structures"]
+  },
+  {
+    "gradeId": "programming-advanced",
+    "name": "Lập trình nâng cao",
+    "description": "Khóa học lập trình chuyên sâu, tập trung vào phát triển ứng dụng và hệ thống phức tạp",
+    "level": 3,
+    "courseIds": [
+      "course-database-301",
+      "course-software-engineering",
+      "course-os-fundamentals"
+    ]
+  },
+  {
+    "gradeId": "computer-science-advanced",
+    "name": "Khoa học máy tính nâng cao",
+    "description": "Khóa học dành cho sinh viên năm cuối ngành khoa học máy tính, tập trung vào các công nghệ hiện đại",
+    "level": 4,
+    "courseIds": [
+      "course-ai-401",
+      "course-cloud-computing",
+      "course-project-management"
+    ]
+  }
+]

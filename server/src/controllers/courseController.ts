@@ -55,27 +55,22 @@ export const listCourses = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { category } = req.query;
+  // Remove category filtering from listCourses
   try {
     let courses = [];
 
     try {
-      if (category && category !== "all") {
-        console.log(`Filtering courses by category: ${category}`);
-        courses = await Course.scan("category").eq(category).exec();
-      } else {
-        console.log("Getting all courses without category filter");
-        // Process courses individually to avoid single error breaking entire response
-        const rawCourses = await Course.scan().exec();
-        courses = rawCourses.map((course) => {
-          try {
-            return processQuizChapters(course);
-          } catch (e) {
-            console.error(`Failed to process course ${course.courseId}:`, e);
-            return course; // Return original course if processing fails
-          }
-        });
-      }
+      console.log("Getting all courses");
+      // Process courses individually to avoid single error breaking entire response
+      const rawCourses = await Course.scan().exec();
+      courses = rawCourses.map((course) => {
+        try {
+          return processQuizChapters(course);
+        } catch (e) {
+          console.error(`Failed to process course ${course.courseId}:`, e);
+          return course; // Return original course if processing fails
+        }
+      });
     } catch (scanError) {
       console.error("DynamoDB scan error:", scanError);
       // Attempt to recover with a direct scan
@@ -153,7 +148,6 @@ export const createCourse = async (
       teacherName,
       title: "Untitled Course",
       description: "",
-      category: "Uncategorized",
       image: "",
       level: "Beginner",
       status: "Draft",
@@ -173,57 +167,130 @@ export const updateCourse = async (
   res: Response
 ): Promise<void> => {
   const { courseId } = req.params;
-  const updateData: Record<string, any> = {};
+  console.log(`[updateCourse] Updating course ${courseId}`);
+  console.log(
+    `[updateCourse] Request content type: ${req.headers["content-type"]}`
+  );
 
-  // Process form data
+  // First try a simpler approach - the client sends title, description, status, sections
   if (req.is("multipart/form-data")) {
     try {
-      const form = new IncomingForm();
-      const [fields] = await form.parse(req);
+      // Use a simple approach without streaming to avoid hanging
+      const updateData: Record<string, any> = {};
+      console.log("[updateCourse] Using simplified form parsing approach");
 
-      // Extract fields from form data
-      for (const [key, value] of Object.entries(fields)) {
-        if (value && Array.isArray(value) && value.length > 0) {
-          if (key === "sections") {
-            try {
-              updateData[key] = JSON.parse(value[0] as string);
-            } catch (error) {
-              console.error("Error parsing sections:", error);
-            }
+      // Create a native Node.js promise-based form parser to avoid hanging
+      const busboy = require("busboy");
+      const bb = busboy({ headers: req.headers });
+
+      // Set a timeout in case parsing hangs
+      const timeout = setTimeout(() => {
+        console.error("[updateCourse] Form parsing timeout after 10 seconds");
+        bb.emit("error", new Error("Form parsing timeout"));
+      }, 10000);
+
+      // Process form fields
+      bb.on("field", (name: string, val: string) => {
+        console.log(`[updateCourse] Received field ${name}`);
+        try {
+          if (name === "sections") {
+            updateData[name] = JSON.parse(val);
           } else {
-            updateData[key] = value[0] as string;
+            updateData[name] = val;
           }
+        } catch (error) {
+          console.error(
+            `[updateCourse] Error processing field ${name}:`,
+            error
+          );
         }
-      }
-    } catch (err) {
-      console.error("Error parsing form data:", err);
-      res.status(400).json({ message: "Error parsing form data" });
+      });
+
+      // Process form completion
+      bb.on("close", async () => {
+        clearTimeout(timeout);
+        console.log("[updateCourse] Form parsing completed");
+
+        try {
+          // Update the course in the database
+          const course = await Course.get(courseId);
+          if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+          }
+
+          console.log(`[updateCourse] Received update data:`, updateData);
+
+          // Update each field
+          for (const [key, value] of Object.entries(updateData)) {
+            if (value !== undefined) {
+              course[key] = value;
+            }
+          }
+
+          await course.save();
+          console.log("[updateCourse] Course updated successfully");
+          res.json({ message: "Course updated successfully", data: course });
+        } catch (error) {
+          console.error("[updateCourse] Error saving course:", error);
+          res.status(500).json({
+            message: "Error saving course",
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      });
+
+      // Handle parsing errors
+      bb.on("error", (error: Error) => {
+        clearTimeout(timeout);
+        console.error("[updateCourse] Form parsing error:", error);
+        res.status(400).json({
+          message: "Error parsing form data",
+          error: error.message,
+        });
+      });
+
+      // Pipe the request to busboy
+      req.pipe(bb);
+      return; // Important: return here to avoid continuing execution
+    } catch (formError) {
+      console.error("[updateCourse] Form handling error:", formError);
+      res.status(500).json({
+        message: "Error handling form data",
+        error:
+          formError instanceof Error ? formError.message : String(formError),
+      });
       return;
     }
   } else {
-    // Regular JSON request
-    Object.assign(updateData, req.body);
-  }
+    // Regular JSON request - this part can remain unchanged
+    try {
+      console.log(`[updateCourse] Processing regular JSON request`);
+      const updateData = req.body;
 
-  try {
-    const course = await Course.get(courseId);
-    if (!course) {
-      res.status(404).json({ message: "Course not found" });
-      return;
-    }
-
-    // Update each field
-    for (const [key, value] of Object.entries(updateData)) {
-      if (value !== undefined) {
-        course[key] = value;
+      const course = await Course.get(courseId);
+      if (!course) {
+        res.status(404).json({ message: "Course not found" });
+        return;
       }
-    }
 
-    await course.save();
-    res.json({ message: "Course updated successfully", data: course });
-  } catch (error) {
-    console.error("Error updating course:", error);
-    res.status(500).json({ message: "Error updating course", error });
+      // Update each field
+      for (const [key, value] of Object.entries(updateData)) {
+        if (value !== undefined) {
+          course[key] = value;
+        }
+      }
+
+      await course.save();
+      console.log("[updateCourse] Course updated successfully via JSON");
+      res.json({ message: "Course updated successfully", data: course });
+    } catch (error) {
+      console.error("[updateCourse] Error updating course:", error);
+      res.status(500).json({
+        message: "Error updating course",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
 };
 
@@ -374,32 +441,6 @@ export const updateMeetLink = async (
     console.error("Error updating Google Meet link:", error);
     res.status(500).json({
       message: "Error updating Google Meet link",
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-};
-
-export const getCoursesByCategory = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const { categorySlug } = req.params;
-
-  try {
-    // Find only published courses with matching category
-    const courses = await Course.scan({
-      status: "Published",
-      category: categorySlug,
-    }).exec();
-
-    res.json({
-      message: "Courses by category retrieved successfully",
-      data: courses,
-    });
-  } catch (error) {
-    console.error("Error retrieving courses by category:", error);
-    res.status(500).json({
-      message: "Error retrieving courses by category",
       error: error instanceof Error ? error.message : String(error),
     });
   }

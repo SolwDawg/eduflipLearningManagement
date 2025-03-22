@@ -5,14 +5,19 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { courseSchema } from "@/lib/schemas";
-import { createCourseFormData, uploadAllVideos } from "@/lib/utils";
+import {
+  createCourseFormData,
+  uploadAllFiles,
+  uploadPresentation,
+  uploadVideo,
+} from "@/lib/utils";
 import { openSectionModal, setSections } from "@/state";
 import {
   useGetCourseQuery,
   useUpdateCourseMutation,
   useGetUploadVideoUrlMutation,
   useGetUploadImageUrlMutation,
-  useGetCategoriesQuery,
+  useGetUploadPresentationUrlMutation,
 } from "@/state/api";
 import { useAppDispatch, useAppSelector } from "@/state/redux";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,10 +56,106 @@ const CourseEditor = () => {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+
+  // Setup network monitoring for debugging
+  useEffect(() => {
+    // Only run in development and client-side
+    if (typeof window !== "undefined") {
+      console.log("[NetworkMonitor] Setting up API call monitoring");
+
+      // Save original fetch
+      const originalFetch = window.fetch;
+
+      // Override fetch to monitor requests
+      window.fetch = async function (input, init) {
+        let url: string;
+        if (typeof input === "string") {
+          url = input;
+        } else if (input instanceof Request) {
+          url = input.url;
+        } else {
+          url = input.toString();
+        }
+
+        // Only monitor course update calls
+        if (url.includes(`courses/${id}`) && init?.method === "PUT") {
+          console.log("[NetworkMonitor] Detected course update API call", {
+            url,
+            method: init?.method,
+            headers: init?.headers,
+            bodyType:
+              init?.body instanceof FormData ? "FormData" : typeof init?.body,
+          });
+
+          // Log form data if available
+          if (init?.body instanceof FormData) {
+            console.log(
+              "[NetworkMonitor] Form data fields:",
+              Array.from((init.body as FormData).keys())
+            );
+          }
+
+          try {
+            console.log("[NetworkMonitor] Sending request...");
+            const startTime = Date.now();
+            const response = await originalFetch(input, init);
+            const endTime = Date.now();
+            console.log(
+              `[NetworkMonitor] Response received in ${endTime - startTime}ms`
+            );
+
+            const responseClone = response.clone();
+
+            try {
+              const responseData = await responseClone.json();
+              console.log("[NetworkMonitor] Course update API response", {
+                status: response.status,
+                statusText: response.statusText,
+                data: responseData,
+                responseTime: `${endTime - startTime}ms`,
+              });
+            } catch (e) {
+              console.log("[NetworkMonitor] Could not parse response as JSON", {
+                status: response.status,
+                statusText: response.statusText,
+                error: e instanceof Error ? e.message : String(e),
+              });
+
+              // Try to read as text if JSON parsing fails
+              try {
+                const textResponseClone = response.clone();
+                const textData = await textResponseClone.text();
+                console.log(
+                  "[NetworkMonitor] Response as text:",
+                  textData.substring(0, 500)
+                );
+              } catch (textError) {
+                console.log("[NetworkMonitor] Failed to read response as text");
+              }
+            }
+
+            return response;
+          } catch (error) {
+            console.error("[NetworkMonitor] Course update API error", error);
+            throw error;
+          }
+        }
+
+        return originalFetch(input, init);
+      };
+
+      // Cleanup function
+      return () => {
+        window.fetch = originalFetch;
+        console.log("[NetworkMonitor] Restored original fetch");
+      };
+    }
+  }, [id]);
+
   const { data: course, isLoading, refetch } = useGetCourseQuery(id);
-  const { data: categoriesData } = useGetCategoriesQuery({});
   const [updateCourse] = useUpdateCourseMutation();
   const [getUploadVideoUrl] = useGetUploadVideoUrlMutation();
+  const [getUploadPresentationUrl] = useGetUploadPresentationUrlMutation();
   const [getUploadImageUrl] = useGetUploadImageUrlMutation();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -69,7 +170,6 @@ const CourseEditor = () => {
     defaultValues: {
       courseTitle: "",
       courseDescription: "",
-      courseCategory: "",
       courseStatus: false,
     },
   });
@@ -79,7 +179,6 @@ const CourseEditor = () => {
       methods.reset({
         courseTitle: course.title,
         courseDescription: course.description,
-        courseCategory: course.category,
         courseStatus: course.status === "Published",
       });
       dispatch(setSections(course.sections || []));
@@ -123,39 +222,185 @@ const CourseEditor = () => {
       return imageUrl;
     } catch (error) {
       console.error("Error uploading course image:", error);
+      toast.error("Không thể cập nhật khoá học. Vui lòng thử lại.");
       return null;
     }
   };
 
   const onSubmit = async (data: CourseFormData) => {
     try {
-      const updatedSections = await uploadAllVideos(
+      console.log("[CourseEditor] Starting save process", {
+        title: data.courseTitle,
+        description: data.courseDescription,
+        status: data.courseStatus ? "Published" : "Draft",
+      });
+
+      // Validate title and description specifically
+      const titleValid = data.courseTitle.trim().length > 0;
+      const descriptionValid = data.courseDescription.trim().length > 0;
+
+      if (!titleValid || !descriptionValid) {
+        console.error(
+          "[CourseEditor] Validation failed for title or description",
+          {
+            titleValid,
+            descriptionValid,
+            title: data.courseTitle,
+            description: data.courseDescription,
+          }
+        );
+
+        if (!titleValid) {
+          toast.error("Tiêu đề khoá học không được để trống");
+          methods.setError("courseTitle", { message: "Title is required" });
+        }
+
+        if (!descriptionValid) {
+          toast.error("Mô tả khoá học không được để trống");
+          methods.setError("courseDescription", {
+            message: "Description is required",
+          });
+        }
+
+        return;
+      }
+
+      // Add loading state
+      const saveButtonElement = document.querySelector(
+        'button[type="submit"]'
+      ) as HTMLButtonElement;
+      if (saveButtonElement) {
+        saveButtonElement.disabled = true;
+        saveButtonElement.textContent = "Saving...";
+      }
+
+      toast.info("Đang lưu khoá học...");
+      console.log("[CourseEditor] Form data valid, proceeding with save");
+
+      // Start image upload (if any) in parallel
+      const imageUploadPromise = imageFile
+        ? uploadCourseImage()
+        : Promise.resolve(null);
+
+      console.log("[CourseEditor] Processing section uploads");
+      // Process all file uploads in parallel
+      const updatedSections = await uploadAllFiles(
         sections,
         id,
-        getUploadVideoUrl
+        getUploadVideoUrl,
+        getUploadPresentationUrl
       );
+      console.log("[CourseEditor] Sections processed", {
+        sectionCount: updatedSections.length,
+      });
 
-      // Upload course image if present
-      const imageUrl = await uploadCourseImage();
+      // Get the image URL from the parallel upload
+      const imageUrl = await imageUploadPromise;
+      console.log("[CourseEditor] Image upload completed", {
+        hasImage: !!imageUrl,
+      });
 
-      // Convert null to undefined to match the expected parameter type
+      // Create form data with all updated information
+      console.log("[CourseEditor] Creating form data");
       const formData = createCourseFormData(
         data,
         updatedSections,
-        imageUrl || undefined,
+        imageUrl || (imagePreview !== null ? imagePreview : undefined),
         meetLink || undefined
       );
 
-      await updateCourse({
-        courseId: id,
-        formData,
-      }).unwrap();
+      // Log form data entries for debugging
+      console.log(
+        "[CourseEditor] Form data created with the following entries:"
+      );
+      for (const [key, value] of formData.entries()) {
+        console.log(`- ${key}: ${key === "sections" ? "JSON data" : value}`);
+      }
 
-      toast.success("Khoá học đã được cập nhật thành công");
-      refetch();
+      // Update the course
+      console.log(
+        "[CourseEditor] Calling updateCourse API with course ID:",
+        id
+      );
+      try {
+        console.log("[CourseEditor] Making updateCourse API call with:", {
+          courseId: id,
+          hasFormData: !!formData,
+          formDataKeys: Array.from(formData.keys()),
+        });
+
+        // Instead of FormData, let's use a direct JSON object for simplicity
+        const courseData = {
+          title: data.courseTitle,
+          description: data.courseDescription,
+          status: data.courseStatus ? "Published" : "Draft",
+          sections: updatedSections,
+          meetLink: meetLink || undefined,
+          image: imageUrl || (imagePreview !== null ? imagePreview : undefined),
+        };
+
+        console.log(
+          "[CourseEditor] Using JSON approach with data:",
+          courseData
+        );
+
+        try {
+          // Try direct fetch with JSON instead of FormData
+          const token = await window.Clerk?.session?.getToken();
+          const baseUrl =
+            process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8001";
+
+          const response = await fetch(`${baseUrl}/courses/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(courseData),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(
+              `API call failed: ${response.status} ${response.statusText} - ${errorText}`
+            );
+          }
+
+          const result = await response.json();
+          console.log("[CourseEditor] Update successful:", result);
+        } catch (fetchError) {
+          console.error("[CourseEditor] Direct fetch failed:", fetchError);
+          throw fetchError;
+        }
+
+        toast.success("Khoá học đã được cập nhật thành công");
+        await refetch();
+      } catch (updateError) {
+        console.error("[CourseEditor] Error in course update:", updateError);
+        toast.error("Không thể cập nhật khoá học. Vui lòng thử lại sau.");
+      } finally {
+        // Always restore the button state, regardless of success or failure
+        const saveButtonElement = document.querySelector(
+          'button[type="submit"]'
+        ) as HTMLButtonElement;
+
+        if (saveButtonElement) {
+          saveButtonElement.disabled = false;
+          saveButtonElement.textContent = methods.watch("courseStatus")
+            ? "Cập nhật khoá học đã xuất bản"
+            : "Lưu bản nháp";
+          console.log("[CourseEditor] Save button restored to original state");
+        }
+      }
+
+      // Clear any stale file references
+      if (window.chapterFiles) {
+        window.chapterFiles = {};
+      }
     } catch (error) {
       console.error("Failed to update course:", error);
-      toast.error("Không thể cập nhật khoá học");
+      toast.error("Không thể cập nhật khoá học. Vui lòng thử lại.");
+      return null;
     }
   };
 
@@ -278,17 +523,6 @@ const CourseEditor = () => {
     }
   };
 
-  // Format category options for the dropdown
-  const categoryOptions = React.useMemo(() => {
-    if (!categoriesData?.data) return [];
-    return categoriesData.data
-      .filter((category: any) => category.isActive)
-      .map((category: any) => ({
-        label: category.name,
-        value: category.slug,
-      }));
-  }, [categoriesData]);
-
   return (
     <div>
       <div className="pb-6 space-y-4">
@@ -366,70 +600,6 @@ const CourseEditor = () => {
                   initialValue={course?.description}
                 />
 
-                <CustomFormField
-                  name="courseCategory"
-                  label="Môn học"
-                  type="select"
-                  options={categoryOptions}
-                  initialValue={course?.category}
-                  placeholder="Chọn môn học"
-                  description={
-                    <>
-                      Chọn môn học phù hợp với khoá học của bạn.
-                      <Link
-                        href="/teacher/categories"
-                        className="ml-1 text-primary hover:underline"
-                      >
-                        Quản lý môn học
-                      </Link>
-                      {categoryOptions.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {categoryOptions.slice(0, 5).map((cat: any) => (
-                            <HoverCard key={cat.value}>
-                              <HoverCardTrigger asChild>
-                                <Badge
-                                  variant={
-                                    course?.category === cat.value
-                                      ? "default"
-                                      : "outline"
-                                  }
-                                  className="cursor-pointer"
-                                  onClick={() =>
-                                    methods.setValue(
-                                      "courseCategory",
-                                      cat.value
-                                    )
-                                  }
-                                >
-                                  {cat.label}
-                                </Badge>
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-80">
-                                <div className="text-sm">
-                                  <p className="font-medium">{cat.label}</p>
-                                  <p className="text-muted-foreground">
-                                    {
-                                      categoriesData?.data.find(
-                                        (c) => c.slug === cat.value
-                                      )?.description
-                                    }
-                                  </p>
-                                </div>
-                              </HoverCardContent>
-                            </HoverCard>
-                          ))}
-                          {categoryOptions.length > 5 && (
-                            <Badge variant="outline">
-                              +{categoryOptions.length - 5} more
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </>
-                  }
-                />
-
-                {/* Google Meet Link Section */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
                     Liên kết lớp trực tuyến

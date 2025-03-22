@@ -32,7 +32,7 @@ declare global {
     teacherName: string;
     title: string;
     description?: string;
-    category: string;
+    category?: string;
     image?: string;
     level: "Beginner" | "Intermediate" | "Advanced";
     status: "Draft" | "Published";
@@ -85,6 +85,7 @@ declare global {
     title: string;
     content: string;
     video?: string | File;
+    presentation?: string | File;
     freePreview?: boolean;
     type: "Text" | "Quiz" | "Video";
     resources?: Array<{ title: string; url: string }>;
@@ -144,7 +145,6 @@ declare global {
 
   interface ToolbarProps {
     onSearch: (search: string) => void;
-    onCategoryChange: (category: string) => void;
   }
 
   interface ChapterModalProps {
@@ -178,7 +178,6 @@ declare global {
   interface CourseFormData {
     courseTitle: string;
     courseDescription: string;
-    courseCategory: string;
     courseStatus: boolean;
   }
 
@@ -204,6 +203,16 @@ declare global {
     name: string;
     description: string;
     level: number;
+  }
+
+  // Add global window property for temporary file storage
+  interface Window {
+    chapterFiles?: {
+      [chapterId: string]: {
+        video: File | null;
+        presentation: File | null;
+      };
+    };
   }
 }
 
