@@ -16,31 +16,19 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "d2lt5e3qyx6ulf.cloudfront.net",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "d2lt5e3qyx6ulf.cloudfront.net",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "images.unsplash.com",
         port: "",
         pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "d1jwx3vzmkhb46.cloudfront.net",
+        hostname: "d1esvzvvxjybnu.cloudfront.net",
         port: "",
         pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "eduflip-s3.s3.amazonaws.com",
+        hostname: "buckets3edu.s3.ap-southeast-1.amazonaws.com",
         port: "",
         pathname: "/**",
       },
