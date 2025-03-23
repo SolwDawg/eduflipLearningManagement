@@ -10,7 +10,7 @@ export default clerkMiddleware(async (auth, req) => {
   const { sessionClaims } = await auth();
   console.log("sessionClaims", sessionClaims);
   const userRole =
-    (sessionClaims?.publicMetadata as { userType?: "student" | "teacher" })
+    (sessionClaims?.public_metadata as { userType: "student" | "teacher" })
       ?.userType || "student";
 
   console.log("userRole", userRole);
@@ -23,12 +23,12 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  // if (isTeacherRoute(req)) {
-  //   if (userRole !== "teacher") {
-  //     const url = new URL("/user/courses", req.url);
-  //     return NextResponse.redirect(url);
-  //   }
-  // }
+  if (isTeacherRoute(req)) {
+    if (userRole !== "teacher") {
+      const url = new URL("/user/courses", req.url);
+      return NextResponse.redirect(url);
+    }
+  }
 
   // Continue with the request
   return NextResponse.next();
