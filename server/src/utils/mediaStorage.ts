@@ -82,7 +82,12 @@ export const generateUploadUrl = async (
       `Generated pre-signed URL: ${sanitizedUrl}?[signature-removed]`
     );
 
-    const fileUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${fileKey}`;
+    // Use CloudFront URL if available, otherwise fall back to direct S3 URL
+    const fileUrl = process.env.CLOUDFRONT_DOMAIN
+      ? `${process.env.CLOUDFRONT_DOMAIN}/${fileKey}`
+      : `https://${BUCKET_NAME}.s3.amazonaws.com/${fileKey}`;
+
+    console.log(`File will be accessible at: ${fileUrl}`);
 
     return {
       uploadUrl,

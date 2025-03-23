@@ -67,13 +67,27 @@ const UploadMaterialDialog = ({
       const endpoint =
         type === "presentation"
           ? `/api/courses/${courseId}/sections/${sectionId}/chapters/${chapterId}/get-ppt-upload-url`
-          : `/api/courses/${courseId}/sections/${sectionId}/chapters/${chapterId}/get-video-upload-url`;
+          : `/api/courses/${courseId}/sections/${sectionId}/chapters/${chapterId}/get-upload-url`;
 
-      const response = await axios.post(endpoint);
-      return response.data.uploadUrl;
+      const response = await axios.post(endpoint, {
+        fileName: file?.name,
+        fileType: file?.type,
+      });
+
+      if (type === "presentation") {
+        return {
+          uploadUrl: response.data.uploadUrl,
+          presentationUrl: response.data.presentationUrl,
+        };
+      } else {
+        return {
+          uploadUrl: response.data.uploadUrl,
+          videoUrl: response.data.videoUrl,
+        };
+      }
     } catch (error) {
-      console.error("Failed to get pre-signed URL:", error);
-      throw error;
+      console.error("Failed to get pre-signed URL from API:", error);
+      throw new Error("Failed to get upload URL");
     }
   };
 
@@ -252,18 +266,19 @@ const UploadMaterialDialog = ({
       );
       console.log(`File type: ${file.type}`);
 
-      // For PowerPoint files, prefer server-side upload
-      // For videos, prefer pre-signed URL (client-side upload)
+      // Use pre-signed URL upload for both PowerPoint and video files
+      console.log(`Using pre-signed URL upload for ${type}: ${file.name}`);
+      const preSignedUrl = await getPreSignedUrl();
+
+      await uploadToPreSignedUrl(preSignedUrl.uploadUrl);
+
+      // Set the appropriate URL based on file type
       if (type === "presentation") {
-        console.log(`Using server-side upload for PowerPoint: ${file.name}`);
-        // Use direct upload for PowerPoint files
-        fileUrl = await uploadFileDirectly();
+        fileUrl = preSignedUrl.presentationUrl;
         console.log(`PowerPoint uploaded successfully, URL: ${fileUrl}`);
       } else {
-        console.log(`Using pre-signed URL upload for video: ${file.name}`);
-        // Use pre-signed URL for video files (better for larger files)
-        const preSignedUrl = await getPreSignedUrl();
-        await uploadToPreSignedUrl(preSignedUrl);
+        fileUrl = preSignedUrl.videoUrl;
+        console.log(`Video uploaded successfully, URL: ${fileUrl}`);
       }
 
       toast({

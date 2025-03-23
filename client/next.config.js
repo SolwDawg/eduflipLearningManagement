@@ -28,7 +28,19 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "d1jwx3vzmkhb46.cloudfront.net",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "buckets3edu.s3.ap-southeast-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "buckets3edu.s3.amazonaws.com",
         port: "",
         pathname: "/**",
       },
