@@ -223,21 +223,34 @@ export const getPPTUploadUrl = async (
     }
 
     const uniqueId = uuidv4();
-    const fileKey = `lectures/${courseId}/${sectionId}/${chapterId}/ppt/${uniqueId}-${fileName}`;
+    const s3Key = `lectures/${courseId}/${sectionId}/${chapterId}/ppt/${uniqueId}-${fileName}`;
 
-    console.log(`Attempting to generate upload URL for PowerPoint: ${fileKey}`);
+    console.log(`Attempting to generate upload URL for PowerPoint: ${s3Key}`);
 
     try {
-      const { uploadUrl, fileUrl } = await generateUploadUrl(fileKey);
+      const s3 = new AWS.S3({
+        region: process.env.AWS_REGION,
+      });
+
+      const s3Params = {
+        Bucket: process.env.S3_BUCKET_NAME || "",
+        Key: s3Key,
+        Expires: 60,
+        ContentType: fileType,
+      };
+
+      const uploadUrl = s3.getSignedUrl("putObject", s3Params);
+      const presentationUrl = `${process.env.CLOUDFRONT_DOMAIN}/${s3Key}`;
 
       console.log(
         `Generated PowerPoint upload URL for file: ${fileName} (${fileType})`
       );
-      console.log(`File will be stored at: ${fileKey}`);
+      console.log(`File will be stored at: ${s3Key}`);
+      console.log(`CloudFront URL will be: ${presentationUrl}`);
 
       res.json({
         uploadUrl,
-        presentationUrl: fileUrl,
+        presentationUrl,
       });
     } catch (urlError) {
       console.error(`Failed to generate upload URL for PowerPoint:`, urlError);

@@ -7,12 +7,10 @@ dotenv.config();
 // Configure AWS S3
 const s3 = new AWS.S3({
   region: process.env.AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
 // S3 bucket name from environment variables
-const BUCKET_NAME = process.env.S3_BUCKET_NAME || "";
+const BUCKET_NAME = process.env.S3_BUCKET_NAME || "buckets3edu";
 
 /**
  * Generate a presigned URL for uploading a file to S3
