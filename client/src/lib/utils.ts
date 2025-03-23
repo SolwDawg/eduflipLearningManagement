@@ -475,9 +475,28 @@ async function uploadPresentation(
         throw error;
       }
 
+      // Determine proper content type based on extension to avoid browser MIME detection issues
+      let contentType;
+      switch (fileExt) {
+        case "ppt":
+        case "pps":
+          contentType = "application/vnd.ms-powerpoint";
+          break;
+        case "pptx":
+          contentType =
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+          break;
+        case "ppsx":
+          contentType =
+            "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+          break;
+        default:
+          contentType = file.type || "application/octet-stream";
+      }
+
       // Start upload without waiting for toast
       console.log(
-        `Getting upload URL for PowerPoint: ${file.name} (${file.size} bytes)`
+        `Getting upload URL for PowerPoint: ${file.name} (${file.size} bytes), Using content type: ${contentType}`
       );
 
       // Add error handling for the API call to get the upload URL
@@ -488,7 +507,7 @@ async function uploadPresentation(
           sectionId,
           chapterId: chapter.chapterId,
           fileName: file.name,
-          fileType: file.type,
+          fileType: contentType, // Use our determined content type instead of file.type
         }).unwrap();
       } catch (apiError: any) {
         console.error("Failed to get pre-signed URL from API:", apiError);
@@ -530,7 +549,7 @@ async function uploadPresentation(
 
         const response = await axios.put(uploadUrl, file, {
           headers: {
-            "Content-Type": file.type,
+            "Content-Type": contentType,
           },
           timeout: calculatedTimeout,
           onUploadProgress: (progressEvent) => {

@@ -6,17 +6,32 @@ import Course from "../models/courseModel";
 // Get all grades
 export const getAllGrades = async (req: Request, res: Response) => {
   try {
+    console.log("Attempting to fetch all grades");
     const grades = await Grade.scan().exec();
 
     // Log the result for debugging
     console.log(`Found ${grades.length} grades`);
 
     // Return the grades, even if empty array
-    res.status(200).json(grades);
+    res.status(200).json({
+      message: "Grades retrieved successfully",
+      data: grades || [],
+    });
   } catch (error) {
     console.error("Error fetching grades:", error);
-    // Return empty array instead of error for better client handling
-    res.status(200).json([]);
+
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+
+    // Return a more descriptive error
+    res.status(500).json({
+      message: "Failed to fetch grades",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 

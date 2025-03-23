@@ -14,6 +14,7 @@ export const createDiscussionPost = async (
   const userName = (auth as any)?.userName || "";
 
   try {
+    console.log("Attempting to create discussion post");
     const course = await Course.get(courseId);
     if (!course) {
       res.status(404).json({ message: "Course not found" });
@@ -56,7 +57,11 @@ export const createDiscussionPost = async (
       data: newPost,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error creating discussion post", error });
+    console.error("Error creating discussion post:", error);
+    res.status(500).json({
+      message: "Error creating discussion post",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 

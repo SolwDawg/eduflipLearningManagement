@@ -77,6 +77,16 @@ export const generateUploadUrl = async (
   };
 
   try {
+    // Enhanced logging before getting the signed URL
+    console.log(
+      `S3 putObject params: ${JSON.stringify({
+        Bucket: params.Bucket,
+        Key: params.Key,
+        ContentType: params.ContentType,
+        Expires: params.Expires,
+      })}`
+    );
+
     const uploadUrl = await s3.getSignedUrlPromise("putObject", params);
     // Log sanitized version of URL for debugging
     const sanitizedUrl = uploadUrl.split("?")[0]; // Remove query parameters containing keys
@@ -91,7 +101,21 @@ export const generateUploadUrl = async (
       fileUrl,
     };
   } catch (error) {
+    // Enhanced error logging
     console.error("Error generating pre-signed URL:", error);
+
+    if (error instanceof Error) {
+      console.error(`Error name: ${error.name}`);
+      console.error(`Error message: ${error.message}`);
+      console.error(`Error stack: ${error.stack}`);
+    }
+
+    // Check for AWS specific errors
+    if (error && typeof error === "object" && "code" in error) {
+      console.error(`AWS Error code: ${(error as any).code}`);
+      console.error(`AWS Error message: ${(error as any).message}`);
+    }
+
     throw new Error("Failed to generate upload URL");
   }
 };
@@ -112,11 +136,13 @@ const getContentType = (filename: string): string => {
       return "image/gif";
     case "pdf":
       return "application/pdf";
-    // PowerPoint formats
+    // PowerPoint formats - updated content types for better compatibility
     case "ppt":
     case "pps":
       return "application/vnd.ms-powerpoint";
     case "pptx":
+      // Added console.log for debugging
+      console.log("Setting content type for PPTX file");
       return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
     case "ppsx":
       return "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
@@ -130,6 +156,7 @@ const getContentType = (filename: string): string => {
     case "mov":
       return "video/quicktime";
     default:
+      console.log(`Unknown file extension: ${extension}, using octet-stream`);
       return "application/octet-stream";
   }
 };

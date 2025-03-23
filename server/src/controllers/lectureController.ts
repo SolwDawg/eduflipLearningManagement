@@ -178,6 +178,14 @@ export const getPPTUploadUrl = async (
   const { fileName, fileType } = req.body;
   const { userId } = getAuth(req);
 
+  console.log(`PowerPoint upload request received:`, {
+    courseId,
+    sectionId,
+    chapterId,
+    fileName,
+    fileType,
+  });
+
   if (!fileName || !fileType) {
     res.status(400).json({ message: "File name and type are required" });
     return;
@@ -187,7 +195,10 @@ export const getPPTUploadUrl = async (
   const fileExtension = fileName.split(".").pop()?.toLowerCase();
   const validExtensions = ["ppt", "pptx", "pps", "ppsx"];
 
+  console.log(`Validating PowerPoint extension: ${fileExtension}`);
+
   if (!fileExtension || !validExtensions.includes(fileExtension)) {
+    console.error(`Invalid PowerPoint extension: ${fileExtension}`);
     res.status(400).json({
       message:
         "Invalid file type. Only PowerPoint files (.ppt, .pptx, .pps, .ppsx) are allowed.",
@@ -199,31 +210,44 @@ export const getPPTUploadUrl = async (
     const course = await Course.get(courseId);
 
     if (!course) {
+      console.error(`Course not found: ${courseId}`);
       res.status(404).json({ message: "Course not found" });
       return;
     }
 
     // Verify teacher permissions
     if (course.teacherId !== userId) {
+      console.error(`User ${userId} not authorized to edit course ${courseId}`);
       res.status(403).json({ message: "Not authorized to edit this course" });
       return;
     }
 
     const uniqueId = uuidv4();
     const fileKey = `lectures/${courseId}/${sectionId}/${chapterId}/ppt/${uniqueId}-${fileName}`;
-    const { uploadUrl, fileUrl } = await generateUploadUrl(fileKey);
 
-    console.log(
-      `Generated PowerPoint upload URL for file: ${fileName} (${fileType})`
-    );
-    console.log(`File will be stored at: ${fileKey}`);
+    console.log(`Attempting to generate upload URL for PowerPoint: ${fileKey}`);
 
-    res.json({
-      uploadUrl,
-      presentationUrl: fileUrl,
-    });
+    try {
+      const { uploadUrl, fileUrl } = await generateUploadUrl(fileKey);
+
+      console.log(
+        `Generated PowerPoint upload URL for file: ${fileName} (${fileType})`
+      );
+      console.log(`File will be stored at: ${fileKey}`);
+
+      res.json({
+        uploadUrl,
+        presentationUrl: fileUrl,
+      });
+    } catch (urlError) {
+      console.error(`Failed to generate upload URL for PowerPoint:`, urlError);
+      res.status(500).json({
+        message: "Error generating PowerPoint upload URL",
+        error: urlError instanceof Error ? urlError.message : String(urlError),
+      });
+    }
   } catch (error) {
-    console.error("Error generating PowerPoint upload URL:", error);
+    console.error("Error in PowerPoint upload URL generation process:", error);
     res.status(500).json({ message: "Error generating upload URL", error });
   }
 };

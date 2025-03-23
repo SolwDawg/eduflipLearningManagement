@@ -13,10 +13,16 @@ export const getAllHomepageImages = async (
 ): Promise<void> => {
   try {
     const images = await HomepageImage.scan().exec();
-    res.status(200).json(images);
+    res.status(200).json({
+      message: "Homepage images retrieved successfully",
+      data: images,
+    });
   } catch (error) {
     console.error("Error fetching homepage images:", error);
-    res.status(500).json({ message: "Failed to fetch homepage images", error });
+    res.status(500).json({
+      message: "Failed to fetch homepage images",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 

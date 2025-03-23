@@ -4,7 +4,6 @@ import { Request, Response, NextFunction } from "express";
 // Export a properly typed AuthObject interface
 export interface AuthObject {
   userId: string;
-  userName: string;
   sessionId: string;
   getToken: () => Promise<string | null>;
 }
