@@ -287,9 +287,6 @@ const ChapterPage = () => {
 
                     {currentChapter?.presentation ? (
                       <div className="mt-4">
-                        <h3 className="text-lg font-semibold mb-2">
-                          Presentation
-                        </h3>
                         <div className="relative overflow-hidden rounded-lg border">
                           <PowerPointViewer
                             fileUrl={currentChapter.presentation as string}

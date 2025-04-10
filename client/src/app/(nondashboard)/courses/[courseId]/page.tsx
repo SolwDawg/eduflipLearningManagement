@@ -35,7 +35,7 @@ export default function CoursePreviewPage() {
 
   const handleEnroll = async () => {
     if (!user) {
-      toast.error("Please sign in to enroll in this course");
+      toast.error("Vui lòng đăng nhập để tham gia khoá học");
       router.push("/sign-in");
       return;
     }
@@ -47,11 +47,11 @@ export default function CoursePreviewPage() {
         courseId: courseId as string,
       }).unwrap();
 
-      toast.success("Successfully enrolled in the course!");
+      toast.success("Tham gia khoá học thành công!");
       router.push(`/user/courses/${courseId}`);
     } catch (error) {
-      console.error("Error enrolling in course:", error);
-      toast.error("Failed to enroll in course. Please try again.");
+      console.error("Lỗi tham gia khoá học:", error);
+      toast.error("Không thể tham gia khoá học. Vui lòng thử lại.");
     }
   };
 
@@ -61,11 +61,11 @@ export default function CoursePreviewPage() {
     return (
       <div className="container max-w-6xl mx-auto py-12 px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Course not found</h1>
+          <h1 className="text-2xl font-bold mb-4">Khoá học không tồn tại</h1>
           <p className="mb-6">Khoá học của bạn không tồn tại hoặc đã bị xóa.</p>
           <Button onClick={() => router.push("/courses")}>
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Courses
+            Quay lại khoá học
           </Button>
         </div>
       </div>
@@ -76,7 +76,7 @@ export default function CoursePreviewPage() {
     <div className="container max-w-6xl mx-auto py-12 px-4">
       <Button variant="ghost" onClick={() => router.back()} className="mb-6">
         <ChevronLeft className="mr-2 h-4 w-4" />
-        Back
+        Quay lại
       </Button>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -100,20 +100,20 @@ export default function CoursePreviewPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">About this course</h2>
+            <h2 className="text-2xl font-semibold mb-4">Giới thiệu khoá học</h2>
             <p className="text-muted-foreground">{course.description}</p>
           </div>
 
           <Separator className="my-8" />
 
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Course Content</h2>
+            <h2 className="text-2xl font-semibold mb-4">Nội dung khoá học</h2>
 
             {/* Show quizzes if any */}
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <BookCheck className="text-primary h-5 w-5" />
-                <h3 className="text-lg font-medium">Available Quizzes</h3>
+                <h3 className="text-lg font-medium">Bài kiểm tra có sẵn</h3>
               </div>
               <StudentQuizList courseId={courseId as string} />
             </div>
@@ -123,7 +123,7 @@ export default function CoursePreviewPage() {
                 <Card key={section.sectionId}>
                   <CardHeader>
                     <CardTitle>
-                      Section {i + 1}: {section.sectionTitle}
+                      Chương {i + 1}: {section.sectionTitle}
                     </CardTitle>
                     <CardDescription>
                       {section.sectionDescription}
@@ -140,13 +140,9 @@ export default function CoursePreviewPage() {
                             {j + 1}. {chapter.title}
                           </span>
                           {chapter.freePreview ? (
-                            <span className="text-xs bg-primary-500/20 text-primary-500 py-1 px-2 rounded">
-                              Free Preview
-                            </span>
+                            <span className="text-xs bg-primary-500/20 text-primary-500 py-1 px-2 rounded"></span>
                           ) : (
-                            <span className="text-xs bg-muted py-1 px-2 rounded">
-                              Premium
-                            </span>
+                            <span className="text-xs bg-muted py-1 px-2 rounded"></span>
                           )}
                         </li>
                       ))}
@@ -161,22 +157,22 @@ export default function CoursePreviewPage() {
         <div className="md:col-span-1">
           <Card className="sticky top-24">
             <CardHeader>
-              <CardTitle>Course Details</CardTitle>
+              <CardTitle>Thông tin khoá học</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium mb-1">Level</h3>
+                <h3 className="text-sm font-medium mb-1">Cấp độ</h3>
                 <p className="text-muted-foreground">{course.level}</p>
               </div>
               <div>
-                <h3 className="text-sm font-medium mb-1">Content</h3>
+                <h3 className="text-sm font-medium mb-1">Nội dung</h3>
                 <p className="text-muted-foreground">
-                  {course.sections?.length || 0} sections &bull;
+                  {course.sections?.length || 0} chương &bull;
                   {course.sections?.reduce(
                     (acc, section) => acc + section.chapters.length,
                     0
                   ) || 0}{" "}
-                  lessons
+                  bài học
                 </p>
               </div>
             </CardContent>
@@ -186,7 +182,7 @@ export default function CoursePreviewPage() {
                 className="w-full"
                 disabled={isEnrolling}
               >
-                {isEnrolling ? "Enrolling..." : "Enroll Now"}
+                {isEnrolling ? "Đang tham gia..." : "Tham gia khoá học"}
               </Button>
             </CardFooter>
           </Card>

@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ChaptersSidebar from "@/app/(dashboard)/user/courses/[courseId]/ChaptersSidebar";
 import StudentSidebar from "@/components/StudentSidebar";
@@ -17,6 +17,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [courseId, setCourseId] = useState<string | null>(null);
   const { user, isLoaded } = useUser();
   const isCoursePage = /^\/user\/courses\/[^\/]+(?:\/chapters\/[^\/]+)?$/.test(
@@ -32,8 +33,14 @@ export default function DashboardLayout({
     }
   }, [isCoursePage, pathname]);
 
+  useEffect(() => {
+    if (isLoaded && !user) {
+      router.push("/signin");
+    }
+  }, [isLoaded, user, router]);
+
   if (!isLoaded) return <Loading />;
-  if (!user) return <div>Vui lòng đăng nhập để truy cập trang này.</div>;
+  if (!user) return null;
 
   return (
     <SidebarProvider>

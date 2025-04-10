@@ -12,14 +12,18 @@ const CourseCard = ({ course, onGoToCourse }: CourseCardProps) => {
   return (
     <Card className="course-card group" onClick={() => onGoToCourse(course)}>
       <CardHeader className="course-card__header">
-        <Image
-          src={course.image || "/placeholder.png"}
-          alt={course.title}
-          width={400}
-          height={350}
-          className="course-card__image"
-          priority
-        />
+        <div className="relative w-full h-full overflow-hidden">
+          <Image
+            src={course.image || "/placeholder.png"}
+            alt={course.title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="course-card__image object-cover"
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+          />
+        </div>
       </CardHeader>
       <CardContent className="course-card__content">
         <CardTitle className="course-card__title">

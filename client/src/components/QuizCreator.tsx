@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -79,6 +79,64 @@ interface QuizCreatorProps {
   }>;
 }
 
+// Memoized option component for better performance
+const Option = memo(
+  ({
+    index,
+    register,
+    errors,
+    setValue,
+    getValues,
+    onRemove,
+  }: {
+    index: number;
+    register: any;
+    errors: any;
+    setValue: any;
+    getValues: any;
+    onRemove: (index: number) => void;
+  }) => {
+    const handleCorrectChange = useCallback(
+      (checked: boolean) => {
+        setValue(`options.${index}.isCorrect`, checked);
+      },
+      [setValue, index]
+    );
+
+    return (
+      <div className="flex items-start space-x-2 mb-3">
+        <div className="flex-1">
+          <Input
+            {...register(`options.${index}.text`)}
+            placeholder={`Tùy chọn ${index + 1}`}
+            className={errors?.options?.[index]?.text ? "border-red-500" : ""}
+          />
+          {errors?.options?.[index]?.text && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.options[index].text.message}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center space-x-2">
+          <Switch
+            checked={getValues(`options.${index}.isCorrect`)}
+            onCheckedChange={handleCorrectChange}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onRemove(index)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+);
+Option.displayName = "Option";
+
 export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
   const [activeTab, setActiveTab] = useState("basic");
   const [quizCreated, setQuizCreated] = useState(false);
@@ -130,81 +188,115 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
   const selectedQuestionType = questionForm.watch("type");
   const questionOptions = questionForm.watch("options");
 
-  const onSubmitQuiz = async (data: QuizFormValues) => {
-    try {
-      // Ensure timeLimit is properly handled as number | undefined only
-      const formattedData = {
-        ...data,
-        timeLimit: data.timeLimit === null ? undefined : data.timeLimit,
-      };
+  const onSubmitQuiz = useCallback(
+    async (data: QuizFormValues) => {
+      try {
+        // Ensure timeLimit is properly handled as number | undefined only
+        const formattedData = {
+          ...data,
+          timeLimit: data.timeLimit === null ? undefined : data.timeLimit,
+        };
 
-      const result = await createQuiz(formattedData).unwrap();
+        const result = await createQuiz(formattedData).unwrap();
 
-      setQuizCreated(true);
-      setQuizId(result.quizId);
-      toast.success("Bài kiểm tra đã được tạo thành công!");
-      setActiveTab("questions");
-    } catch (error) {
-      console.error("Error creating quiz:", error);
-      toast.error("Không thể tạo bài kiểm tra. Vui lòng thử lại.");
-    }
-  };
-
-  const onSubmitQuestion = async (data: QuestionFormValues) => {
-    if (!quizId) return;
-
-    // For multiple choice, ensure at least one option is marked correct
-    if (data.type === QuestionType.MULTIPLE_CHOICE) {
-      const hasCorrectOption = data.options?.some((opt) => opt.isCorrect);
-      if (!hasCorrectOption) {
-        toast.error("Vui lòng đánh dấu ít nhất một câu trả lời là đúng");
-        return;
+        setQuizCreated(true);
+        setQuizId(result.quizId);
+        toast.success("Bài kiểm tra đã được tạo thành công!");
+        setActiveTab("questions");
+      } catch (error) {
+        console.error("Error creating quiz:", error);
+        toast.error("Không thể tạo bài kiểm tra. Vui lòng thử lại.");
       }
-    }
+    },
+    [createQuiz, setQuizCreated, setQuizId, setActiveTab]
+  );
 
-    try {
-      const result = await addQuestion({
-        quizId,
-        ...data,
-      }).unwrap();
+  const onSubmitQuestion = useCallback(
+    async (data: QuestionFormValues) => {
+      if (!quizId) return;
 
-      setQuestions([...questions, result]);
-      toast.success("Câu hỏi đã được thêm thành công!");
+      // For multiple choice, ensure at least one option is marked correct
+      if (data.type === QuestionType.MULTIPLE_CHOICE) {
+        const hasCorrectOption = data.options?.some((opt) => opt.isCorrect);
+        if (!hasCorrectOption) {
+          toast.error("Vui lòng đánh dấu ít nhất một câu trả lời là đúng");
+          return;
+        }
+      }
 
-      // Reset form
-      questionForm.reset({
-        type: QuestionType.MULTIPLE_CHOICE,
-        text: "",
-        correctAnswer: "",
-        points: 1,
-        options: [
-          { text: "", isCorrect: false },
-          { text: "", isCorrect: false },
-          { text: "", isCorrect: false },
-          { text: "", isCorrect: false },
-        ],
-      });
-      setCreatingQuestion(false);
-    } catch (error) {
-      toast.error("Không thể thêm câu hỏi. Vui lòng thử lại.");
-    }
-  };
+      try {
+        const result = await addQuestion({
+          quizId,
+          ...data,
+        }).unwrap();
 
-  const handleAddOption = () => {
+        setQuestions((prev) => [...prev, result]);
+        toast.success("Câu hỏi đã được thêm thành công!");
+
+        // Reset form
+        questionForm.reset({
+          type: QuestionType.MULTIPLE_CHOICE,
+          text: "",
+          correctAnswer: "",
+          points: 1,
+          options: [
+            { text: "", isCorrect: false },
+            { text: "", isCorrect: false },
+            { text: "", isCorrect: false },
+            { text: "", isCorrect: false },
+          ],
+        });
+        setCreatingQuestion(false);
+      } catch (error) {
+        toast.error("Không thể thêm câu hỏi. Vui lòng thử lại.");
+      }
+    },
+    [quizId, addQuestion, questionForm, setQuestions, setCreatingQuestion]
+  );
+
+  const handleAddOption = useCallback(() => {
     const currentOptions = questionForm.getValues("options") || [];
     questionForm.setValue("options", [
       ...currentOptions,
       { text: "", isCorrect: false },
     ]);
-  };
+  }, [questionForm]);
 
-  const handleRemoveOption = (index: number) => {
-    const currentOptions = questionForm.getValues("options") || [];
-    questionForm.setValue(
-      "options",
-      currentOptions.filter((_, i) => i !== index)
-    );
-  };
+  // Replace with useCallback to memoize the handler
+  const handleRemoveOption = useCallback(
+    (index: number) => {
+      const currentOptions = questionForm.getValues("options") || [];
+      if (currentOptions.length <= 2) {
+        toast.error("Cần có ít nhất 2 tùy chọn");
+        return;
+      }
+
+      const newOptions = currentOptions.filter((_, i) => i !== index);
+      questionForm.setValue("options", newOptions);
+    },
+    [questionForm]
+  );
+
+  // Memoize the section options
+  const sectionOptions = useMemo(() => {
+    return sections.map((section) => ({
+      value: section.sectionId,
+      label: section.title,
+    }));
+  }, [sections]);
+
+  // Memoize the chapter options based on selected section
+  const chapterOptions = useMemo(() => {
+    if (!selectedSection) return [];
+
+    const section = sections.find((s) => s.sectionId === selectedSection);
+    if (!section) return [];
+
+    return section.chapters.map((chapter) => ({
+      value: chapter.chapterId,
+      label: chapter.title,
+    }));
+  }, [sections, selectedSection]);
 
   return (
     <div className="space-y-8">
@@ -329,12 +421,12 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {sections.map((section) => (
+                              {sectionOptions.map((option) => (
                                 <SelectItem
-                                  key={section.sectionId}
-                                  value={section.sectionId}
+                                  key={option.value}
+                                  value={option.value}
                                 >
-                                  {section.title}
+                                  {option.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -362,16 +454,14 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {sections
-                                .find((s) => s.sectionId === selectedSection)
-                                ?.chapters.map((chapter) => (
-                                  <SelectItem
-                                    key={chapter.chapterId}
-                                    value={chapter.chapterId}
-                                  >
-                                    {chapter.title}
-                                  </SelectItem>
-                                ))}
+                              {chapterOptions.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -614,53 +704,15 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                 </div>
 
                                 {questionOptions?.map((_, index) => (
-                                  <div
+                                  <Option
                                     key={index}
-                                    className="flex items-start space-x-3"
-                                  >
-                                    <FormField
-                                      control={questionForm.control}
-                                      name={`options.${index}.isCorrect`}
-                                      render={({ field }) => (
-                                        <FormItem className="flex items-center space-x-2 space-y-0 pt-2">
-                                          <FormControl>
-                                            <Switch
-                                              checked={field.value}
-                                              onCheckedChange={field.onChange}
-                                            />
-                                          </FormControl>
-                                        </FormItem>
-                                      )}
-                                    />
-
-                                    <FormField
-                                      control={questionForm.control}
-                                      name={`options.${index}.text`}
-                                      render={({ field }) => (
-                                        <FormItem className="flex-1">
-                                          <FormControl>
-                                            <Input
-                                              placeholder={`Option ${
-                                                index + 1
-                                              }`}
-                                              {...field}
-                                            />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => handleRemoveOption(index)}
-                                      disabled={questionOptions.length <= 2}
-                                    >
-                                      <Trash2 className="h-4 w-4 text-muted-foreground" />
-                                    </Button>
-                                  </div>
+                                    index={index}
+                                    register={questionForm.register}
+                                    errors={questionForm.formState.errors}
+                                    setValue={questionForm.setValue}
+                                    getValues={questionForm.getValues}
+                                    onRemove={handleRemoveOption}
+                                  />
                                 ))}
                                 <FormDescription>
                                   Đánh dấu ít nhất một câu trả lời là đúng bằng

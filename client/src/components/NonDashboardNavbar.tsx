@@ -3,6 +3,7 @@
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { Bell, BookOpen } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 const NonDashboardNavbar = () => {
@@ -14,7 +15,12 @@ const NonDashboardNavbar = () => {
       <div className="nondashboard-navbar__container">
         <div className="nondashboard-navbar__search">
           <Link href="/" className="nondashboard-navbar__brand" scroll={false}>
-            Eduflip
+            <Image
+              src="/images/eduflipLogo.png"
+              alt="logo"
+              width={160}
+              height={100}
+            />
           </Link>
           <div className="flex items-center gap-4">
             <div className="relative group">

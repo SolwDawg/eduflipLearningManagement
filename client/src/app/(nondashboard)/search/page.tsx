@@ -170,9 +170,7 @@ const Search = () => {
   };
 
   const handleEnrollNow = (courseId: string) => {
-    // In a real application, you would make an API call to enroll the user
-    // For now, just redirect to the course page
-    router.push(`/user/courses/${courseId}`, {
+    router.push(`/courses/${courseId}`, {
       scroll: false,
     });
   };
@@ -204,7 +202,7 @@ const Search = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search courses by keyword..."
+            placeholder="Tìm kiếm khoá học..."
             className="pl-10 pr-4 py-2 w-full"
           />
           <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -212,7 +210,7 @@ const Search = () => {
             type="submit"
             className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded text-sm"
           >
-            Search
+            Tìm kiếm
           </button>
         </div>
       </form>

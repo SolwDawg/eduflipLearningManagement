@@ -124,7 +124,7 @@ const customBaseQuery = async (
         !isSearchWithNoResults && // Don't show toast for search with no results
         result.error.status !== "PARSING_ERROR" // Skip showing toast for parsing errors
       ) {
-        toast.error(`Error: ${errorMessage}`);
+        toast.error(`Lỗi: ${errorMessage}`);
       }
 
       // Log detailed error information (except for expected "not found" cases)
@@ -244,6 +244,7 @@ export const api = createApi({
     "ChatMessages",
     "Conversations",
   ],
+  keepUnusedDataFor: 300, // Keep unused data for 5 minutes (300 seconds)
   endpoints: (build) => ({
     /* 
     ===============
@@ -269,12 +270,29 @@ export const api = createApi({
         url: "courses",
         method: "GET",
       }),
-      providesTags: ["Courses"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ courseId }) => ({
+                type: "Courses" as const,
+                id: courseId,
+              })),
+              { type: "Courses", id: "LIST" },
+            ]
+          : [{ type: "Courses", id: "LIST" }],
+      keepUnusedDataFor: 600, // 10 minutes (600 seconds)
     }),
 
     getCourse: build.query<Course, string>({
       query: (id) => `courses/${id}`,
-      providesTags: (result, error, id) => [{ type: "Courses", id }],
+      providesTags: (result, error, id) => [
+        { type: "Course", id },
+        { type: "Courses", id },
+      ],
+      keepUnusedDataFor: 300, // 5 minutes
+      transformResponse: (response: Course) => {
+        return response;
+      },
     }),
 
     createCourse: build.mutation<
@@ -399,7 +417,21 @@ export const api = createApi({
     */
     getUserEnrolledCourses: build.query<Course[], string>({
       query: (userId) => `users/course-progress/${userId}/enrolled-courses`,
-      providesTags: ["Courses", "UserCourseProgress"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ courseId }) => ({
+                type: "Courses" as const,
+                id: courseId,
+              })),
+              { type: "UserCourseProgress", id: "LIST" },
+              { type: "Courses", id: "LIST" },
+            ]
+          : [
+              { type: "UserCourseProgress", id: "LIST" },
+              { type: "Courses", id: "LIST" },
+            ],
+      keepUnusedDataFor: 600, // 10 minutes
     }),
 
     enrollCourse: build.mutation<
@@ -620,7 +652,17 @@ export const api = createApi({
     */
     getQuizzes: build.query<Quiz[], { courseId: string }>({
       query: ({ courseId }) => `quizzes/course/${courseId}`,
-      providesTags: ["Quizzes"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ quizId }) => ({
+                type: "Quizzes" as const,
+                id: quizId,
+              })),
+              { type: "Quizzes", id: "LIST" },
+            ]
+          : [{ type: "Quizzes", id: "LIST" }],
+      keepUnusedDataFor: 300, // 5 minutes
     }),
 
     getQuiz: build.query<Quiz, string>({

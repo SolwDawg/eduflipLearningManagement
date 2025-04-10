@@ -176,7 +176,7 @@ export const uploadAllFiles = async (
                   `Failed to upload video for chapter ${chapter.title}:`,
                   error
                 );
-                toast.error(`Upload failed for video: ${chapter.title}`);
+                toast.error(`Lỗi khi tải lên video cho: ${chapter.title}`);
                 return { error };
               })
           );
@@ -204,7 +204,7 @@ export const uploadAllFiles = async (
                   `Failed to upload presentation for chapter ${chapter.title}:`,
                   error
                 );
-                toast.error(`Upload failed for presentation: ${chapter.title}`);
+                toast.error(`Lỗi khi tải lên bài giảng cho: ${chapter.title}`);
                 return { error };
               })
           );
@@ -220,7 +220,7 @@ export const uploadAllFiles = async (
 
   // Execute all uploads in parallel
   if (uploadPromises.length > 0) {
-    toast.info(`Uploading ${uploadPromises.length} files...`);
+    toast.info(`Đang tải lên ${uploadPromises.length}...`);
     await Promise.allSettled(uploadPromises);
 
     // Update the sections with uploaded file URLs
@@ -381,7 +381,7 @@ async function uploadVideo(
               `Upload timed out for file ${file.name}. File might be too large or connection too slow.`
             );
             toast.error(
-              `Upload timed out. The file may be too large or your connection is slow.`
+              `Đã hết thời gian tải lên. Tệp có thể quá lớn hoặc kết nối quá chậm.`
             );
           } else {
             // Log more detailed error information
@@ -407,20 +407,20 @@ async function uploadVideo(
               `Retrying upload (attempt ${retryCount} of ${MAX_RETRIES})...`
             );
             toast.info(
-              `Retrying upload (attempt ${retryCount} of ${MAX_RETRIES})...`
+              `Đang tải lên lại (thử lại ${retryCount} lần của ${MAX_RETRIES})...`
             );
             return await attemptUpload();
           }
 
           toast.error(
-            `Network error during upload: ${axiosError.message}. Please check your connection and try again.`
+            `Lỗi khi tải lên: ${axiosError.message}. Vui lòng kiểm tra kết nối và thử lại.`
           );
         } else {
           console.error(
             `Unknown error when uploading video for chapter ${chapter.title}:`,
             axiosError
           );
-          toast.error(`Unknown error during upload. Please try again later.`);
+          toast.error(`Lỗi không xác định khi tải lên. Vui lòng thử lại sau.`);
         }
         throw new Error(
           `Failed to upload video: ${
@@ -434,7 +434,7 @@ async function uploadVideo(
       // Only show success toast for large files
       if (file.size > 5 * 1024 * 1024) {
         // Only for files > 5MB
-        toast.success(`Video uploaded: ${chapter.title}`);
+        toast.success(`Video đã được tải lên: ${chapter.title}`);
       }
 
       return { video: videoUrl };
@@ -468,7 +468,7 @@ async function uploadPresentation(
 
       if (!fileExt || !validExtensions.includes(fileExt)) {
         const error = new Error(
-          `Invalid PowerPoint file type: ${fileExt}. Supported types: .ppt, .pptx, .pps, .ppsx`
+          `Loại tệp bài giảng không hợp lệ: ${fileExt}. Định dạng hỗ trợ: .ppt, .pptx, .pps, .ppsx`
         );
         console.error(error.message);
         toast.error(error.message);
@@ -493,8 +493,8 @@ async function uploadPresentation(
       } catch (apiError: any) {
         console.error("Failed to get pre-signed URL from API:", apiError);
         toast.error(
-          `Failed to get upload URL: ${
-            apiError?.message || "Unknown API error"
+          `Không thể lấy URL tải lên: ${
+            apiError?.message || "Lỗi API không xác định"
           }`
         );
         throw new Error(
@@ -559,7 +559,7 @@ async function uploadPresentation(
               `Upload timed out for PowerPoint ${file.name}. File might be too large or connection too slow.`
             );
             toast.error(
-              `PowerPoint upload timed out. The file may be too large or your connection is slow.`
+              `Đã hết thời gian tải lên bài giảng. Tệp có thể quá lớn hoặc kết nối quá chậm.`
             );
           } else {
             // Log more detailed error information
@@ -597,7 +597,7 @@ async function uploadPresentation(
               } seconds (attempt ${retryCount} of ${MAX_RETRIES})...`
             );
             toast.info(
-              `Retrying PowerPoint upload (attempt ${retryCount} of ${MAX_RETRIES})...`
+              `Đang tải lên lại bài giảng (thử lại ${retryCount} lần của ${MAX_RETRIES})...`
             );
 
             // Wait before retrying
@@ -606,7 +606,7 @@ async function uploadPresentation(
           }
 
           toast.error(
-            `Network error during PowerPoint upload: ${axiosError.message}. Please check your connection and try again.`
+            `Lỗi khi tải lên bài giảng: ${axiosError.message}. Vui lòng kiểm tra kết nối và thử lại.`
           );
         } else {
           console.error(
@@ -614,7 +614,7 @@ async function uploadPresentation(
             axiosError
           );
           toast.error(
-            `Unknown error during PowerPoint upload. Please try again later.`
+            `Lỗi không xác định khi tải lên bài giảng. Vui lòng thử lại sau.`
           );
         }
         throw new Error(
@@ -629,7 +629,7 @@ async function uploadPresentation(
       // Only show success toast for larger files
       if (file.size > 2 * 1024 * 1024) {
         // Only for files > 2MB
-        toast.success(`PowerPoint uploaded: ${chapter.title}`);
+        toast.success(`Bài giảng đã được tải lên: ${chapter.title}`);
       }
 
       return { presentation: presentationUrl };
