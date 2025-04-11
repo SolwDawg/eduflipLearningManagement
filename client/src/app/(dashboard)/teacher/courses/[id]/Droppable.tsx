@@ -116,7 +116,7 @@ export default function DroppableComponent() {
                           })
                         )
                       }
-                      className="add-chapter-button group"
+                      className="add-chapter-button group text-primary-600 hover:text-primary-700"
                     >
                       <Plus className="add-chapter-button__icon" />
                       <span className="add-chapter-button__text">
@@ -151,15 +151,17 @@ const SectionHeader = ({
       <div className="droppable-section__title-wrapper">
         <div className="droppable-section__title-container">
           <div className="droppable-section__title">
-            <GripVertical className="h-6 w-6 mb-1" />
-            <h3 className="text-lg font-medium">{section.sectionTitle}</h3>
+            <GripVertical className="h-6 w-6 mb-1 text-primary-600" />
+            <h3 className="text-lg font-medium text-primary-800">
+              {section.sectionTitle}
+            </h3>
           </div>
           <div className="droppable-chapter__actions">
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="p-0"
+              className="p-0 text-primary-600 hover:text-primary-800"
               onClick={() => dispatch(openSectionModal({ sectionIndex }))}
             >
               <Edit className="h-5 w-5" />
@@ -168,7 +170,7 @@ const SectionHeader = ({
               type="button"
               variant="ghost"
               size="sm"
-              className="p-0"
+              className="p-0 text-primary-600 hover:text-primary-800"
               onClick={() => dispatch(deleteSection(sectionIndex))}
             >
               <Trash2 className="h-5 w-5" />
@@ -176,7 +178,7 @@ const SectionHeader = ({
           </div>
         </div>
         {section.sectionDescription && (
-          <p className="droppable-section__description">
+          <p className="droppable-section__description text-primary-600">
             {section.sectionDescription}
           </p>
         )}

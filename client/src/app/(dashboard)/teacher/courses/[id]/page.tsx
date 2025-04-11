@@ -345,7 +345,6 @@ const CourseEditor = () => {
         );
 
         try {
-          // Try direct fetch with JSON instead of FormData
           const token = await window.Clerk?.session?.getToken();
           const baseUrl =
             process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8001";
@@ -379,7 +378,6 @@ const CourseEditor = () => {
         console.error("[CourseEditor] Error in course update:", updateError);
         toast.error("Không thể cập nhật khoá học. Vui lòng thử lại sau.");
       } finally {
-        // Always restore the button state, regardless of success or failure
         const saveButtonElement = document.querySelector(
           'button[type="submit"]'
         ) as HTMLButtonElement;
@@ -393,7 +391,6 @@ const CourseEditor = () => {
         }
       }
 
-      // Clear any stale file references
       if (window.chapterFiles) {
         window.chapterFiles = {};
       }
@@ -597,6 +594,7 @@ const CourseEditor = () => {
                   label="Mô tả khoá học"
                   type="textarea"
                   placeholder="Mô tả khoá học"
+                  className="bg-white-100"
                   initialValue={course?.description}
                 />
 
@@ -614,7 +612,6 @@ const CourseEditor = () => {
                         placeholder="Nhập mã cuộc họp (ví dụ: abc-defg-hij)"
                         value={meetLink}
                         onChange={(e) => {
-                          // Extract code if full URL is pasted
                           const inputValue = e.target.value;
                           if (inputValue.includes("meet.google.com/")) {
                             setMeetLink(extractMeetCode(inputValue));
@@ -668,7 +665,7 @@ const CourseEditor = () => {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Open link</p>
+                              <p>Mở liên kết</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -683,7 +680,9 @@ const CourseEditor = () => {
                         disabled={isUpdatingMeetLink || !meetLink}
                         className="w-fit"
                       >
-                        {isUpdatingMeetLink ? "Updating..." : "Save Meet Link"}
+                        {isUpdatingMeetLink
+                          ? "Đang cập nhật..."
+                          : "Lưu liên kết"}
                       </Button>
                       <Button
                         type="button"
@@ -754,7 +753,7 @@ const CourseEditor = () => {
                       accept="image/*"
                       onChange={handleImageChange}
                       className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0 file:text-sm file:font-semibold
+                        file:rounded-full file:text-white-100 file:border-0 file:text-sm file:font-semibold
                         file:bg-primary-700 file:text-white hover:file:bg-primary-600"
                     />
                   </div>
@@ -762,11 +761,9 @@ const CourseEditor = () => {
               </div>
             </div>
 
-            <div className="bg-customgreys-darkGrey mt-4 md:mt-0 p-4 rounded-lg basis-1/2">
+            <div className="bg-white-100 mt-4 md:mt-0 p-4 rounded-lg basis-1/2">
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-2xl font-semibold text-secondary-foreground">
-                  Chương
-                </h2>
+                <h2 className="text-2xl font-semibold text-black">Chương</h2>
 
                 <Button
                   type="button"

@@ -145,7 +145,7 @@ const ChapterModal = () => {
               name="video"
               render={({ field: { onChange, value } }) => (
                 <FormItem>
-                  <FormLabel className="text-customgreys-dirtyGrey text-sm">
+                  <FormLabel className="text-primary-600 text-sm">
                     <Video className="w-4 h-4 inline mr-1" /> Video bài học
                   </FormLabel>
                   <FormControl>
@@ -159,15 +159,15 @@ const ChapterModal = () => {
                             onChange(file);
                           }
                         }}
-                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer"
+                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer text-primary-100"
                       />
                       {typeof value === "string" && value && (
-                        <div className="my-2 text-sm text-gray-600">
+                        <div className="my-2 text-sm text-primary-500">
                           Video hiện tại: {value.split("/").pop()}
                         </div>
                       )}
                       {value instanceof File && (
-                        <div className="my-2 text-sm text-gray-600">
+                        <div className="my-2 text-sm text-primary-500">
                           Video đã chọn: {value.name}
                         </div>
                       )}
@@ -183,7 +183,7 @@ const ChapterModal = () => {
               name="presentation"
               render={({ field: { onChange, value } }) => (
                 <FormItem>
-                  <FormLabel className="text-customgreys-dirtyGrey text-sm">
+                  <FormLabel className="text-primary-600 text-sm">
                     <FileUp className="w-4 h-4 inline mr-1" /> PowerPoint
                     Presentation
                   </FormLabel>
@@ -198,18 +198,18 @@ const ChapterModal = () => {
                             onChange(file);
                           }
                         }}
-                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer"
+                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer text-primary-100"
                       />
-                      <div className="text-xs text-gray-400 mt-1">
+                      <div className="text-xs text-primary-400 mt-1">
                         Supported formats: .ppt, .pptx, .pps, .ppsx
                       </div>
                       {typeof value === "string" && value && (
-                        <div className="my-2 text-sm text-gray-600">
+                        <div className="my-2 text-sm text-primary-500">
                           Current presentation: {value.split("/").pop()}
                         </div>
                       )}
                       {value instanceof File && (
-                        <div className="my-2 text-sm text-gray-600">
+                        <div className="my-2 text-sm text-primary-500">
                           Selected presentation: {value.name} (
                           {(value.size / (1024 * 1024)).toFixed(2)} MB)
                         </div>
@@ -222,10 +222,18 @@ const ChapterModal = () => {
             />
 
             <div className="chapter-modal__actions">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="text-primary-600 hover:text-primary-700"
+              >
                 Huỷ
               </Button>
-              <Button type="submit" className="bg-primary-700">
+              <Button
+                type="submit"
+                className="bg-primary-700 text-primary-50 hover:text-primary-100"
+              >
                 Lưu
               </Button>
             </div>

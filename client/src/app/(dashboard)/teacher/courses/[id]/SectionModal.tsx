@@ -101,10 +101,18 @@ const SectionModal = () => {
             />
 
             <div className="section-modal__actions">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="text-primary-600 hover:text-primary-700"
+              >
                 Huỷ
               </Button>
-              <Button type="submit" className="bg-primary-700">
+              <Button
+                type="submit"
+                className="bg-primary-700 text-primary-50 hover:text-primary-100"
+              >
                 Lưu
               </Button>
             </div>
