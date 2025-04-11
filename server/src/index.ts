@@ -19,6 +19,7 @@ import {
 import AWS from "aws-sdk";
 import rateLimit from "express-rate-limit";
 import logger from "./config/logger";
+import { getMonthlyLeaderboard } from "./controllers/userCourseProgressController";
 /* ROUTE IMPORTS */
 import courseRoutes from "./routes/courseRoutes";
 import userClerkRoutes from "./routes/userClerkRoutes";
@@ -105,6 +106,9 @@ app.use("/quizzes", quizRoutes);
 app.use("/api/chats", requireAuth(), chatRoutes);
 app.use("/api/homepage-images", homepageImageRoutes);
 app.use("/comments", commentRoutes);
+
+// Public endpoint for monthly leaderboard
+app.get("/api/public/leaderboard/monthly", getMonthlyLeaderboard);
 
 // Log all registered routes
 logRoutes(app);

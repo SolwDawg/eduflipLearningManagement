@@ -499,6 +499,11 @@ export const api = createApi({
       providesTags: ["Leaderboard"],
     }),
 
+    getPublicMonthlyLeaderboard: build.query<any, void>({
+      query: () => "api/public/leaderboard/monthly",
+      providesTags: ["Leaderboard"],
+    }),
+
     /* 
     ===============
     GRADES
@@ -956,6 +961,7 @@ export const {
   useUpdateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
   useGetMonthlyLeaderboardQuery,
+  useGetPublicMonthlyLeaderboardQuery,
   useGetHomepageImagesQuery,
   useGetHomepageImageByIdQuery,
   useGetUploadUrlsMutation,

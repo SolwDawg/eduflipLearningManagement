@@ -1,10 +1,14 @@
 import React from "react";
-import { useGetMonthlyLeaderboardQuery } from "@/state/api";
+import {
+  useGetMonthlyLeaderboardQuery,
+  useGetPublicMonthlyLeaderboardQuery,
+} from "@/state/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 interface LeaderboardEntry {
   rank: number;
@@ -30,7 +34,20 @@ const TopRankIcon = ({ rank }: { rank: number }) => {
 };
 
 const MonthlyLeaderboard = () => {
-  const { data, isLoading, error } = useGetMonthlyLeaderboardQuery();
+  const { isSignedIn } = useUser();
+
+  // Use the authenticated endpoint if signed in, otherwise use the public endpoint
+  const authenticatedQuery = useGetMonthlyLeaderboardQuery(undefined, {
+    skip: !isSignedIn,
+  });
+  const publicQuery = useGetPublicMonthlyLeaderboardQuery(undefined, {
+    skip: isSignedIn,
+  });
+
+  // Use the appropriate query result based on auth status
+  const { data, isLoading, error } = isSignedIn
+    ? authenticatedQuery
+    : publicQuery;
 
   if (isLoading) {
     return (
