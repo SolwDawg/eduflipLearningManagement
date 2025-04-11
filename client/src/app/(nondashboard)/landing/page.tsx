@@ -204,19 +204,19 @@ const Landing = () => {
         viewport={{ amount: 0.3, once: true }}
         className="landing__grade-selection mt-60 mb-8 p-6  rounded-lg shadow-sm max-w-3xl mx-auto"
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-primary-700">
           Bước 1: Chọn khối lớp của bạn
         </h2>
-        <p className="text-center mb-4 text-slate-600">
+        <p className="text-center mb-4 text-foreground">
           Để đăng ký các khóa học, trước tiên bạn cần chọn khối lớp phù hợp với
           bạn. Mỗi khối lớp có những khóa học được thiết kế riêng theo trình độ.
         </p>
         {gradesError ? (
-          <p className="text-red-500 mb-2 text-center">
+          <p className="text-destructive mb-2 text-center">
             Không thể tải danh sách khối lớp. Vui lòng thử lại sau.
           </p>
         ) : !hasGrades ? (
-          <p className="text-amber-500 mb-2 text-center">
+          <p className="text-chart-1 mb-2 text-center">
             Chưa có khối lớp nào. Liên hệ quản trị viên để tạo khối lớp.
           </p>
         ) : null}
@@ -239,7 +239,7 @@ const Landing = () => {
         </Select>
 
         {selectedGradeId && (
-          <div className="mt-4 text-center text-emerald-600 font-medium">
+          <div className="mt-4 text-center text-primary-600 font-medium">
             Bạn đã chọn khối lớp. Hãy xem các khóa học phù hợp bên dưới!
           </div>
         )}
@@ -281,7 +281,7 @@ const Landing = () => {
                 </motion.div>
               ))
             ) : (
-              <p className="text-center py-8 text-gray-500">
+              <p className="text-center py-8 text-foreground">
                 Không có khoá học nào cho khối lớp này
               </p>
             )
