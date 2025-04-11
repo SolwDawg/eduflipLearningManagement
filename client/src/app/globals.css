@@ -778,7 +778,7 @@ input[type="color"] {
 }
 
 .accordion-section__trigger {
-  @apply hover:bg-gray-700/50 bg-customgreys-primarybg/50 px-4 py-3;
+  @apply hover:bg-primary-600 hover:text-white-100 bg-customgreys-primarybg/50 px-4 py-3;
 }
 
 .accordion-section__title {
@@ -790,7 +790,7 @@ input[type="color"] {
 }
 
 .accordion-section__chapter {
-  @apply flex items-center text-gray-400/90 py-1;
+  @apply flex items-center text-black py-1;
 }
 
 /* Course Card */

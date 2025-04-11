@@ -4,10 +4,8 @@ import { useTokenCheck } from "@/hooks/useTokenCheck";
 import React from "react";
 
 const SelectedCourse = ({ course, handleEnrollNow }: SelectedCourseProps) => {
-  // Use our token check hook
   const { checkTokenBeforeAction, isChecking } = useTokenCheck();
 
-  // Wrap the enrollment handler with token check
   const handleEnrollmentWithTokenCheck = (courseId: string) => {
     checkTokenBeforeAction(() => handleEnrollNow(courseId));
   };

@@ -224,7 +224,7 @@ const Search = () => {
           onValueChange={handleGradeChange}
           value={selectedGradeId || undefined}
         >
-          <SelectTrigger className="w-full md:w-72">
+          <SelectTrigger className="w-full md:w-72 bg-white-100 border-primary-300">
             <SelectValue placeholder="Chọn khối lớp để xem khoá học" />
           </SelectTrigger>
           <SelectContent>
