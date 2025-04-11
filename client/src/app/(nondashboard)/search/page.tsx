@@ -197,13 +197,13 @@ const Search = () => {
 
       {/* Search form */}
       <form onSubmit={handleSearch} className="mb-6">
-        <div className="relative max-w-xl">
+        <div className="relative max-w-xl bg-white-50 border-primary-300">
           <Input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm kiếm khoá học..."
-            className="pl-10 pr-4 py-2 w-full"
+            className="pl-10 pr-4 py-2 w-full "
           />
           <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <button

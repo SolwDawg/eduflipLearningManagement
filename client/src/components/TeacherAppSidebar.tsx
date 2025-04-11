@@ -56,7 +56,7 @@ const AppSidebar = () => {
     <Sidebar
       collapsible="icon"
       style={{ height: "100vh" }}
-      className="bg-customgreys-primarybg border-none shadow-lg"
+      className="bg-customgreys-primarybg border-primary-200 shadow-lg"
     >
       <SidebarHeader>
         <SidebarMenu className="app-sidebar__menu">
@@ -109,19 +109,22 @@ const AppSidebar = () => {
                     scroll={false}
                   >
                     <link.icon
-                      className={isActive ? "text-white-50" : "text-gray-500"}
+                      className={
+                        isActive ? "text-primary-700" : "text-primary-500"
+                      }
                     />
                     <span
-                      className={cn(
-                        "app-sidebar__nav-text",
-                        isActive ? "text-white-50" : "text-gray-500"
-                      )}
+                      className={`app-sidebar__nav-text ${
+                        isActive ? "text-primary-700" : "text-primary-500"
+                      }`}
                     >
                       {link.label}
                     </span>
                   </Link>
                 </SidebarMenuButton>
-                {isActive && <div className="app-sidebar__active-indicator" />}
+                {isActive && (
+                  <div className="app-sidebar__active-indicator bg-primary-600" />
+                )}
               </SidebarMenuItem>
             );
           })}

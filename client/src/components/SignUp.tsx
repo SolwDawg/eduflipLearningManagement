@@ -42,10 +42,11 @@ const SignUpComponent = () => {
               background: "#25262F",
             },
           },
-          formFieldLabel: "text-white-50 font-normal",
+          formFieldLabel: "text-primary-800 font-normal",
           formButtonPrimary:
-            "bg-primary-700 text-white-100 hover:bg-primary-600 !shadow-none",
-          formFieldInput: "bg-customgreys-primarybg text-white-50 !shadow-none",
+            "bg-primary-700 text-primary-50 hover:bg-primary-600 !shadow-none",
+          formFieldInput:
+            "bg-customgreys-primarybg text-primary-800 !shadow-none",
           footerActionLink: "text-primary-750 hover:text-primary-600",
         },
       }}

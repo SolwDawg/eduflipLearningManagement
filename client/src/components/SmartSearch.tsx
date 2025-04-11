@@ -112,7 +112,7 @@ const SmartSearch = ({
           value={searchTerm}
           onChange={handleSearchChange}
           placeholder={placeholder}
-          className="pl-10 pr-10 py-2 w-full rounded-lg"
+          className="pl-10 pr-10 py-2 w-full rounded-lg border-primary-200 focus:border-primary-400 focus:ring-primary-400"
           onFocus={() => searchResults.length > 0 && setIsSearchOpen(true)}
         />
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -134,7 +134,7 @@ const SmartSearch = ({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute z-50 mt-1 w-full bg-card rounded-lg shadow-lg border border-border"
+            className="absolute z-50 mt-1 w-full bg-card rounded-lg shadow-lg border border-primary-300"
           >
             {isLoading ? (
               <div className="p-4 text-center">
@@ -180,7 +180,7 @@ const SmartSearch = ({
                   )}
                 </div>
                 {searchResults.length > 0 && (
-                  <div className="p-2 border-t border-border">
+                  <div className="p-2 border-t border-primary-200">
                     <Button
                       variant="ghost"
                       className="w-full text-sm text-primary"

@@ -559,12 +559,12 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                 key={option.optionId}
                                 className={`p-2 rounded-md text-sm ${
                                   option.isCorrect
-                                    ? "bg-primary-700 text-white-100 border border-primary-600"
-                                    : "bg-customgreys-secondarybg text-white-50 border border-customgreys-darkerGrey"
+                                    ? "bg-primary-700 text-primary-50 border border-primary-600"
+                                    : "bg-customgreys-secondarybg text-primary-800 border border-customgreys-darkerGrey"
                                 }`}
                               >
                                 {option.isCorrect && (
-                                  <span className="text-white-100 font-medium mr-2">
+                                  <span className="text-primary-700 font-medium mr-2">
                                     ✓
                                   </span>
                                 )}
@@ -573,7 +573,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                             ))}
                           </div>
                         ) : (
-                          <div className="bg-customgreys-secondarybg border border-customgreys-darkerGrey p-3 rounded-md text-sm text-white-50">
+                          <div className="bg-customgreys-secondarybg border border-customgreys-darkerGrey p-3 rounded-md text-sm text-primary-800">
                             <div className="text-muted-foreground mb-1">
                               Câu trả lời tham khảo:
                             </div>

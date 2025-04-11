@@ -56,7 +56,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-4">
           <button
             onClick={handleStart}
-            className="w-full max-w-xs py-4 px-8 bg-primary-600 hover:bg-primary-500 text-white-50 font-bold rounded-full text-xl transition-colors duration-200"
+            className="w-full max-w-xs py-4 px-8 bg-primary-600 hover:bg-primary-500 text-primary-50 font-bold rounded-full text-xl transition-colors duration-200"
           >
             BẮT ĐẦU
           </button>

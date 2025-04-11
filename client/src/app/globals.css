@@ -16,8 +16,8 @@ body,
 .app {
   height: 100%;
   width: 100%;
-  @apply text-sm;
-  @apply text-gray-300;
+  @apply text-md;
+  @apply text-primary-900;
   @apply bg-customgreys-primarybg;
 }
 
@@ -38,64 +38,64 @@ input[type="color"] {
 @layer base {
   :root {
     --sidebar-background: theme("colors.customgreys.primarybg");
-    --sidebar-foreground: theme("colors.white.50");
+    --sidebar-foreground: theme("colors.primary.900");
     --sidebar-primary: theme("colors.primary.700");
-    --sidebar-primary-foreground: theme("colors.white.50");
+    --sidebar-primary-foreground: theme("colors.primary.50");
     --sidebar-accent: theme("colors.customgreys.darkerGrey");
-    --sidebar-accent-foreground: theme("colors.customgreys.dirtyGrey");
+    --sidebar-accent-foreground: theme("colors.primary.700");
     --sidebar-border: theme("colors.customgreys.secondarybg");
     --sidebar-ring: theme("colors.primary.700");
     --popover: theme("colors.customgreys.primarybg");
-    --popover-foreground: theme("colors.white.50");
+    --popover-foreground: theme("colors.primary.900");
 
     --background: theme("colors.customgreys.primarybg");
-    --foreground: theme("colors.white.50");
+    --foreground: theme("colors.primary.900");
 
     --primary: theme("colors.primary.700");
-    --primary-foreground: theme("colors.white.50");
+    --primary-foreground: theme("colors.primary.50");
 
     --muted: theme("colors.primary.600");
-    --muted-foreground: theme("colors.customgreys.dirtyGrey");
+    --muted-foreground: theme("colors.primary.400");
 
     --accent: theme("colors.primary.600");
-    --accent-foreground: theme("colors.white.50");
+    --accent-foreground: theme("colors.primary.50");
 
     --border: theme("colors.customgreys.secondarybg");
     --ring: theme("colors.primary.700");
 
     --card: theme("colors.customgreys.primarybg");
-    --card-foreground: theme("colors.white.50");
+    --card-foreground: theme("colors.primary.900");
   }
 
   .dark {
     --sidebar-background: theme("colors.customgreys.primarybg");
-    --sidebar-foreground: theme("colors.white.50");
+    --sidebar-foreground: theme("colors.primary.100");
     --sidebar-primary: theme("colors.primary.700");
-    --sidebar-primary-foreground: theme("colors.white.50");
+    --sidebar-primary-foreground: theme("colors.primary.50");
     --sidebar-accent: theme("colors.customgreys.darkerGrey");
-    --sidebar-accent-foreground: theme("colors.customgreys.dirtyGrey");
+    --sidebar-accent-foreground: theme("colors.primary.300");
     --sidebar-border: theme("colors.customgreys.secondarybg");
     --sidebar-ring: theme("colors.primary.700");
     --popover: theme("colors.customgreys.primarybg");
-    --popover-foreground: theme("colors.white.50");
+    --popover-foreground: theme("colors.primary.100");
 
     --background: theme("colors.customgreys.primarybg");
-    --foreground: theme("colors.white.50");
+    --foreground: theme("colors.primary.100");
 
     --primary: theme("colors.primary.700");
-    --primary-foreground: theme("colors.white.50");
+    --primary-foreground: theme("colors.primary.50");
 
     --muted: theme("colors.primary.600");
-    --muted-foreground: theme("colors.customgreys.dirtyGrey");
+    --muted-foreground: theme("colors.primary.400");
 
     --accent: theme("colors.primary.600");
-    --accent-foreground: theme("colors.white.50");
+    --accent-foreground: theme("colors.primary.50");
 
     --border: theme("colors.customgreys.secondarybg");
     --ring: theme("colors.primary.700");
 
     --card: theme("colors.customgreys.primarybg");
-    --card-foreground: theme("colors.white.50");
+    --card-foreground: theme("colors.primary.100");
   }
 }
 
@@ -113,10 +113,10 @@ input[type="color"] {
 }
 
 .filepond--drop-label {
-  @apply !text-white-50;
+  @apply !text-primary-900;
   @apply cursor-pointer;
   @apply hover:!bg-customgreys-darkerGrey;
-  @apply hover:!text-white-100;
+  @apply hover:!text-primary-700;
 }
 
 /* Component Classes */
@@ -131,7 +131,7 @@ input[type="color"] {
 }
 
 .search__subtitle {
-  @apply text-gray-500 mb-3;
+  @apply text-primary-400 mb-3;
 }
 
 .search__content {
@@ -152,15 +152,15 @@ input[type="color"] {
 }
 
 .selected-course__title {
-  @apply text-white-50 font-semibold text-3xl;
+  @apply text-primary-900 font-semibold text-3xl;
 }
 
 .selected-course__author {
-  @apply text-gray-400 text-sm pt-3;
+  @apply text-primary-400 text-sm pt-3;
 }
 
 .selected-course__enrollment-count {
-  @apply font-bold text-gray-300;
+  @apply font-bold text-primary-800;
 }
 
 .selected-course__content {
@@ -168,7 +168,7 @@ input[type="color"] {
 }
 
 .selected-course__description {
-  @apply text-gray-500 mb-4;
+  @apply text-primary-500 mb-4;
 }
 
 .selected-course__sections {
@@ -176,7 +176,7 @@ input[type="color"] {
 }
 
 .selected-course__sections-title {
-  @apply text-white-50/90 font-semibold mb-2;
+  @apply text-primary-700 font-semibold mb-2;
 }
 
 .selected-course__footer {
@@ -210,7 +210,7 @@ input[type="color"] {
 }
 
 .completion__title {
-  @apply text-4xl font-bold mb-3;
+  @apply text-4xl font-bold text-primary-900 mb-3;
 }
 
 .completion__message {
@@ -235,11 +235,11 @@ input[type="color"] {
 }
 
 .landing__title {
-  @apply text-4xl font-bold mb-4;
+  @apply text-4xl font-bold text-primary-900 mb-4;
 }
 
 .landing__description {
-  @apply text-lg text-gray-400 mb-8;
+  @apply text-lg text-primary-400 mb-8;
 }
 
 .landing__cta {
@@ -247,7 +247,7 @@ input[type="color"] {
 }
 
 .landing__cta-button {
-  @apply bg-primary-700 hover:bg-primary-600 px-4 py-2 rounded-md;
+  @apply bg-primary-700 hover:bg-primary-600 px-4 py-2 rounded-md text-primary-50;
 }
 
 .landing__hero-images {
@@ -399,7 +399,7 @@ input[type="color"] {
 }
 
 .course__title {
-  @apply text-2xl text-white-50 font-semibold my-4;
+  @apply text-2xl text-primary-900 font-semibold my-4;
 }
 
 .course__header {
@@ -415,7 +415,7 @@ input[type="color"] {
 }
 
 .course__avatar-fallback {
-  @apply bg-secondary-700 text-black;
+  @apply bg-primary-200 text-primary-700;
 }
 
 .course__instructor-name {
@@ -463,7 +463,11 @@ input[type="color"] {
 }
 
 .course__tab {
-  @apply text-md w-20;
+  @apply hover:text-primary-700 transition-colors cursor-pointer pb-2 border-b-2 border-transparent text-primary-300;
+}
+
+.course__tab--active {
+  @apply border-primary-700 text-primary-900 font-medium;
 }
 
 .course__tab-content {
@@ -499,7 +503,7 @@ input[type="color"] {
 }
 
 .course__instructor-avatar-fallback {
-  @apply bg-secondary-700 text-black;
+  @apply bg-primary-200 text-primary-700;
 }
 
 .course__instructor-details {
@@ -511,7 +515,7 @@ input[type="color"] {
 }
 
 .course__instructor-title {
-  @apply text-sm;
+  @apply text-primary-400 text-sm;
 }
 
 .course__instructor-bio {
@@ -545,15 +549,15 @@ input[type="color"] {
 }
 
 .chapters-sidebar__section-number {
-  @apply text-gray-500 text-sm;
+  @apply text-primary-400 text-sm;
 }
 
 .chapters-sidebar__chevron {
-  @apply text-white-50/70 w-4 h-4;
+  @apply text-primary-300 w-4 h-4;
 }
 
 .chapters-sidebar__section-title {
-  @apply text-white-50/90 font-semibold;
+  @apply text-primary-300 font-semibold;
 }
 
 .chapters-sidebar__section-content {
@@ -585,7 +589,7 @@ input[type="color"] {
 }
 
 .chapters-sidebar__progress-text {
-  @apply text-gray-500 text-xs mt-3 mb-5 px-7;
+  @apply text-primary-400 text-xs mt-3 mb-5 px-7;
 }
 
 .chapters-sidebar__chapter {
@@ -601,7 +605,7 @@ input[type="color"] {
 }
 
 .chapters-sidebar__check-icon {
-  @apply text-white-100 w-4 h-4;
+  @apply text-primary-100 w-4 h-4;
 }
 
 .chapters-sidebar__chapter-number {
@@ -609,7 +613,7 @@ input[type="color"] {
 }
 
 .chapters-sidebar__chapter-number--current {
-  @apply bg-secondary-700 text-gray-800;
+  @apply bg-primary-700 text-primary-50;
 }
 
 .chapters-sidebar__chapter-title {
@@ -617,7 +621,7 @@ input[type="color"] {
 }
 
 .chapters-sidebar__chapter-title--completed {
-  @apply text-gray-500 line-through;
+  @apply text-primary-400 line-through;
 }
 
 .chapters-sidebar__chapter-title--current {
@@ -625,7 +629,7 @@ input[type="color"] {
 }
 
 .chapters-sidebar__text-icon {
-  @apply text-gray-500 ml-2 w-4 h-4;
+  @apply text-primary-400 ml-2 w-4 h-4;
 }
 
 /* Droppable Component */
@@ -699,7 +703,7 @@ input[type="color"] {
 }
 
 .chapter-modal__close {
-  @apply text-gray-500 hover:text-gray-700;
+  @apply text-primary-400 hover:text-primary-700;
 }
 
 .chapter-modal__form {
@@ -744,7 +748,7 @@ input[type="color"] {
 }
 
 .section-modal__close {
-  @apply text-gray-500 hover:text-gray-700;
+  @apply text-primary-400 hover:text-primary-700;
 }
 
 .section-modal__form {
@@ -778,7 +782,7 @@ input[type="color"] {
 }
 
 .accordion-section__title {
-  @apply text-gray-400 font-medium;
+  @apply text-primary-400 font-medium;
 }
 
 .accordion-section__content {
@@ -807,7 +811,7 @@ input[type="color"] {
 }
 
 .course-card__title {
-  @apply text-md lg:text-lg font-semibold line-clamp-2;
+  @apply font-semibold text-lg text-primary-900 mb-1;
 }
 
 .course-card__footer {
@@ -926,7 +930,7 @@ input[type="color"] {
 }
 
 .navbar__search-input {
-  @apply bg-customgreys-primarybg pl-10 sm:pl-14 pr-6 sm:pr-20 py-3 sm:py-4 rounded-xl text-customgreys-dirtyGrey hover:text-white-50 hover:bg-customgreys-darkerGrey transition-all duration-300 text-sm sm:text-base;
+  @apply bg-customgreys-primarybg pl-10 sm:pl-14 pr-6 sm:pr-20 py-3 sm:py-4 rounded-xl text-customgreys-dirtyGrey hover:text-primary-800 hover:bg-customgreys-darkerGrey transition-all duration-300 text-sm sm:text-base;
 }
 
 .navbar__search-icon {
@@ -942,11 +946,11 @@ input[type="color"] {
 }
 
 .navbar__dark-mode-icon {
-  @apply cursor-pointer text-customgreys-dirtyGrey w-5 h-5 sm:w-6 sm:h-6 hover:text-white-50;
+  @apply cursor-pointer text-customgreys-dirtyGrey w-5 h-5 sm:w-6 sm:h-6 hover:text-primary-800;
 }
 
 .navbar__sidebar-trigger {
-  @apply text-customgreys-dirtyGrey hover:text-white-50 transition-colors;
+  @apply text-customgreys-dirtyGrey hover:text-primary-800 transition-colors;
 }
 
 /* Toolbar */
@@ -1057,26 +1061,26 @@ input[type="color"] {
 }
 
 .nondashboard-navbar__notification-icon {
-  @apply text-gray-400 w-4 h-4 sm:w-5 sm:h-5;
+  @apply text-primary-400 w-4 h-4 sm:w-5 sm:h-5;
 }
 
 .nondashboard-navbar__auth-button--login {
-  @apply text-customgreys-dirtyGrey hover:bg-customgreys-darkerGrey hover:text-white-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md border-customgreys-dirtyGrey border-[1px] text-sm sm:text-base;
+  @apply text-customgreys-dirtyGrey hover:bg-customgreys-darkerGrey hover:text-primary-800 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md border-customgreys-dirtyGrey border-[1px] text-sm sm:text-base;
 }
 
 .nondashboard-navbar__auth-button--signup {
-  @apply bg-indigo-600 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-primary-600 hover:text-customgreys-primarybg text-sm sm:text-base;
+  @apply bg-indigo-600 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-primary-600 hover:text-customgreys-primarybg text-sm sm:text-base text-white-100;
 }
 
 /* Add these classes for group hover effects */
 .group:hover .dashboard-navbar__search-icon,
 .group:hover .nondashboard-navbar__search-icon {
-  @apply text-white-50;
+  @apply text-primary-800;
 }
 
 .group:hover .dashboard-navbar__search-input,
 .group:hover .nondashboard-navbar__search-input {
-  @apply bg-customgreys-darkerGrey text-white-50;
+  @apply bg-customgreys-darkerGrey text-primary-800;
 }
 
 /* Shared Notification Settings */
@@ -1102,7 +1106,7 @@ input[type="color"] {
 }
 
 .header__title {
-  @apply text-3xl font-bold text-white-50;
+  @apply text-3xl font-bold text-primary-900;
 }
 
 .header__subtitle {
@@ -1115,7 +1119,7 @@ input[type="color"] {
 }
 
 .course-card-teacher__title {
-  @apply text-primary-50 text-md md:text-lg line-clamp-2 overflow-hidden;
+  @apply font-semibold text-xl text-primary-900 mb-1;
 }
 
 /* .course-card-teacher__category {
@@ -1123,11 +1127,11 @@ input[type="color"] {
 } */
 
 .course-card-teacher__edit-button {
-  @apply rounded w-full bg-primary-700 border-none hover:bg-primary-600 hover:text-customgreys-primarybg text-white-100 cursor-pointer;
+  @apply rounded w-full bg-primary-700 border-none hover:bg-primary-600 hover:text-customgreys-primarybg text-primary-50 cursor-pointer;
 }
 
 .course-card-teacher__delete-button {
-  @apply rounded w-full bg-red-600 text-white-100 hover:bg-red-400 hover:text-customgreys-primarybg cursor-pointer;
+  @apply rounded w-full bg-red-600 text-primary-50 hover:bg-red-400 hover:text-customgreys-primarybg cursor-pointer;
 }
 
 /* NonDashboard Navbar Additional Classes */
@@ -1144,7 +1148,7 @@ input[type="color"] {
 }
 
 .navbar__notification-icon {
-  @apply text-gray-400 w-4 h-4 sm:w-5 sm:h-5;
+  @apply text-primary-400 w-4 h-4 sm:w-5 sm:h-5;
 }
 
 .navbar__search-icon {
@@ -1153,7 +1157,7 @@ input[type="color"] {
 
 /* Dark Mode Button */
 .dark-mode-button {
-  @apply cursor-pointer text-customgreys-dirtyGrey w-5 h-5 sm:w-6 sm:h-6 hover:text-white-50;
+  @apply cursor-pointer text-customgreys-dirtyGrey w-5 h-5 sm:w-6 sm:h-6 hover:text-primary-800;
 }
 
 /* Course Card Search Additional Classes */
@@ -1162,7 +1166,7 @@ input[type="color"] {
 }
 
 .course-card-search__title {
-  @apply font-semibold line-clamp-1;
+  @apply font-semibold text-lg text-primary-900 mb-1;
 }
 
 .course-card-search__description {
@@ -1187,7 +1191,7 @@ input[type="color"] {
 
 /* Additional Navbar Classes */
 .navbar__sidebar-trigger {
-  @apply text-customgreys-dirtyGrey hover:text-white-50 transition-colors;
+  @apply text-customgreys-dirtyGrey hover:text-primary-800 transition-colors;
 }
 
 /* Add Chapter Button */
@@ -1221,11 +1225,11 @@ input[type="color"] {
 }
 
 .app-sidebar__title {
-  @apply text-lg font-extrabold group-data-[collapsible=icon]:hidden;
+  @apply text-xl font-semibold text-primary-900 ml-3 group-data-[collapsible=icon]:ml-0;
 }
 
 .app-sidebar__collapse-icon {
-  @apply text-gray-400 w-5 h-5 group-data-[collapsible=icon]:hidden;
+  @apply text-primary-400 w-5 h-5 group-data-[collapsible=icon]:hidden;
 }
 
 .app-sidebar__nav-menu {
@@ -1245,7 +1249,7 @@ input[type="color"] {
 }
 
 .app-sidebar__nav-text {
-  @apply font-medium text-md ml-4 group-data-[collapsible=icon]:hidden;
+  @apply text-primary-600 ml-3 text-sm font-medium group-data-[collapsible=icon]:hidden;
 }
 
 .app-sidebar__active-indicator {
@@ -1296,17 +1300,17 @@ input[type="color"] {
 
 /* Add these classes for group hover effects */
 .group:hover .navbar__search-icon {
-  @apply text-white-50;
+  @apply text-primary-800;
 }
 
 .group:hover .navbar__search-input {
-  @apply bg-customgreys-darkerGrey text-white-50;
+  @apply bg-customgreys-darkerGrey text-primary-800;
 }
 
 /* Add these classes for group hover effects */
 .group:hover .add-chapter-button__icon,
 .group:hover .add-chapter-button__text {
-  @apply text-white-100;
+  @apply text-primary-100;
 }
 
 /* Add this class for group hover effect */
@@ -1328,7 +1332,7 @@ input[type="color"] {
 }
 
 .dashboard-navbar__search-input {
-  @apply bg-customgreys-primarybg pl-10 sm:pl-14 pr-6 sm:pr-20 py-3 sm:py-4 rounded-xl text-customgreys-dirtyGrey hover:text-white-50 hover:bg-customgreys-darkerGrey transition-all duration-300 text-sm sm:text-base;
+  @apply bg-customgreys-primarybg pl-10 sm:pl-14 pr-6 sm:pr-20 py-3 sm:py-4 rounded-xl text-customgreys-dirtyGrey hover:text-primary-800 hover:bg-customgreys-darkerGrey transition-all duration-300 text-sm sm:text-base;
 }
 
 .dashboard-navbar__search-icon {
@@ -1344,11 +1348,11 @@ input[type="color"] {
 }
 
 .dashboard-navbar__dark-mode-icon {
-  @apply cursor-pointer text-customgreys-dirtyGrey w-5 h-5 sm:w-6 sm:h-6 hover:text-white-50;
+  @apply cursor-pointer text-customgreys-dirtyGrey w-5 h-5 sm:w-6 sm:h-6 hover:text-primary-800;
 }
 
 .dashboard-navbar__sidebar-trigger {
-  @apply text-customgreys-dirtyGrey hover:text-white-50 transition-colors;
+  @apply text-customgreys-dirtyGrey hover:text-primary-800 transition-colors;
 }
 
 /* ======== stream css overrides ======== */

@@ -224,8 +224,11 @@ const Landing = () => {
           onValueChange={handleGradeChange}
           value={selectedGradeId || undefined}
         >
-          <SelectTrigger className="w-full max-w-md mx-auto">
-            <SelectValue placeholder="Chọn khối lớp của bạn" />
+          <SelectTrigger className="w-full max-w-md mx-auto bg-white-50 border-primary-300">
+            <SelectValue
+              placeholder="Chọn khối lớp của bạn"
+              className="text-primary-900 "
+            />
           </SelectTrigger>
           <SelectContent>
             {grades &&

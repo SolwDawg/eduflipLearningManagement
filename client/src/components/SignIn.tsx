@@ -32,9 +32,9 @@ const SignInComponent = () => {
       appearance={{
         baseTheme: dark,
         elements: {
-          rootBox: "flex justify-center items-center py-5",
-          cardBox: "shadow-none",
-          card: "bg-customgreys-secondarybg w-full shadow-none",
+          rootBox: "flex justify-center items-center py-5 bg-[#FFF7E6] text-lg",
+          cardBox: "shadow-md rounded-lg",
+          card: "bg-white w-full shadow-none p-6 sm:p-8 rounded-lg text-lg",
           footer: {
             background: "#25262F",
             padding: "0rem 2.5rem",
@@ -42,10 +42,11 @@ const SignInComponent = () => {
               background: "#25262F",
             },
           },
-          formFieldLabel: "text-white-50 font-normal",
+          formFieldLabel: "text-primary-800 font-normal",
           formButtonPrimary:
-            "bg-primary-700 text-white-100 hover:bg-primary-600 !shadow-none",
-          formFieldInput: "bg-customgreys-primarybg text-white-50 !shadow-none",
+            "bg-primary-700 text-primary-50 hover:bg-primary-600 !shadow-none rounded-md px-4 py-2 transition-colors text-lg",
+          formFieldInput:
+            "bg-customgreys-primarybg text-primary-800 !shadow-none",
           footerActionLink: "text-primary-750 hover:text-primary-600",
         },
       }}
