@@ -782,7 +782,7 @@ input[type="color"] {
 }
 
 .accordion-section__title {
-  @apply text-primary-400 font-medium;
+  @apply text-primary-400 hover:text-white-100 font-medium;
 }
 
 .accordion-section__content {
