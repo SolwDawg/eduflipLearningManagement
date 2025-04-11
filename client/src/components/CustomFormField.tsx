@@ -88,7 +88,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             placeholder={placeholder}
             {...field}
             rows={3}
-            className={`border-none bg-customgreys-darkGrey p-4 ${inputClassName}`}
+            className={`border-none bg-white-100 p-4 ${inputClassName}`}
           />
         );
       case "select":

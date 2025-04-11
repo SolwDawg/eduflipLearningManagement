@@ -594,7 +594,6 @@ const CourseEditor = () => {
                   label="Mô tả khoá học"
                   type="textarea"
                   placeholder="Mô tả khoá học"
-                  className="bg-white-100"
                   initialValue={course?.description}
                 />
 
