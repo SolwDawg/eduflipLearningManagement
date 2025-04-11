@@ -44,10 +44,9 @@ export default function CoursesPage() {
     return (
       <div className="container max-w-6xl mx-auto py-12 px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Error loading courses</h1>
+          <h1 className="text-2xl font-bold mb-4">Lỗi tải danh sách khóa học</h1>
           <p>
-            There was a problem loading the course catalog. Please try again
-            later.
+            Có lỗi xảy ra khi tải danh sách khóa học. Vui lòng thử lại sau.
           </p>
         </div>
       </div>
@@ -57,9 +56,9 @@ export default function CoursesPage() {
   return (
     <div className="container max-w-6xl mx-auto py-12 px-4">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Explore Our Courses</h1>
+        <h1 className="text-4xl font-bold mb-4">Khám phá khóa học của chúng tôi</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Discover the perfect course to enhance your skills and knowledge
+          Tìm kiếm khóa học hoàn hảo để nâng cao kỹ năng và kiến thức của bạn
         </p>
       </div>
 
@@ -70,9 +69,9 @@ export default function CoursesPage() {
 
       {filteredCourses.length === 0 ? (
         <div className="text-center py-16">
-          <h2 className="text-xl font-semibold mb-2">No courses found</h2>
+          <h2 className="text-xl font-semibold mb-2">Không tìm thấy khóa học</h2>
           <p className="text-muted-foreground">
-            Try adjusting your search or category filters
+            Điều chỉnh tìm kiếm hoặc bộ lọc danh mục
           </p>
         </div>
       ) : (

@@ -5,6 +5,28 @@ import { Clerk } from "@clerk/clerk-js";
 import { toast } from "sonner";
 import { Quiz } from "@/types/quiz";
 
+// Function to handle token expiration
+const handleTokenExpiration = async () => {
+  toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+
+  // Only attempt to sign out if we're in a browser environment
+  if (typeof window !== "undefined") {
+    try {
+      // Sign out using Clerk
+      if (window.Clerk) {
+        await window.Clerk.signOut();
+      }
+
+      // Redirect to sign in page
+      window.location.href = "/signin";
+    } catch (error) {
+      console.error("Error during sign out:", error);
+      // Redirect anyway in case of error
+      window.location.href = "/signin";
+    }
+  }
+};
+
 const customBaseQuery = async (
   args: string | FetchArgs,
   api: BaseQueryApi,
@@ -31,11 +53,18 @@ const customBaseQuery = async (
   const baseQuery = fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
-      const token = await window.Clerk?.session?.getToken();
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+      try {
+        const token = await window.Clerk?.session?.getToken();
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
+        return headers;
+      } catch (error) {
+        console.error("Error getting token:", error);
+        // Token retrieval failed - likely expired or invalid
+        handleTokenExpiration();
+        return headers;
       }
-      return headers;
     },
   });
 
@@ -54,6 +83,19 @@ const customBaseQuery = async (
     }
 
     const result: any = await baseQuery(args, api, extraOptions);
+
+    // Check for authentication errors (401 Unauthorized or 403 Forbidden)
+    if (
+      result.error &&
+      (result.error.status === 401 || result.error.status === 403)
+    ) {
+      console.log(
+        "Authentication error detected - token may be expired:",
+        result.error
+      );
+      await handleTokenExpiration();
+      return result;
+    }
 
     if (result.error) {
       // Handle error details
@@ -209,6 +251,16 @@ const customBaseQuery = async (
       error instanceof Error ? error.message : "Unknown error";
 
     console.error("API Request Failed:", errorMessage);
+
+    // Check if the error is related to authentication
+    if (
+      error instanceof Error &&
+      (errorMessage.toLowerCase().includes("authentication") ||
+        errorMessage.toLowerCase().includes("token") ||
+        errorMessage.toLowerCase().includes("unauthorized"))
+    ) {
+      handleTokenExpiration();
+    }
 
     return { error: { status: "FETCH_ERROR", error: errorMessage } };
   }

@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import ChaptersSidebar from "@/app/(dashboard)/user/courses/[courseId]/ChaptersSidebar";
 import StudentSidebar from "@/components/StudentSidebar";
 import TeacherSidebar from "@/components/TeacherSidebar";
+import { useTokenExpirationCheck } from "@/hooks/useTokenExpirationCheck";
 
 export default function DashboardLayout({
   children,
@@ -23,6 +24,9 @@ export default function DashboardLayout({
   const isCoursePage = /^\/user\/courses\/[^\/]+(?:\/chapters\/[^\/]+)?$/.test(
     pathname
   );
+
+  // Check token periodically (every 2 minutes)
+  useTokenExpirationCheck(120000);
 
   useEffect(() => {
     if (isCoursePage) {

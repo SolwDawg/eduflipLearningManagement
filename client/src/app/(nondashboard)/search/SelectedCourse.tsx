@@ -1,8 +1,17 @@
 import AccordionSections from "@/components/AccordionSections";
 import { Button } from "@/components/ui/button";
+import { useTokenCheck } from "@/hooks/useTokenCheck";
 import React from "react";
 
 const SelectedCourse = ({ course, handleEnrollNow }: SelectedCourseProps) => {
+  // Use our token check hook
+  const { checkTokenBeforeAction, isChecking } = useTokenCheck();
+
+  // Wrap the enrollment handler with token check
+  const handleEnrollmentWithTokenCheck = (courseId: string) => {
+    checkTokenBeforeAction(() => handleEnrollNow(courseId));
+  };
+
   return (
     <div className="selected-course">
       <div>
@@ -24,10 +33,11 @@ const SelectedCourse = ({ course, handleEnrollNow }: SelectedCourseProps) => {
 
         <div className="selected-course__footer">
           <Button
-            onClick={() => handleEnrollNow(course.courseId)}
+            onClick={() => handleEnrollmentWithTokenCheck(course.courseId)}
             className="bg-primary-700 hover:bg-primary-600"
+            disabled={isChecking}
           >
-            Tham gia khoá học
+            {isChecking ? "Đang xử lý..." : "Tham gia khoá học"}
           </Button>
         </div>
       </div>

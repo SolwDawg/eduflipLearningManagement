@@ -36,7 +36,7 @@ export default function CoursePreviewPage() {
   const handleEnroll = async () => {
     if (!user) {
       toast.error("Vui lòng đăng nhập để tham gia khoá học");
-      router.push("/sign-in");
+      router.push("/signin");
       return;
     }
 

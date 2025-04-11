@@ -14,6 +14,7 @@ import { redirect } from "next/navigation";
 import SmartSearch from "@/components/SmartSearch";
 import { UserButton } from "@clerk/nextjs";
 import StudentSidebar from "@/components/StudentSidebar";
+import { useTokenExpirationCheck } from "@/hooks/useTokenExpirationCheck";
 
 export default function DashboardLayout({
   children,
@@ -27,6 +28,9 @@ export default function DashboardLayout({
   const isCoursePage = /^\/user\/courses\/[^\/]+(?:\/chapters\/[^\/]+)?$/.test(
     pathname
   );
+
+  // Check token periodically (every 2 minutes)
+  useTokenExpirationCheck(120000);
 
   useEffect(() => {
     if (isCoursePage) {

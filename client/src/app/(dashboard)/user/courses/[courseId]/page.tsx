@@ -89,7 +89,7 @@ export default function CourseView() {
   if (!isUserLoaded) return <Loading />;
 
   if (!user) {
-    router.push("/sign-in");
+    router.push("/signin");
     return null;
   }
 
