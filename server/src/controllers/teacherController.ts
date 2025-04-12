@@ -219,6 +219,9 @@ export const getTeacherStudentsOverview = async (
               totalCourses: 0,
               name: "Unknown Student",
               email: "unknown",
+              quizResults: [],
+              totalQuizzesTaken: 0,
+              averageQuizScore: 0,
             });
           }
 
@@ -279,6 +282,29 @@ export const getTeacherStudentsOverview = async (
                 ? progress.completedChapters.length
                 : 0;
 
+              // Add quiz results data if available
+              if (progress.quizResults && progress.quizResults.length > 0) {
+                course.quizResults = progress.quizResults.map((quiz: any) => ({
+                  quizId: quiz.quizId,
+                  score: quiz.score,
+                  totalQuestions: quiz.totalQuestions,
+                  completionDate: quiz.completionDate,
+                  attemptCount: quiz.attemptCount,
+                }));
+
+                // Add quiz data to the course
+                course.totalQuizzesTaken = progress.quizResults.length;
+                course.averageQuizScore = progress.averageQuizScore || 0;
+
+                // Add the quiz results to the student's overall quiz results
+                student.quizResults.push(...course.quizResults);
+                student.totalQuizzesTaken += course.totalQuizzesTaken;
+              } else {
+                course.quizResults = [];
+                course.totalQuizzesTaken = 0;
+                course.averageQuizScore = 0;
+              }
+
               // Calculate completion percentage if we know the total chapters
               const matchingCourse = teacherCourses.find(
                 (c) => c.courseId === course.courseId
@@ -331,6 +357,17 @@ export const getTeacherStudentsOverview = async (
         );
         if (mostRecentCourse) {
           student.lastActivity = mostRecentCourse.lastActivity;
+        }
+
+        // Calculate the student's average quiz score across all courses
+        if (student.quizResults.length > 0) {
+          const totalScore = student.quizResults.reduce(
+            (sum: number, quiz: any) => sum + quiz.score,
+            0
+          );
+          student.averageQuizScore = Math.round(
+            totalScore / student.quizResults.length
+          );
         }
 
         return student;

@@ -13,6 +13,17 @@ interface StudentCourse {
   completedChapters: number;
   totalChapters: number;
   completionPercentage: number;
+  quizResults: QuizResult[];
+  totalQuizzesTaken: number;
+  averageQuizScore: number;
+}
+
+interface QuizResult {
+  quizId: string;
+  score: number;
+  totalQuestions: number;
+  completionDate: string;
+  attemptCount: number;
 }
 
 interface Student {
@@ -22,6 +33,9 @@ interface Student {
   totalCourses: number;
   courses: StudentCourse[];
   lastActivity: string;
+  quizResults: QuizResult[];
+  totalQuizzesTaken: number;
+  averageQuizScore: number;
 }
 
 interface StudentOverview {
@@ -29,7 +43,6 @@ interface StudentOverview {
   students: Student[];
 }
 
-// Course Progress Analytics Types
 interface MaterialAccessData {
   totalAccesses: number;
   averageAccessesPerStudent: number;

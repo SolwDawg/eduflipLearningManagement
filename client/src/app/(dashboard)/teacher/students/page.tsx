@@ -7,7 +7,15 @@ import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useGetStudentsOverviewQuery } from "@/state/api";
-import { Loader2, Users, BookOpen, AlertCircle, Search } from "lucide-react";
+import {
+  Loader2,
+  Users,
+  BookOpen,
+  AlertCircle,
+  Search,
+  FileText,
+  Award,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Student, StudentCourse } from "@/types/global";
@@ -141,7 +149,7 @@ const StudentsOverviewPage = () => {
               key={student.studentId}
               className="overflow-hidden border-primary-100"
             >
-              <div className="bg-primary-50 p-4 border-b border-primary-100">
+              <div className="p-4 border-b border-primary-100">
                 <div className="flex flex-col md:flex-row md:items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium text-primary-800">
@@ -157,6 +165,24 @@ const StudentsOverviewPage = () => {
                       <BookOpen className="w-4 h-4 text-primary-600 mr-1" />
                       {student.totalCourses} khóa học
                     </Badge>
+                    {student.totalQuizzesTaken > 0 && (
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-50 text-blue-700 border-blue-200"
+                      >
+                        <FileText className="w-4 h-4 text-blue-600 mr-1" />
+                        {student.totalQuizzesTaken} bài kiểm tra
+                      </Badge>
+                    )}
+                    {student.averageQuizScore > 0 && (
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700 border-green-200"
+                      >
+                        <Award className="w-4 h-4 text-green-600 mr-1" />
+                        Điểm TB: {student.averageQuizScore}%
+                      </Badge>
+                    )}
                     <Badge
                       variant="outline"
                       className="bg-primary-50 text-primary-700 border-primary-200"
@@ -210,6 +236,47 @@ const StudentsOverviewPage = () => {
                           value={course.completionPercentage}
                           className="h-2 bg-primary-100"
                         />
+
+                        {/* Quiz Information */}
+                        {course.totalQuizzesTaken > 0 && (
+                          <div className="mt-3 pt-3 border-t border-primary-100">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm text-primary-700">
+                                <FileText className="w-3 h-3 inline mr-1" />
+                                Bài kiểm tra đã làm: {course.totalQuizzesTaken}
+                              </span>
+                              <span className="text-sm font-medium text-primary-800">
+                                Điểm TB: {course.averageQuizScore}%
+                              </span>
+                            </div>
+
+                            {/* Show most recent quiz */}
+                            {course.quizResults &&
+                              course.quizResults.length > 0 && (
+                                <div className="mt-2 bg-blue-50 p-2 rounded text-sm">
+                                  <p className="text-blue-700 font-medium">
+                                    Bài kiểm tra gần đây nhất:
+                                  </p>
+                                  <div className="flex justify-between mt-1">
+                                    <span className="text-blue-600">
+                                      Điểm số: {course.quizResults[0].score}%
+                                    </span>
+                                    <span className="text-blue-600">
+                                      {formatDistanceToNow(
+                                        new Date(
+                                          course.quizResults[0].completionDate
+                                        ),
+                                        {
+                                          addSuffix: true,
+                                          locale: vi,
+                                        }
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                          </div>
+                        )}
                       </div>
                     ))
                   ) : (

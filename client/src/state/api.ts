@@ -1023,8 +1023,26 @@ export const api = createApi({
               completedChapters: number;
               totalChapters: number;
               completionPercentage: number;
+              quizResults: Array<{
+                quizId: string;
+                score: number;
+                totalQuestions: number;
+                completionDate: string;
+                attemptCount: number;
+              }>;
+              totalQuizzesTaken: number;
+              averageQuizScore: number;
             }>;
             lastActivity: string;
+            quizResults: Array<{
+              quizId: string;
+              score: number;
+              totalQuestions: number;
+              completionDate: string;
+              attemptCount: number;
+            }>;
+            totalQuizzesTaken: number;
+            averageQuizScore: number;
           }>;
         };
       },
