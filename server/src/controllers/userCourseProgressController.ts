@@ -546,9 +546,35 @@ export const getStudentProgressAnalytics = async (
       .exec();
 
     if (!progressRecords || progressRecords.length === 0) {
-      res
-        .status(404)
-        .json({ message: "No student progress records found for this course" });
+      // Return empty analytics structure instead of 404 error
+      res.status(200).json({
+        message: "No student progress records found for this course",
+        data: {
+          totalStudents: 0,
+          averageProgress: 0,
+          materialAccessData: {
+            totalAccesses: 0,
+            averageAccessesPerStudent: 0,
+            studentsWithNoAccess: 0,
+          },
+          quizData: {
+            averageScore: 0,
+            studentsWithNoQuizzes: 0,
+            completionRate: 0,
+          },
+          discussionData: {
+            totalPosts: 0,
+            averagePostsPerStudent: 0,
+            participationLevels: {
+              high: 0,
+              medium: 0,
+              low: 0,
+              none: 0,
+            },
+          },
+          studentDetails: [],
+        },
+      });
       return;
     }
 
