@@ -9,6 +9,12 @@ import { useGetStudentsOverviewQuery } from "@/state/api";
 import { Loader2, Users, BookOpen, AlertCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Student, StudentCourse } from "@/types/global";
+
+interface StudentsData {
+  totalStudents: number;
+  students: Student[];
+}
 
 const StudentsOverviewPage = () => {
   const { data, isLoading, error } = useGetStudentsOverviewQuery();
@@ -48,16 +54,39 @@ const StudentsOverviewPage = () => {
       </div>
     );
   }
-  console.log(data);
-  const studentsData = data?.data;
+
+  // Get the data from the response, handling both direct data and nested data structures
+  const responseData = data as unknown;
+  let studentsData: StudentsData;
+
+  // Debug output
+  console.log("Raw response data:", data);
+
+  if (
+    responseData &&
+    typeof responseData === "object" &&
+    "data" in responseData
+  ) {
+    console.log("Using nested data structure");
+    studentsData = (responseData as { data: StudentsData }).data;
+  } else {
+    console.log("Using direct data structure");
+    studentsData = (responseData as StudentsData) || {
+      totalStudents: 0,
+      students: [],
+    };
+  }
+
+  console.log("Processed data:", studentsData);
+  console.log("Students array:", studentsData.students);
+  console.log("Total students:", studentsData.totalStudents);
 
   // Filter students based on search term
-  const filteredStudents =
-    studentsData?.students.filter(
-      (student) =>
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+  const filteredStudents = studentsData.students.filter(
+    (student) =>
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="dashboard-container">
@@ -77,7 +106,7 @@ const StudentsOverviewPage = () => {
             <div className="flex items-center">
               <Users className="w-8 h-8 text-primary-600 mr-3" />
               <span className="text-3xl font-bold text-primary-800">
-                {studentsData?.totalStudents || 0}
+                {studentsData.totalStudents}
               </span>
             </div>
           </CardContent>
@@ -145,37 +174,46 @@ const StudentsOverviewPage = () => {
                   Các khóa học đã đăng ký
                 </h4>
                 <div className="space-y-4">
-                  {student.courses.map((course) => (
-                    <div
-                      key={course.courseId}
-                      className="border border-primary-100 rounded-lg p-3"
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                        <h5 className="font-medium text-primary-800">
-                          {course.title}
-                        </h5>
-                        <span className="text-sm text-primary-600">
-                          Hoạt động cuối:{" "}
-                          {formatDistanceToNow(new Date(course.lastActivity), {
-                            addSuffix: true,
-                          })}
-                        </span>
+                  {student.courses && student.courses.length > 0 ? (
+                    student.courses.map((course) => (
+                      <div
+                        key={course.courseId}
+                        className="border border-primary-100 rounded-lg p-3"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                          <h5 className="font-medium text-primary-800">
+                            {course.title}
+                          </h5>
+                          <span className="text-sm text-primary-600">
+                            Hoạt động cuối:{" "}
+                            {formatDistanceToNow(
+                              new Date(course.lastActivity),
+                              {
+                                addSuffix: true,
+                              }
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm text-primary-700">
+                            Tiến độ: {course.completedChapters}/
+                            {course.totalChapters} bài học
+                          </span>
+                          <span className="text-sm font-medium text-primary-800">
+                            {course.completionPercentage}%
+                          </span>
+                        </div>
+                        <Progress
+                          value={course.completionPercentage}
+                          className="h-2 bg-primary-100"
+                        />
                       </div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm text-primary-700">
-                          Tiến độ: {course.completedChapters}/
-                          {course.totalChapters} bài học
-                        </span>
-                        <span className="text-sm font-medium text-primary-800">
-                          {course.completionPercentage}%
-                        </span>
-                      </div>
-                      <Progress
-                        value={course.completionPercentage}
-                        className="h-2 bg-primary-100"
-                      />
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-primary-600 text-center py-4">
+                      Chưa có thông tin khóa học
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
