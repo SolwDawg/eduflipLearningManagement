@@ -548,23 +548,14 @@ const CourseEditor = () => {
           <div className="course-editor__title">
             <h1>{course?.title || "Khoá học mới"}</h1>
           </div>
-          <div className="course-editor__actions">
+          <div className="course-editor__actions my-4">
             <Button
               variant="outline"
               className="mr-2"
               onClick={() => router.push(`/teacher/courses/${id}/quizzes`)}
             >
               <BookCheck className="mr-2 h-4 w-4" />
-              Quizzes
-            </Button>
-
-            <Button
-              variant="outline"
-              className="mr-2"
-              onClick={() => router.push(`/teacher/courses/${id}/analytics`)}
-            >
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Phân tích
+              Bài kiểm tra
             </Button>
 
             <Button

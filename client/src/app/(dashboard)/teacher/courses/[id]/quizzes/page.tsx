@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useGetCourseQuery, useGetQuizzesQuery } from "@/state/api";
 import Header from "@/components/Header";
 import QuizCreator from "@/components/QuizCreator";
@@ -22,6 +22,7 @@ import { formatDate } from "@/lib/utils";
 
 export default function CourseQuizzes() {
   const params = useParams();
+  const router = useRouter();
   const courseId = params.id as string;
   const [activeTab, setActiveTab] = useState("existing");
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
@@ -158,7 +159,11 @@ export default function CourseQuizzes() {
               <p className="text-muted-foreground mb-4">
                 Không có bài kiểm tra nào.
               </p>
-              <Button onClick={() => setActiveTab("create")}>
+              <Button
+                onClick={() =>
+                  router.push(`/teacher/courses/${courseId}/quizzes`)
+                }
+              >
                 <Plus className="h-4 w-4 mr-2" /> Tạo bài kiểm tra đầu tiên
               </Button>
             </div>

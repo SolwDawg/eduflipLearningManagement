@@ -267,7 +267,6 @@ export default function EditQuiz() {
     );
   };
 
-  // Get scope display name
   const getScopeDisplay = (quiz: Quiz) => {
     switch (quiz.scope) {
       case QuizScope.CHAPTER:
@@ -287,14 +286,16 @@ export default function EditQuiz() {
 
       case QuizScope.COURSE:
       default:
-        return "Entire Course";
+        return "Toàn khóa học";
     }
   };
 
   if (isLoadingQuiz) {
     return (
       <div className="container py-6">
-        <div className="text-center py-8">Loading quiz information...</div>
+        <div className="text-center py-8">
+          Đang tải thông tin bài kiểm tra...
+        </div>
       </div>
     );
   }
@@ -302,7 +303,7 @@ export default function EditQuiz() {
   if (!quiz) {
     return (
       <div className="container py-6">
-        <div className="text-center py-8">Quiz not found</div>
+        <div className="text-center py-8">Bài kiểm tra không tồn tại</div>
       </div>
     );
   }
@@ -333,9 +334,9 @@ export default function EditQuiz() {
       >
         <TabsList>
           <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
-          <TabsTrigger value="questions">
+          {/* <TabsTrigger value="questions">
             Câu hỏi ({quiz.questions.length})
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="basic">

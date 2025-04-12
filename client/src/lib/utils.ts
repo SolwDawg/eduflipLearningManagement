@@ -655,7 +655,7 @@ export { uploadVideo, uploadPresentation };
  */
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("vi-VN", {
     year: "numeric",
     month: "short",
     day: "numeric",
