@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 import { getUserQuizResults } from "@/lib/studentProgressApi";
+import { trackQuizResult } from "@/lib/studentProgressApi";
 
 interface StudentQuizViewProps {
   quizId: string;
@@ -165,10 +166,59 @@ export default function StudentQuizView({
       onComplete(earnedPoints, totalAvailablePoints);
     }
 
+    // Save quiz result to database
+    if (user) {
+      const scorePercentage = Math.round(
+        (earnedPoints / totalAvailablePoints) * 100
+      );
+      trackQuizResult(
+        user.id,
+        courseId,
+        quizId,
+        scorePercentage,
+        quiz.questions.length
+      ).catch((error) => {
+        console.error("Error saving quiz result:", error);
+        toast.error("Không thể lưu kết quả bài kiểm tra");
+      });
+    }
+
     toast.success("Nộp bài kiểm tra thành công!");
   };
 
-  const handleFinishQuiz = () => {
+  const handleFinishQuiz = async () => {
+    // If quiz is submitted but not yet saved to database (user clicks "Hoàn tất đánh giá")
+    if (quizSubmitted && user && !reviewMode) {
+      try {
+        // Make sure we have the necessary data
+        if (!quiz) {
+          console.error("Quiz data is missing");
+          toast.error(
+            "Không thể lưu kết quả bài kiểm tra - thiếu dữ liệu bài kiểm tra"
+          );
+          router.push(`/user/courses/${courseId}`);
+          return;
+        }
+
+        // Calculate score percentage
+        const scorePercentage = Math.round((score / totalPoints) * 100);
+
+        // Save quiz result to database
+        await trackQuizResult(
+          user.id,
+          courseId,
+          quizId,
+          scorePercentage,
+          quiz.questions.length
+        );
+
+        toast.success("Kết quả bài kiểm tra đã được lưu thành công!");
+      } catch (error) {
+        console.error("Error saving quiz result:", error);
+        toast.error("Không thể lưu kết quả bài kiểm tra");
+      }
+    }
+
     router.push(`/user/courses/${courseId}`);
   };
 

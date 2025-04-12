@@ -148,7 +148,7 @@ export const fetchCourseProgressAnalytics = async (
 ): Promise<StudentProgressAnalytics> => {
   try {
     const response = await axios.get(
-      `/api/progress/analytics/course/${courseId}`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/analytics/course/${courseId}`
     );
     return response.data.data;
   } catch (error) {
@@ -163,7 +163,7 @@ export const fetchStudentProgressDetails = async (
 ): Promise<StudentProgressDetails> => {
   try {
     const response = await axios.get(
-      `/api/progress/analytics/course/${courseId}/student/${userId}`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/analytics/course/${courseId}/student/${userId}`
     );
     return response.data.data;
   } catch (error) {
@@ -178,11 +178,14 @@ export const trackMaterialAccess = async (
   chapterId: string
 ): Promise<{ accessCount: number }> => {
   try {
-    const response = await axios.post("/api/progress/track/material-access", {
-      userId,
-      courseId,
-      chapterId,
-    });
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/track/material-access`,
+      {
+        userId,
+        courseId,
+        chapterId,
+      }
+    );
     return response.data.data;
   } catch (error) {
     console.error("Error tracking material access:", error);
@@ -198,13 +201,16 @@ export const trackQuizResult = async (
   totalQuestions: number
 ): Promise<{ averageScore: number; quizResults: any[] }> => {
   try {
-    const response = await axios.post("/api/progress/track/quiz-result", {
-      userId,
-      courseId,
-      quizId,
-      score,
-      totalQuestions,
-    });
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/track/quiz-result`,
+      {
+        userId,
+        courseId,
+        quizId,
+        score,
+        totalQuestions,
+      }
+    );
     return response.data.data;
   } catch (error) {
     console.error("Error tracking quiz result:", error);
@@ -219,7 +225,7 @@ export const trackDiscussionActivity = async (
 ): Promise<{ participationLevel: string; totalPosts: number }> => {
   try {
     const response = await axios.post(
-      "/api/progress/track/discussion-activity",
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/track/discussion-activity`,
       {
         userId,
         courseId,
@@ -238,7 +244,7 @@ export const getUserQuizResults = async (
 ): Promise<QuizResultSummary[]> => {
   try {
     // Use the route that matches the registered server endpoint
-    const url = `/api/users/course-progress/${userId}/quiz-results`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/users/course-progress/${userId}/quiz-results`;
     console.log("Fetching quiz results from URL:", url);
 
     const response = await axios.get(url);
@@ -295,7 +301,7 @@ export const getCourseQuizResults = async (
 }> => {
   try {
     const response = await axios.get(
-      `/api/progress/analytics/course/${courseId}/quiz-results`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/analytics/course/${courseId}/quiz-results`
     );
 
     if (!response.data || !response.data.data) {
@@ -313,7 +319,9 @@ export const getUserProgressSummary = async (
   userId: string
 ): Promise<ProgressSummary> => {
   try {
-    const response = await axios.get(`/api/progress/${userId}/summary`);
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/${userId}/summary`
+    );
     return response.data.data;
   } catch (error) {
     console.error("Error getting user progress summary:", error);
@@ -333,7 +341,7 @@ export const fetchEnrolledStudents = async (
 ): Promise<EnrolledStudent[]> => {
   try {
     const response = await axios.get(
-      `/api/progress/analytics/course/${courseId}/enrolled-students?teacherId=${teacherId}`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/analytics/course/${courseId}/enrolled-students?teacherId=${teacherId}`
     );
 
     if (response.data && response.data.data) {
@@ -353,7 +361,7 @@ export const fetchAllStudentsProgress = async (
 ): Promise<AllStudentsProgressResponse> => {
   try {
     const response = await axios.get(
-      `/api/progress/analytics/all-students?teacherId=${teacherId}`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/analytics/all-students?teacherId=${teacherId}`
     );
 
     if (response.data && response.data.data) {

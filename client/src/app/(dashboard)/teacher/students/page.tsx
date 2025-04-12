@@ -250,7 +250,6 @@ const StudentsOverviewPage = () => {
                               </span>
                             </div>
 
-                            {/* Show most recent quiz */}
                             {course.quizResults &&
                               course.quizResults.length > 0 && (
                                 <div className="mt-2 bg-blue-50 p-2 rounded text-sm">
