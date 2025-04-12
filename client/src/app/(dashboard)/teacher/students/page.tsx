@@ -48,7 +48,7 @@ const StudentsOverviewPage = () => {
       </div>
     );
   }
-
+  console.log(data);
   const studentsData = data?.data;
 
   // Filter students based on search term
