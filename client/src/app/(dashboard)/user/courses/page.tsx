@@ -93,7 +93,7 @@ const Courses = () => {
             Hãy khám phá danh sách khóa học để tìm kiếm khóa học phù hợp với bạn
           </p>
           <Button onClick={() => router.push("/courses")}>
-            Browse Courses
+            Tìm kiếm khóa học
           </Button>
         </div>
       </div>

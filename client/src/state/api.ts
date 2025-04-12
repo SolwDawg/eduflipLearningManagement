@@ -984,6 +984,28 @@ export const api = createApi({
     TEACHER
     =============== 
     */
+    getTeacherCourses: build.query<any[], void>({
+      query: () => ({
+        url: "/api/teachers/courses",
+        method: "GET",
+      }),
+      providesTags: ["Courses", "UserCourses"],
+      keepUnusedDataFor: 300, // 5 minutes
+      transformErrorResponse: (response: {
+        status: string | number;
+        data?: any;
+      }) => {
+        console.log("Teacher courses API error:", response);
+
+        if (response.status === 404 || response.status === 500) {
+          console.error(`${response.status} error in teacher courses API`);
+          return [];
+        }
+
+        return response;
+      },
+    }),
+
     getStudentsOverview: build.query<
       {
         message: string;
@@ -1203,6 +1225,97 @@ export const api = createApi({
     getAllStudentsProgress: build.query({
       query: () => `/api/progress/analytics/all-students`,
     }),
+
+    // Get analytics for all teacher courses in a single endpoint
+    getAllTeacherCoursesWithAnalytics: build.query<any, void>({
+      async queryFn(_arg, { dispatch, getState }, _extraOptions, fetchWithBQ) {
+        try {
+          // Step 1: Fetch all teacher courses
+          const courseResponse = await fetchWithBQ("/api/teachers/courses");
+
+          if (courseResponse.error) {
+            console.error(
+              "Error fetching teacher courses:",
+              courseResponse.error
+            );
+            return { data: [] };
+          }
+
+          const courses = courseResponse.data as any[];
+          if (!courses || courses.length === 0) {
+            return { data: [] };
+          }
+
+          // Step 2: For each course, fetch its analytics
+          const coursesWithAnalytics = await Promise.all(
+            courses.map(async (course) => {
+              const courseId = course.courseId || course.id;
+
+              try {
+                // Fetch analytics for this course
+                const analyticsResponse = await fetchWithBQ(
+                  `/api/progress/analytics/course/${courseId}`
+                );
+
+                if (analyticsResponse.error) {
+                  console.warn(
+                    `Could not fetch analytics for course ${courseId}:`,
+                    analyticsResponse.error
+                  );
+                  return {
+                    ...course,
+                    analytics: null,
+                    studentCount: 0,
+                    averageProgress: 0,
+                    completionRate: 0,
+                    materialAccessCount: 0,
+                    quizAverage: 0,
+                    discussionPostCount: 0,
+                  };
+                }
+
+                const analytics = analyticsResponse.data.data;
+
+                return {
+                  ...course,
+                  analytics,
+                  studentCount: analytics.totalStudents || 0,
+                  averageProgress: analytics.averageProgress || 0,
+                  completionRate: analytics.quizData?.completionRate || 0,
+                  materialAccessCount:
+                    analytics.materialAccessData?.totalAccesses || 0,
+                  quizAverage: analytics.quizData?.averageScore || 0,
+                  discussionPostCount:
+                    analytics.discussionData?.totalPosts || 0,
+                };
+              } catch (error) {
+                console.error(
+                  `Error processing analytics for course ${courseId}:`,
+                  error
+                );
+                return {
+                  ...course,
+                  analytics: null,
+                  studentCount: 0,
+                  averageProgress: 0,
+                  completionRate: 0,
+                  materialAccessCount: 0,
+                  quizAverage: 0,
+                  discussionPostCount: 0,
+                };
+              }
+            })
+          );
+
+          return { data: coursesWithAnalytics };
+        } catch (error) {
+          console.error("Error in getAllTeacherCoursesWithAnalytics:", error);
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: ["Courses", "CourseProgress"],
+      keepUnusedDataFor: 300, // 5 minutes
+    }),
   }),
 });
 
@@ -1261,4 +1374,6 @@ export const {
   useGetStudentQuizResultsQuery,
   useGetEnrolledStudentsWithProgressQuery,
   useGetAllStudentsProgressQuery,
+  useGetTeacherCoursesQuery,
+  useGetAllTeacherCoursesWithAnalyticsQuery,
 } = api;
