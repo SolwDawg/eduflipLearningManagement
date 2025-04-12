@@ -53,6 +53,11 @@ const quizResultSchema = new Schema({
     required: true,
     default: 1,
   },
+  timeSpent: {
+    type: Number,
+    required: false,
+    description: "Time spent on quiz in seconds",
+  },
 });
 
 const discussionActivitySchema = new Schema({

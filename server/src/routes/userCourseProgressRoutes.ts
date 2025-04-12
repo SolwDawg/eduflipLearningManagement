@@ -14,6 +14,7 @@ import {
   getCourseQuizResults,
   getEnrolledStudentsWithProgress,
   getAllStudentsProgress,
+  getDetailedStudentProgress,
 } from "../controllers/userCourseProgressController";
 
 const router = express.Router();
@@ -69,5 +70,8 @@ router.get(
 
 // New route to get all students across all courses with their progress
 router.get("/analytics/all-students", getAllStudentsProgress as RequestHandler);
+
+// Add the new route
+router.get("/teacher/students/detailed-progress", getDetailedStudentProgress);
 
 export default router;
