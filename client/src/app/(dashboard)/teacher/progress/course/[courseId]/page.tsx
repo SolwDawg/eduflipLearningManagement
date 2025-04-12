@@ -55,6 +55,7 @@ import {
 } from "@/lib/studentProgressApi";
 import { format } from "date-fns";
 import { useAuth } from "@clerk/nextjs";
+import CourseQuizResults from "@/components/teacher/CourseQuizResults";
 
 interface Student {
   id: string;
@@ -1069,19 +1070,7 @@ const CourseProgressPage = () => {
         </TabsContent>
 
         <TabsContent value="quizzes" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Kết quả bài kiểm tra</CardTitle>
-              <CardDescription>
-                Xem và phân tích hiệu suất bài kiểm tra của học sinh
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Tính năng phân tích bài kiểm tra đang phát triển.
-              </p>
-            </CardContent>
-          </Card>
+          <CourseQuizResults courseId={courseId} />
         </TabsContent>
 
         <TabsContent value="discussions" className="space-y-4">

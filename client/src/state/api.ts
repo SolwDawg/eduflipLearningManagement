@@ -1072,7 +1072,7 @@ export const api = createApi({
           console.error("500 Server error in course analytics API");
           return {
             message:
-              "Failed to retrieve student progress analytics. Server error occurred.",
+              "Không thể truy xuất dữ liệu tiến độ học tập của học sinh. Lỗi máy chủ đã xảy ra.",
             data: {
               totalStudents: 0,
               averageProgress: 0,
@@ -1103,7 +1103,7 @@ export const api = createApi({
           console.error("404 Not found error in course analytics API");
           return {
             message:
-              "Analytics data not found. The course may not exist or have no enrolled students.",
+              "Không tìm thấy dữ liệu phân tích. Khóa học có thể không tồn tại hoặc không có học sinh đã đăng ký.",
             data: {
               totalStudents: 0,
               averageProgress: 0,
@@ -1134,7 +1134,7 @@ export const api = createApi({
 
         // Handle any other error type
         return {
-          message: response.data?.message || "Failed to load analytics data",
+          message: response.data?.message || "Không thể tải dữ liệu phân tích",
           data: {
             totalStudents: 0,
             averageProgress: 0,
@@ -1179,6 +1179,20 @@ export const api = createApi({
         method: "GET",
       }),
       providesTags: ["Users"],
+    }),
+
+    getCourseProgress: build.query({
+      query: (courseId) => `/progress/analytics/course/${courseId}`,
+    }),
+
+    getCourseQuizResults: build.query({
+      query: (courseId) =>
+        `/progress/analytics/course/${courseId}/quiz-results`,
+    }),
+
+    getStudentQuizResults: build.query({
+      query: ({ courseId, userId }) =>
+        `/progress/analytics/course/${courseId}/student/${userId}/quiz-results`,
     }),
   }),
 });
@@ -1233,4 +1247,7 @@ export const {
   useGetCourseProgressAnalyticsQuery,
   useGetStudentProgressDetailsQuery,
   useGetUserQuery,
+  useGetCourseProgressQuery,
+  useGetCourseQuizResultsQuery,
+  useGetStudentQuizResultsQuery,
 } = api;

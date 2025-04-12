@@ -1,5 +1,8 @@
 import React from "react";
-import { useGetStudentProgressDetailsQuery } from "@/state/api";
+import {
+  useGetStudentProgressDetailsQuery,
+  useGetStudentQuizResultsQuery,
+} from "@/state/api";
 import {
   Card,
   CardContent,
@@ -27,6 +30,7 @@ import {
 } from "lucide-react";
 import LoadingAlternative from "@/components/LoadingAlternative";
 import { formatDistanceToNow } from "date-fns";
+import { formatDateString } from "@/lib/utils";
 
 interface StudentProgressDetailsProps {
   courseId: string;
@@ -40,6 +44,9 @@ const StudentProgressDetails = ({
   const { data, isLoading, error, refetch } = useGetStudentProgressDetailsQuery(
     { courseId, userId }
   );
+
+  const { data: quizResultsData, isLoading: isLoadingQuizzes } =
+    useGetStudentQuizResultsQuery({ courseId, userId });
 
   if (isLoading) {
     return <LoadingAlternative variant="skeleton" size="lg" />;
@@ -143,7 +150,7 @@ const StudentProgressDetails = ({
           </TabsTrigger>
           <TabsTrigger value="quizzes" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Quiz Results
+            Kết quả bài kiểm tra
           </TabsTrigger>
           <TabsTrigger value="discussions" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
@@ -241,47 +248,52 @@ const StudentProgressDetails = ({
         <TabsContent value="quizzes">
           <Card>
             <CardHeader>
-              <CardTitle>Quiz Performance</CardTitle>
+              <CardTitle>Kết quả bài kiểm tra</CardTitle>
               <CardDescription>
-                Hiển thị kết quả bài kiểm tra của học sinh trong khóa học
+                Chi tiết kết quả các bài kiểm tra của học sinh trong khóa học
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {quizResults.length === 0 ? (
+              {isLoadingQuizzes ? (
+                <LoadingAlternative variant="spinner" size="md" />
+              ) : !quizResultsData ||
+                !quizResultsData.data ||
+                quizResultsData.data.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
-                  Không có dữ liệu bài kiểm tra cho học sinh này.
+                  Học sinh chưa hoàn thành bài kiểm tra nào trong khóa học này.
                 </p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>#</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Time Spent</TableHead>
-                      <TableHead>Submitted</TableHead>
+                      <TableHead>Bài kiểm tra</TableHead>
+                      <TableHead className="text-right">Điểm</TableHead>
+                      <TableHead className="text-right">Điểm tối đa</TableHead>
+                      <TableHead className="text-right">Phần trăm</TableHead>
+                      <TableHead className="text-right">
+                        Thời gian làm bài (phút)
+                      </TableHead>
+                      <TableHead>Thời gian nộp</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {quizResults.map((quiz: any, index: number) => (
-                      <TableRow key={quiz.quizId}>
-                        <TableCell>Quiz {index + 1}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress
-                              value={(quiz.score / quiz.maxScore) * 100}
-                              className="h-2 w-20"
-                            />
-                            <span>
-                              {quiz.score}/{quiz.maxScore} (
-                              {Math.round((quiz.score / quiz.maxScore) * 100)}%)
-                            </span>
-                          </div>
+                    {quizResultsData.data.map((result: any, index: number) => (
+                      <TableRow key={`quiz-${result.quizId}-${index}`}>
+                        <TableCell>{result.quizId}</TableCell>
+                        <TableCell className="text-right">
+                          {result.score}
                         </TableCell>
-                        <TableCell>{quiz.timeSpent} minutes</TableCell>
+                        <TableCell className="text-right">
+                          {result.maxScore}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {Math.round((result.score / result.maxScore) * 100)}%
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {result.timeSpent}
+                        </TableCell>
                         <TableCell>
-                          <span title={formatDate(quiz.submittedAt)}>
-                            {getTimeAgo(quiz.submittedAt)}
-                          </span>
+                          {formatDateString(result.submittedAt)}
                         </TableCell>
                       </TableRow>
                     ))}
