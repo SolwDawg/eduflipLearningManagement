@@ -47,7 +47,9 @@ const AllStudentsProgress = () => {
         setRefreshing(true);
       }
 
-      const response = await axios.get("/api/teacher/students/progress");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/teachers/students/progress`
+      );
 
       // Sort by average progress (descending)
       const sortedStudents = response.data.sort(

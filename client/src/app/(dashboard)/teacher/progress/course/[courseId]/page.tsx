@@ -157,7 +157,7 @@ const CourseProgressPage = () => {
 
         try {
           const courseResponse = await axios.get(
-            `/api/teacher/courses/${courseId}`
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/teacher/courses/${courseId}`
           );
           setCourse(courseResponse.data);
         } catch (courseError) {

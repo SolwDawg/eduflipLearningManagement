@@ -107,7 +107,7 @@ const StudentProgressPage = () => {
         if (courseId) {
           try {
             const courseResponse = await axios.get(
-              `/api/teacher/courses/${courseId}`
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/teacher/courses/${courseId}`
             );
             if (courseResponse.data) {
               setCourse(courseResponse.data);
@@ -127,7 +127,7 @@ const StudentProgressPage = () => {
         // Fetch student progress details
         try {
           const progressResponse = await axios.get(
-            `/api/progress/analytics/course/${courseId}/student/${studentId}`
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/progress/analytics/course/${courseId}/student/${studentId}`
           );
 
           if (progressResponse.data && progressResponse.data.data) {

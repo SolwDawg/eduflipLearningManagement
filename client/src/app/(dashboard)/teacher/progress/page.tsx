@@ -37,7 +37,6 @@ interface CourseProgress {
 const TeacherProgressPage = () => {
   const router = useRouter();
 
-  // Use the combined RTK Query hook for fetching courses with analytics
   const {
     data: coursesWithAnalytics,
     isLoading,
@@ -45,7 +44,8 @@ const TeacherProgressPage = () => {
     refetch,
   } = useGetAllTeacherCoursesWithAnalyticsQuery();
 
-  // Convert the raw API response to the format needed for display
+  console.log(coursesWithAnalytics);
+
   const courses =
     coursesWithAnalytics?.map((course: any) => ({
       id: course.courseId || course.id,
@@ -57,6 +57,7 @@ const TeacherProgressPage = () => {
       quizAverage: course.quizAverage || 0,
       discussionPostCount: course.discussionPostCount || 0,
     })) || [];
+  console.log(courses);
 
   const handleRefresh = () => {
     refetch();
