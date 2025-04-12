@@ -334,9 +334,9 @@ export default function EditQuiz() {
       >
         <TabsList>
           <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
-          {/* <TabsTrigger value="questions">
+          <TabsTrigger value="questions">
             Câu hỏi ({quiz.questions.length})
-          </TabsTrigger> */}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic">

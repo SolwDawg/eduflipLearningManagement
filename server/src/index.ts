@@ -12,6 +12,7 @@ import {
   createClerkClient,
   requireAuth,
 } from "@clerk/express";
+import { flexibleAuth } from "./middleware/auth";
 import {
   ClerkExpressRequireAuth,
   ClerkExpressWithAuth,
@@ -98,7 +99,7 @@ app.use("/courses", courseRoutes);
 app.use("/users/clerk", requireAuth(), userClerkRoutes);
 app.use("/enrollments", requireAuth(), enrollmentRoutes);
 app.use("/users/course-progress", requireAuth(), userCourseProgressRoutes);
-app.use("/api/progress", requireAuth(), userCourseProgressRoutes);
+app.use("/api/progress", flexibleAuth(), userCourseProgressRoutes);
 app.use("/grades", requireAuth(), gradeRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/discussion", discussionRoutes);

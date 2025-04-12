@@ -305,12 +305,12 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
           <TabsTrigger value="basic" disabled={isCreatingQuiz}>
             Thông tin cơ bản
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="questions"
             disabled={!quizCreated || isCreatingQuiz}
           >
             Câu hỏi
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="basic" className="pt-4">
