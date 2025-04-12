@@ -201,16 +201,13 @@ export const trackQuizResult = async (
   totalQuestions: number
 ): Promise<{ averageScore: number; quizResults: any[] }> => {
   try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/progress/track/quiz-result`,
-      {
-        userId,
-        courseId,
-        quizId,
-        score,
-        totalQuestions,
-      }
-    );
+    const response = await axios.post("/api/progress/track/quiz-result", {
+      userId,
+      courseId,
+      quizId,
+      score,
+      totalQuestions,
+    });
     return response.data.data;
   } catch (error) {
     console.error("Error tracking quiz result:", error);
