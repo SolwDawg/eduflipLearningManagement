@@ -44,7 +44,6 @@ router.post(
   trackDiscussionActivity as RequestHandler
 );
 
-// New routes for teacher analytics
 router.get(
   "/analytics/course/:courseId",
   getStudentProgressAnalytics as RequestHandler

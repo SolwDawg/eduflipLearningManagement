@@ -74,7 +74,7 @@ const TeacherProgressPage = () => {
       }
 
       // Fetch teacher's courses
-      const coursesResponse = await axios.get("/api/teacher/courses");
+      const coursesResponse = await axios.get("/api/teachers/courses");
       console.log(coursesResponse.data);
 
       // If no courses, show empty state
@@ -91,17 +91,20 @@ const TeacherProgressPage = () => {
       const coursesWithAnalytics = await Promise.all(
         coursesResponse.data.map(async (course: any) => {
           try {
-            console.log(`Fetching analytics for course ${course.id}`);
+            console.log(
+              `Fetching analytics for course ${course.id || course.courseId}`
+            );
+            const courseId = course.id || course.courseId;
             const analyticsResponse = await axios.get(
-              `/api/progress/analytics/course/${course.id}`
+              `/api/progress/analytics/course/${courseId}`
             );
 
             if (analyticsResponse.data && analyticsResponse.data.data) {
-              console.log(`Using real analytics data for course ${course.id}`);
+              console.log(`Using real analytics data for course ${courseId}`);
               const analytics = analyticsResponse.data.data;
 
               return {
-                id: course.id,
+                id: courseId,
                 title: course.title,
                 studentCount: analytics.totalStudents || 0,
                 averageProgress: analytics.averageProgress || 0,
@@ -114,12 +117,12 @@ const TeacherProgressPage = () => {
               };
             } else {
               console.warn(
-                `Empty or invalid analytics response for course ${course.id}, using placeholder data`
+                `Empty or invalid analytics response for course ${courseId}, using placeholder data`
               );
-              const placeholderData = createDefaultAnalytics(course.id);
+              const placeholderData = createDefaultAnalytics(courseId);
 
               return {
-                id: course.id,
+                id: courseId,
                 title: course.title,
                 studentCount: placeholderData.totalStudents,
                 averageProgress: placeholderData.averageProgress,
@@ -135,20 +138,25 @@ const TeacherProgressPage = () => {
             // More detailed error logging
             if (axios.isAxiosError(error) && error.response) {
               console.error(
-                `Failed to fetch analytics for course ${course.id}: HTTP ${error.response.status}`,
+                `Failed to fetch analytics for course ${
+                  course.id || course.courseId
+                }: HTTP ${error.response.status}`,
                 error.response.data || "No response data"
               );
             } else {
               console.error(
-                `Failed to fetch analytics for course ${course.id}:`,
+                `Failed to fetch analytics for course ${
+                  course.id || course.courseId
+                }:`,
                 error
               );
             }
 
-            const placeholderData = createDefaultAnalytics(course.id);
+            const courseId = course.id || course.courseId;
+            const placeholderData = createDefaultAnalytics(courseId);
 
             return {
-              id: course.id,
+              id: courseId,
               title: course.title,
               studentCount: placeholderData.totalStudents,
               averageProgress: placeholderData.averageProgress,
