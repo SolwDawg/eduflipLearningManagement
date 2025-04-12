@@ -1012,7 +1012,55 @@ export const api = createApi({
         method: "GET",
       }),
       providesTags: ["StudentsOverview"],
-      keepUnusedDataFor: 300,
+      keepUnusedDataFor: 300, // 5 minutes
+    }),
+
+    getCourseProgressAnalytics: build.query<
+      {
+        message: string;
+        data: {
+          totalStudents: number;
+          averageProgress: number;
+          materialAccessData: {
+            totalAccesses: number;
+            averageAccessesPerStudent: number;
+            studentsWithNoAccess: number;
+          };
+          quizData: {
+            averageScore: number;
+            studentsWithNoQuizzes: number;
+            completionRate: number;
+          };
+          discussionData: {
+            totalPosts: number;
+            averagePostsPerStudent: number;
+            participationLevels: {
+              high: number;
+              medium: number;
+              low: number;
+              none: number;
+            };
+          };
+          studentDetails: Array<{
+            userId: string;
+            progress: number;
+            materialAccesses: number;
+            quizAverage: number;
+            participationLevel: string;
+            lastAccessed: string;
+          }>;
+        };
+      },
+      string
+    >({
+      query: (courseId) => ({
+        url: `progress/analytics/course/${courseId}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, courseId) => [
+        { type: "CourseProgress", id: courseId },
+      ],
+      keepUnusedDataFor: 300, // 5 minutes
     }),
   }),
 });
@@ -1064,4 +1112,5 @@ export const {
   useSendChatMessageMutation,
   useMarkMessageAsReadMutation,
   useGetStudentsOverviewQuery,
+  useGetCourseProgressAnalyticsQuery,
 } = api;
