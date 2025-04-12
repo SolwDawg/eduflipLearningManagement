@@ -295,6 +295,7 @@ export const api = createApi({
     "StudyBuddies",
     "ChatMessages",
     "Conversations",
+    "StudentsOverview",
   ],
   keepUnusedDataFor: 300, // Keep unused data for 5 minutes (300 seconds)
   endpoints: (build) => ({
@@ -976,6 +977,43 @@ export const api = createApi({
       }),
       invalidatesTags: ["ChatMessages", "Conversations"],
     }),
+
+    /* 
+    ===============
+    TEACHER
+    =============== 
+    */
+    getStudentsOverview: build.query<
+      {
+        message: string;
+        data: {
+          totalStudents: number;
+          students: Array<{
+            studentId: string;
+            name: string;
+            email: string;
+            totalCourses: number;
+            courses: Array<{
+              courseId: string;
+              title: string;
+              lastActivity: string;
+              completedChapters: number;
+              totalChapters: number;
+              completionPercentage: number;
+            }>;
+            lastActivity: string;
+          }>;
+        };
+      },
+      void
+    >({
+      query: () => ({
+        url: "teacher/students-overview",
+        method: "GET",
+      }),
+      providesTags: ["StudentsOverview"],
+      keepUnusedDataFor: 300, // 5 minutes
+    }),
   }),
 });
 
@@ -1025,4 +1063,5 @@ export const {
   useGetConversationMessagesQuery,
   useSendChatMessageMutation,
   useMarkMessageAsReadMutation,
+  useGetStudentsOverviewQuery,
 } = api;

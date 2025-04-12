@@ -10,6 +10,8 @@ import {
   getUploadImageUrl,
   updateMeetLink,
   searchCourses,
+  getStudentsProgress,
+  getStudentDetailedProgress,
 } from "../controllers/courseController";
 import {
   getChapterComments,
@@ -88,6 +90,13 @@ router.delete(
   "/:courseId/sections/:sectionId/chapters/:chapterId/comments/:commentId",
   requireAuth(),
   deleteChapterComment as RequestHandler
+);
+
+router.get("/:courseId/students-progress", requireAuth(), getStudentsProgress);
+router.get(
+  "/:courseId/student/:studentId/progress",
+  requireAuth(),
+  getStudentDetailedProgress
 );
 
 export default router;

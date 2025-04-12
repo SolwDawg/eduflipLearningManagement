@@ -88,17 +88,14 @@ const TeacherProgressPage = () => {
 
       console.log(`Found ${coursesResponse.data.length} courses for teacher`);
 
-      // Fetch additional analytics for each course
       const coursesWithAnalytics = await Promise.all(
         coursesResponse.data.map(async (course: any) => {
           try {
-            // Try to fetch real analytics from backend
             console.log(`Fetching analytics for course ${course.id}`);
             const analyticsResponse = await axios.get(
               `/api/progress/analytics/course/${course.id}`
             );
 
-            // Validate response data
             if (analyticsResponse.data && analyticsResponse.data.data) {
               console.log(`Using real analytics data for course ${course.id}`);
               const analytics = analyticsResponse.data.data;
@@ -148,7 +145,6 @@ const TeacherProgressPage = () => {
               );
             }
 
-            // Use placeholder data if API fails
             const placeholderData = createDefaultAnalytics(course.id);
 
             return {
@@ -169,7 +165,6 @@ const TeacherProgressPage = () => {
 
       setCourses(coursesWithAnalytics);
     } catch (error) {
-      // More detailed error logging
       if (axios.isAxiosError(error)) {
         if (error.response) {
           console.error(

@@ -31,6 +31,7 @@ import quizRoutes from "./routes/quizRoutes";
 import chatRoutes from "./routes/chatRoutes";
 import homepageImageRoutes from "./routes/homepageImageRoutes";
 import commentRoutes from "./routes/commentRoutes";
+import teacherRoutes from "./routes/teacherRoutes";
 import { logRoutes } from "./routes/index";
 
 /* CONFIGURATIONS */
@@ -106,6 +107,7 @@ app.use("/quizzes", quizRoutes);
 app.use("/api/chats", requireAuth(), chatRoutes);
 app.use("/api/homepage-images", homepageImageRoutes);
 app.use("/comments", commentRoutes);
+app.use("/api/teachers", requireAuth(), teacherRoutes);
 
 // Public endpoint for monthly leaderboard
 app.get("/api/public/leaderboard/monthly", getMonthlyLeaderboard);

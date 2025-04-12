@@ -4,6 +4,8 @@ import Course from "../models/courseModel";
 import AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
 import { getAuth } from "@clerk/express";
+import UserCourseProgress from "../models/userCourseProgressModel";
+import { clerkClient } from "../index";
 
 const s3 = new AWS.S3();
 
@@ -546,5 +548,323 @@ export const searchCourses = async (
     console.error("Error searching courses:", error);
     // Return empty array instead of error
     res.status(200).json({ courses: [] });
+  }
+};
+
+export const getStudentsProgress = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const auth = getAuth(req);
+
+    if (!auth || !auth.userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    // Get the course to verify the teacher is the owner
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    // Verify that the requester is the teacher of this course
+    if (course.teacherId !== auth.userId) {
+      res.status(403).json({
+        message: "Access denied. You are not the teacher of this course.",
+      });
+      return;
+    }
+
+    // Get all enrolled students
+    const enrolledStudents = course.enrollments || [];
+
+    if (enrolledStudents.length === 0) {
+      res.json({
+        message: "No students enrolled in this course",
+        data: {
+          students: [],
+          courseTitle: course.title,
+        },
+      });
+      return;
+    }
+
+    // Get progress data for all enrolled students
+    const studentIds = enrolledStudents.map(
+      (enrollment: any) => enrollment.userId
+    );
+
+    // Fetch progress data for each student
+    const progressPromises = studentIds.map(async (userId: string) => {
+      try {
+        // Get progress records for this student and course
+        const progressRecords = await UserCourseProgress.scan({
+          userId: userId,
+          courseId: courseId,
+        }).exec();
+
+        // Calculate overall completion percentage
+        let totalChapters = 0;
+        let completedChapters = 0;
+
+        course.sections.forEach((section: any) => {
+          if (section.chapters && Array.isArray(section.chapters)) {
+            totalChapters += section.chapters.length;
+          }
+        });
+
+        // Get the number of completed chapters from progress records
+        if (progressRecords.length > 0) {
+          const userProgress = progressRecords[0];
+          const completedChapterIds = userProgress.completedChapters || [];
+          completedChapters = completedChapterIds.length;
+        }
+
+        const completionPercentage =
+          totalChapters > 0
+            ? Math.round((completedChapters / totalChapters) * 100)
+            : 0;
+
+        // Fetch user data from Clerk (if available)
+        let userData = {
+          id: userId,
+          name: "Unknown Student",
+          email: "unknown",
+        };
+        try {
+          const clerkUser = await clerkClient.users.getUser(userId);
+          userData = {
+            id: userId,
+            name:
+              `${clerkUser.firstName || ""} ${
+                clerkUser.lastName || ""
+              }`.trim() || "Unknown Student",
+            email: clerkUser.emailAddresses[0]?.emailAddress || "unknown",
+          };
+        } catch (error) {
+          console.error(`Failed to fetch user data for ${userId}:`, error);
+        }
+
+        // Combine all data for this student
+        return {
+          student: userData,
+          progress: {
+            completedChapters,
+            totalChapters,
+            completionPercentage,
+            lastActivity:
+              progressRecords.length > 0 ? progressRecords[0].updatedAt : null,
+          },
+        };
+      } catch (error) {
+        console.error(
+          `Error processing progress for student ${userId}:`,
+          error
+        );
+        return {
+          student: { id: userId, name: "Unknown Student", email: "unknown" },
+          progress: {
+            completedChapters: 0,
+            totalChapters: 0,
+            completionPercentage: 0,
+            lastActivity: null,
+            error: "Failed to retrieve progress data",
+          },
+        };
+      }
+    });
+
+    // Wait for all promises to resolve
+    const studentsWithProgress = await Promise.all(progressPromises);
+
+    // Sort by completion percentage (descending)
+    studentsWithProgress.sort(
+      (a, b) =>
+        b.progress.completionPercentage - a.progress.completionPercentage
+    );
+
+    res.json({
+      message: "Students progress retrieved successfully",
+      data: {
+        students: studentsWithProgress,
+        courseTitle: course.title,
+        courseId: courseId,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving students progress:", error);
+    res.status(500).json({
+      message: "Error retrieving students progress",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const getStudentDetailedProgress = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId, studentId } = req.params;
+    const auth = getAuth(req);
+
+    if (!auth || !auth.userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    // Get the course to verify the teacher is the owner
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    // Verify that the requester is the teacher of this course
+    if (course.teacherId !== auth.userId) {
+      res.status(403).json({
+        message: "Access denied. You are not the teacher of this course.",
+      });
+      return;
+    }
+
+    // Check if the student is enrolled in this course
+    const isEnrolled =
+      course.enrollments &&
+      Array.isArray(course.enrollments) &&
+      course.enrollments.some(
+        (enrollment: any) => enrollment.userId === studentId
+      );
+
+    if (!isEnrolled) {
+      res.status(404).json({ message: "Student not enrolled in this course" });
+      return;
+    }
+
+    // Get student's progress data
+    const progressRecords = await UserCourseProgress.scan({
+      userId: studentId,
+      courseId: courseId,
+    }).exec();
+
+    // Get user data from Clerk
+    let userData = { id: studentId, name: "Unknown Student", email: "unknown" };
+    try {
+      const clerkUser = await clerkClient.users.getUser(studentId);
+      userData = {
+        id: studentId,
+        name:
+          `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() ||
+          "Unknown Student",
+        email: clerkUser.emailAddresses[0]?.emailAddress || "unknown",
+      };
+    } catch (error) {
+      console.error(`Failed to fetch user data for ${studentId}:`, error);
+    }
+
+    // Structure the course content with progress data
+    const sectionsWithProgress = course.sections.map((section: any) => {
+      const chaptersWithProgress = section.chapters.map((chapter: any) => {
+        // Check if this chapter is completed
+        const isCompleted =
+          progressRecords.length > 0 &&
+          progressRecords[0].completedChapters &&
+          progressRecords[0].completedChapters.includes(chapter.chapterId);
+
+        // Get quiz results if this is a quiz chapter
+        let quizResults = null;
+        if (
+          chapter.type === "Quiz" &&
+          progressRecords.length > 0 &&
+          progressRecords[0].quizResults
+        ) {
+          quizResults = progressRecords[0].quizResults.find(
+            (result: any) => result.chapterId === chapter.chapterId
+          );
+        }
+
+        return {
+          ...chapter,
+          progress: {
+            completed: isCompleted,
+            quizResults: quizResults
+              ? {
+                  score: quizResults.score,
+                  attempts: quizResults.attempts,
+                  lastAttempt: quizResults.lastAttempt,
+                  passed: quizResults.passed,
+                }
+              : null,
+          },
+        };
+      });
+
+      // Calculate section completion percentage
+      const totalChapters = chaptersWithProgress.length;
+      const completedChapters = chaptersWithProgress.filter(
+        (chapter: any) => chapter.progress.completed
+      ).length;
+      const completionPercentage =
+        totalChapters > 0
+          ? Math.round((completedChapters / totalChapters) * 100)
+          : 0;
+
+      return {
+        ...section,
+        chapters: chaptersWithProgress,
+        progress: {
+          completedChapters,
+          totalChapters,
+          completionPercentage,
+        },
+      };
+    });
+
+    // Calculate overall course completion
+    let totalChapters = 0;
+    let completedChapters = 0;
+
+    sectionsWithProgress.forEach((section: any) => {
+      totalChapters += section.progress.totalChapters;
+      completedChapters += section.progress.completedChapters;
+    });
+
+    const overallCompletionPercentage =
+      totalChapters > 0
+        ? Math.round((completedChapters / totalChapters) * 100)
+        : 0;
+
+    // Get last active timestamp
+    const lastActivity =
+      progressRecords.length > 0 ? progressRecords[0].updatedAt : null;
+
+    // Return the detailed progress data
+    res.json({
+      message: "Student progress retrieved successfully",
+      data: {
+        student: userData,
+        courseTitle: course.title,
+        courseId: courseId,
+        sections: sectionsWithProgress,
+        overallProgress: {
+          completedChapters,
+          totalChapters,
+          completionPercentage: overallCompletionPercentage,
+          lastActivity,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving student progress:", error);
+    res.status(500).json({
+      message: "Error retrieving student progress",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };

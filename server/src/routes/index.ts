@@ -1,7 +1,7 @@
 import { Express } from "express";
 
 // Export a function to log routes that takes the app instance as a parameter
-export const logRoutes = (app: Express): void => {
+export const logRoutes = (app: any): void => {
   console.log("=== REGISTERED ROUTES ===");
   try {
     if (app._router && app._router.stack) {
