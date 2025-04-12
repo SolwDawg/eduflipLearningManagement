@@ -204,7 +204,23 @@ const TeacherProgressPage = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Phân tích tiến độ học tập</h1>
+          <p className="text-muted-foreground">
+            Theo dõi tiến độ học tập của học sinh trong từng khóa học của bạn
+          </p>
+        </div>
+        <Button
+          onClick={() => router.push("/teacher/progress/all-students")}
+          className="flex items-center"
+        >
+          <Users className="mr-2 h-4 w-4" />
+          Xem tiến độ tất cả học sinh
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-between mb-6">
         <PageTitle title="Tiến độ học sinh" />
         <div className="flex gap-2">
           <Button
@@ -217,15 +233,6 @@ const TeacherProgressPage = () => {
               className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
             />
             {refreshing ? "Đang làm mới..." : "Làm mới dữ liệu"}
-          </Button>
-
-          <Button
-            variant="default"
-            onClick={() => router.push("/teacher/progress/all-students")}
-            className="flex items-center gap-2"
-          >
-            <Users className="h-4 w-4" />
-            All Students Progress
           </Button>
         </div>
       </div>

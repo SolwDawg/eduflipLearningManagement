@@ -1182,17 +1182,26 @@ export const api = createApi({
     }),
 
     getCourseProgress: build.query({
-      query: (courseId) => `/progress/analytics/course/${courseId}`,
+      query: (courseId) => `/api/progress/analytics/course/${courseId}`,
     }),
 
     getCourseQuizResults: build.query({
       query: (courseId) =>
-        `/progress/analytics/course/${courseId}/quiz-results`,
+        `/api/progress/analytics/course/${courseId}/quiz-results`,
     }),
 
     getStudentQuizResults: build.query({
       query: ({ courseId, userId }) =>
-        `/progress/analytics/course/${courseId}/student/${userId}/quiz-results`,
+        `/api/progress/analytics/course/${courseId}/student/${userId}/quiz-results`,
+    }),
+
+    getEnrolledStudentsWithProgress: build.query({
+      query: (courseId) =>
+        `/api/progress/analytics/course/${courseId}/enrolled-students`,
+    }),
+
+    getAllStudentsProgress: build.query({
+      query: () => `/api/progress/analytics/all-students`,
     }),
   }),
 });
@@ -1250,4 +1259,6 @@ export const {
   useGetCourseProgressQuery,
   useGetCourseQuizResultsQuery,
   useGetStudentQuizResultsQuery,
+  useGetEnrolledStudentsWithProgressQuery,
+  useGetAllStudentsProgressQuery,
 } = api;

@@ -229,6 +229,96 @@ const QuizResultsSummary = ({
   );
 };
 
+// Add a new component for students who may need additional help
+const StudentsNeedingHelp = ({
+  quizResults,
+  getUserName,
+}: {
+  quizResults: QuizResult[];
+  getUserName: (userId: string) => string;
+}) => {
+  // Identify students who may need help (scoring below 60% on average)
+  const strugglingSummary = useMemo(() => {
+    const studentScores: Record<
+      string,
+      { totalPercentage: number; count: number; name: string }
+    > = {};
+
+    quizResults.forEach((result) => {
+      const userId = result.userId;
+      const percentage = (result.score / result.maxScore) * 100;
+
+      if (!studentScores[userId]) {
+        studentScores[userId] = {
+          totalPercentage: 0,
+          count: 0,
+          name: getUserName(userId),
+        };
+      }
+
+      studentScores[userId].totalPercentage += percentage;
+      studentScores[userId].count += 1;
+    });
+
+    return Object.entries(studentScores)
+      .map(([userId, data]) => ({
+        userId,
+        name: data.name,
+        averageScore: Math.round(data.totalPercentage / data.count),
+        quizzesTaken: data.count,
+      }))
+      .filter((student) => student.averageScore < 60)
+      .sort((a, b) => a.averageScore - b.averageScore); // Sort by lowest scores first
+  }, [quizResults, getUserName]);
+
+  if (strugglingSummary.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Học sinh cần hỗ trợ thêm</CardTitle>
+        <CardDescription>
+          Học sinh có điểm trung bình dưới 60% trong các bài kiểm tra
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Học sinh</TableHead>
+              <TableHead className="text-right">Điểm trung bình</TableHead>
+              <TableHead className="text-right">Bài kiểm tra đã làm</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {strugglingSummary.map((student) => (
+              <TableRow key={student.userId}>
+                <TableCell className="font-medium">{student.name}</TableCell>
+                <TableCell className="text-right">
+                  <span
+                    className={
+                      student.averageScore < 40
+                        ? "text-destructive font-bold"
+                        : "text-yellow-500"
+                    }
+                  >
+                    {student.averageScore}%
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  {student.quizzesTaken}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
+
 const CourseQuizResults: React.FC<CourseQuizResultsProps> = ({ courseId }) => {
   const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
   const [userMap, setUserMap] = useState<Record<string, any>>({});
@@ -238,7 +328,7 @@ const CourseQuizResults: React.FC<CourseQuizResultsProps> = ({ courseId }) => {
 
   // Extract unique user IDs from the quiz results
   const uniqueUserIds = useMemo(() => {
-    if (!data?.data?.allResults) return [];
+    if (!data?.data?.allResults) return [] as string[];
 
     const userIds = new Set<string>();
     data.data.allResults.forEach((result: QuizResult) => {
@@ -251,30 +341,47 @@ const CourseQuizResults: React.FC<CourseQuizResultsProps> = ({ courseId }) => {
   // Fetch user data for each student
   useEffect(() => {
     const fetchUserData = async () => {
+      if (uniqueUserIds.length === 0) return;
+
       setLoadingUsers(true);
       const userDataMap: Record<string, any> = {};
 
-      // Sequential fetching to avoid too many parallel requests
-      for (const userId of uniqueUserIds) {
-        try {
-          const response = await fetch(`/api/users/${userId}`);
-          const userData = await response.json();
+      try {
+        // Batch request approach - fetch multiple users at once if API supports it
+        const batchSize = 10;
+        for (let i = 0; i < uniqueUserIds.length; i += batchSize) {
+          const batch = uniqueUserIds.slice(i, i + batchSize);
 
-          if (userData && userData.data) {
-            userDataMap[userId] = userData.data;
-          }
-        } catch (error) {
-          console.error(`Failed to fetch user ${userId}:`, error);
+          // Use Promise.all to fetch multiple users in parallel
+          const userPromises = batch.map((userId) =>
+            fetch(`/api/users/${userId}`)
+              .then((response) => response.json())
+              .catch((error) => {
+                console.error(`Failed to fetch user ${userId}:`, error);
+                return null;
+              })
+          );
+
+          const usersData = await Promise.all(userPromises);
+
+          // Add fetched users to the map
+          usersData.forEach((userData, index) => {
+            if (userData && userData.data) {
+              const userId = batch[index];
+              userDataMap[userId] = userData.data;
+            }
+          });
         }
-      }
 
-      setUserMap(userDataMap);
-      setLoadingUsers(false);
+        setUserMap(userDataMap);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
     };
 
-    if (uniqueUserIds.length > 0) {
-      fetchUserData();
-    }
+    fetchUserData();
   }, [uniqueUserIds]);
 
   // Get the list of quizzes from the data
@@ -340,6 +447,11 @@ const CourseQuizResults: React.FC<CourseQuizResultsProps> = ({ courseId }) => {
   return (
     <div className="space-y-6">
       <QuizResultsSummary
+        quizResults={allResults}
+        getUserName={getStudentName}
+      />
+
+      <StudentsNeedingHelp
         quizResults={allResults}
         getUserName={getStudentName}
       />

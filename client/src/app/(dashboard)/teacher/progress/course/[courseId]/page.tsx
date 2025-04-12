@@ -55,7 +55,10 @@ import {
 } from "@/lib/studentProgressApi";
 import { format } from "date-fns";
 import { useAuth } from "@clerk/nextjs";
-import CourseQuizResults from "@/components/teacher/CourseQuizResults";
+import {
+  CourseQuizResults,
+  EnrolledStudentsProgress,
+} from "@/components/teacher";
 
 interface Student {
   id: string;
@@ -657,12 +660,23 @@ const CourseProgressPage = () => {
         onValueChange={setActiveTab}
         className="space-y-4"
       >
-        <TabsList>
-          <TabsTrigger value="overview"> Tổng quan</TabsTrigger>
-          <TabsTrigger value="students">Học sinh</TabsTrigger>
-          <TabsTrigger value="enrolled-students">Đăng ký</TabsTrigger>
-          <TabsTrigger value="quizzes">Bài kiểm tra</TabsTrigger>
-          <TabsTrigger value="discussions">Thảo luận</TabsTrigger>
+        <TabsList className="mb-4">
+          <TabsTrigger value="overview">
+            <BarChart className="h-4 w-4 mr-2" />
+            Tổng quan
+          </TabsTrigger>
+          <TabsTrigger value="students">
+            <Users className="h-4 w-4 mr-2" />
+            Học sinh
+          </TabsTrigger>
+          <TabsTrigger value="quizzes">
+            <FileText className="h-4 w-4 mr-2" />
+            Bài kiểm tra
+          </TabsTrigger>
+          <TabsTrigger value="discussions">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Thảo luận
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -983,90 +997,7 @@ const CourseProgressPage = () => {
         </TabsContent>
 
         <TabsContent value="students" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Hiệu suất học sinh</CardTitle>
-              <CardDescription>
-                Chi tiết về tiến độ và tham gia của từng học sinh
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Học sinh</TableHead>
-                      <TableHead>Tiến độ</TableHead>
-                      <TableHead>Lượt xem tài liệu</TableHead>
-                      <TableHead>Điểm trung bình bài kiểm tra</TableHead>
-                      <TableHead>Tham gia</TableHead>
-                      <TableHead>Lần truy cập cuối</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {analytics?.studentDetails.map((student) => (
-                      <TableRow key={student.userId}>
-                        <TableCell className="font-medium">
-                          {student.userId}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress
-                              value={student.progress}
-                              className="h-2 w-20"
-                            />
-                            <span className="text-sm">
-                              {Math.round(student.progress)}%
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{student.materialAccesses}</TableCell>
-                        <TableCell>
-                          {Math.round(student.quizAverage)}%
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              student.participationLevel === "High"
-                                ? "bg-green-100 text-green-700"
-                                : student.participationLevel === "Medium"
-                                ? "bg-blue-100 text-blue-700"
-                                : student.participationLevel === "Low"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {student.participationLevel}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {student.lastAccessed
-                            ? formatDate(student.lastAccessed)
-                            : "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleViewStudentDetails(student.userId)
-                            }
-                          >
-                            Chi tiết
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="enrolled-students" className="space-y-4">
-          <EnrolledStudentsTable />
+          <EnrolledStudentsProgress courseId={courseId} />
         </TabsContent>
 
         <TabsContent value="quizzes" className="space-y-4">
