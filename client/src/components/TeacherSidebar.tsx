@@ -40,6 +40,7 @@ const TeacherSidebar = () => {
     { icon: BookOpen, label: "Khoá học", href: "/teacher/courses" },
     { icon: Briefcase, label: "Lớp", href: "/teacher/grades" },
     { icon: User, label: "Hồ sơ", href: "/teacher/profile" },
+    { icon: ListChecks, label: "Quá trình", href: "/teacher/progress" },
     { icon: Settings, label: "Cài đặt", href: "/teacher/settings" },
     {
       icon: ImageIcon,
