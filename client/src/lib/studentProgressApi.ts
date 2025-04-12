@@ -201,13 +201,21 @@ export const trackQuizResult = async (
   totalQuestions: number
 ): Promise<{ averageScore: number; quizResults: any[] }> => {
   try {
-    const response = await axios.post("/api/progress/track/quiz-result", {
-      userId,
-      courseId,
-      quizId,
-      score,
-      totalQuestions,
-    });
+    // Using withCredentials: true to send cookies with the request
+    // which should include the auth session token
+    const response = await axios.post(
+      "/api/progress/track/quiz-result",
+      {
+        userId,
+        courseId,
+        quizId,
+        score,
+        totalQuestions,
+      },
+      {
+        withCredentials: true,
+      }
+    );
     return response.data.data;
   } catch (error) {
     console.error("Error tracking quiz result:", error);

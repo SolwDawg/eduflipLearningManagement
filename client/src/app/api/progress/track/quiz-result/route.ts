@@ -16,16 +16,27 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     console.log("Tracking quiz result with data:", data);
 
-    // Debug output
-    console.log("Using API base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+    // If we don't have quizId, return error
+    if (!data.quizId) {
+      return NextResponse.json(
+        { error: "Quiz ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Use a hardcoded API base URL if the environment variable is not set
+    const apiBaseUrl =
+      process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.eduflip.com";
+    console.log("Using API base URL:", apiBaseUrl);
 
     // Call backend API to track quiz result
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/course-progress/track/quiz-result`,
+      `${apiBaseUrl}/api/progress/track/quiz-result`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${userId}`, // Include auth
         },
         body: JSON.stringify(data),
       }
@@ -38,7 +49,9 @@ export async function POST(request: NextRequest) {
       const errorText = await response.text();
       console.error("Backend API error:", errorText);
       return NextResponse.json(
-        { error: "Failed to track quiz result" },
+        {
+          error: `Failed to track quiz result: ${response.status} ${response.statusText}`,
+        },
         { status: response.status }
       );
     }

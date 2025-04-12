@@ -167,7 +167,7 @@ export default function StudentQuizView({
     }
 
     // Save quiz result to database
-    if (user) {
+    if (user && quizId) {
       const scorePercentage = Math.round(
         (earnedPoints / totalAvailablePoints) * 100
       );
@@ -181,6 +181,9 @@ export default function StudentQuizView({
         console.error("Error saving quiz result:", error);
         toast.error("Không thể lưu kết quả bài kiểm tra");
       });
+    } else if (!quizId) {
+      console.error("Quiz ID is undefined, cannot save result");
+      toast.error("Không thể lưu kết quả - ID bài kiểm tra không hợp lệ");
     }
 
     toast.success("Nộp bài kiểm tra thành công!");
@@ -196,6 +199,14 @@ export default function StudentQuizView({
           toast.error(
             "Không thể lưu kết quả bài kiểm tra - thiếu dữ liệu bài kiểm tra"
           );
+          router.push(`/user/courses/${courseId}`);
+          return;
+        }
+
+        // Check if quizId is valid
+        if (!quizId) {
+          console.error("Quiz ID is undefined");
+          toast.error("Không thể lưu kết quả - ID bài kiểm tra không hợp lệ");
           router.push(`/user/courses/${courseId}`);
           return;
         }
