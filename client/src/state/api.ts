@@ -1008,7 +1008,7 @@ export const api = createApi({
       void
     >({
       query: () => ({
-        url: "teacher/students-overview",
+        url: "/api/teachers/students-overview",
         method: "GET",
       }),
       providesTags: ["StudentsOverview"],
