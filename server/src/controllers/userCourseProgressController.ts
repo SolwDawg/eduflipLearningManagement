@@ -4,6 +4,7 @@ import UserCourseProgress from "../models/userCourseProgressModel";
 import Course from "../models/courseModel";
 import { calculateOverallProgress } from "../utils/utils";
 import { mergeSections } from "../utils/utils";
+import { clerkClient } from "@clerk/clerk-sdk-node";
 
 export const getUserEnrolledCourses = async (
   req: Request,
@@ -909,5 +910,249 @@ export const getCourseQuizResults = async (
   } catch (error) {
     console.error("Error retrieving course quiz results:", error);
     res.status(500).json({ message: "Failed to retrieve course quiz results" });
+  }
+};
+
+// New function to get all students enrolled in a course
+export const getEnrolledStudentsWithProgress = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { courseId } = req.params;
+  const { teacherId } = req.query;
+
+  try {
+    // First, verify that the teacher owns this course
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== teacherId) {
+      res.status(403).json({
+        message:
+          "You do not have permission to access this course's student data",
+      });
+      return;
+    }
+
+    // Get all progress records for this course
+    const progressRecords = await UserCourseProgress.scan("courseId")
+      .eq(courseId)
+      .exec();
+
+    if (!progressRecords || progressRecords.length === 0) {
+      res.json({
+        message: "No students enrolled in this course",
+        data: [],
+      });
+      return;
+    }
+
+    // Fetch user details from Clerk for each student
+    // Note: In a real implementation, you might want to batch these requests
+    // or implement caching for better performance
+    const studentData = await Promise.all(
+      progressRecords.map(async (record: any) => {
+        try {
+          // Get user information from Clerk
+          const user = await clerkClient.users.getUser(record.userId);
+
+          return {
+            userId: record.userId,
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user.emailAddresses[0]?.emailAddress || "N/A",
+            enrollmentDate: record.enrollmentDate,
+            overallProgress: record.overallProgress,
+            lastAccessedTimestamp: record.lastAccessedTimestamp,
+            completedChapters: record.completedChapters?.length || 0,
+            totalChapters: calculateTotalChapters(course),
+            quizResults: record.quizResults || [],
+            averageQuizScore: record.averageQuizScore || 0,
+          };
+        } catch (error) {
+          console.error(`Error fetching user ${record.userId}:`, error);
+          return {
+            userId: record.userId,
+            fullName: "Unknown User",
+            email: "N/A",
+            enrollmentDate: record.enrollmentDate,
+            overallProgress: record.overallProgress,
+            lastAccessedTimestamp: record.lastAccessedTimestamp,
+            completedChapters: record.completedChapters?.length || 0,
+            totalChapters: calculateTotalChapters(course),
+            quizResults: record.quizResults || [],
+            averageQuizScore: record.averageQuizScore || 0,
+          };
+        }
+      })
+    );
+
+    res.json({
+      message: "Students retrieved successfully",
+      data: studentData,
+    });
+  } catch (error) {
+    console.error("Error retrieving enrolled students:", error);
+    res.status(500).json({
+      message: "Error retrieving enrolled students",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+// Helper function to calculate total chapters in a course
+function calculateTotalChapters(course: any): number {
+  if (!course.sections) return 0;
+
+  return course.sections.reduce((total: number, section: any) => {
+    return total + (section.chapters?.length || 0);
+  }, 0);
+}
+
+// New function to get all students' progress across all courses for a teacher
+export const getAllStudentsProgress = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { teacherId } = req.query;
+
+  try {
+    if (!teacherId) {
+      res.status(400).json({ message: "Teacher ID is required" });
+      return;
+    }
+
+    // First, get all courses owned by this teacher
+    const teacherCourses = await Course.scan("teacherId").eq(teacherId).exec();
+
+    if (!teacherCourses || teacherCourses.length === 0) {
+      res.json({
+        message: "No courses found for this teacher",
+        data: {
+          courses: [],
+          students: [],
+        },
+      });
+      return;
+    }
+
+    // Get course IDs
+    const courseIds = teacherCourses.map((course: any) => course.courseId);
+
+    // Initialize student map to combine data from multiple courses
+    const studentMap = new Map();
+
+    // For each course, get all student progress records
+    for (const course of teacherCourses) {
+      const progressRecords = await UserCourseProgress.scan("courseId")
+        .eq(course.courseId)
+        .exec();
+
+      if (progressRecords && progressRecords.length > 0) {
+        // Process each student's progress in this course
+        for (const record of progressRecords) {
+          const userId = record.userId;
+
+          // Initialize or update student data
+          if (!studentMap.has(userId)) {
+            // First time seeing this student
+            studentMap.set(userId, {
+              userId,
+              courses: [
+                {
+                  courseId: course.courseId,
+                  courseTitle: course.title,
+                  enrollmentDate: record.enrollmentDate,
+                  progress: record.overallProgress || 0,
+                  completedChapters: record.completedChapters?.length || 0,
+                  totalChapters: calculateTotalChapters(course),
+                  lastAccessed: record.lastAccessedTimestamp,
+                  averageQuizScore: record.averageQuizScore || 0,
+                },
+              ],
+              totalCourses: 1,
+              averageProgress: record.overallProgress || 0,
+              lastActivity: record.lastAccessedTimestamp,
+            });
+          } else {
+            // Update existing student data
+            const studentData = studentMap.get(userId);
+            studentData.courses.push({
+              courseId: course.courseId,
+              courseTitle: course.title,
+              enrollmentDate: record.enrollmentDate,
+              progress: record.overallProgress || 0,
+              completedChapters: record.completedChapters?.length || 0,
+              totalChapters: calculateTotalChapters(course),
+              lastAccessed: record.lastAccessedTimestamp,
+              averageQuizScore: record.averageQuizScore || 0,
+            });
+
+            // Update aggregate data
+            studentData.totalCourses += 1;
+            const totalProgress = studentData.courses.reduce(
+              (sum: number, course: any) => sum + course.progress,
+              0
+            );
+            studentData.averageProgress =
+              totalProgress / studentData.courses.length;
+
+            // Update last activity if this is more recent
+            if (
+              new Date(record.lastAccessedTimestamp) >
+              new Date(studentData.lastActivity)
+            ) {
+              studentData.lastActivity = record.lastAccessedTimestamp;
+            }
+          }
+        }
+      }
+    }
+
+    // For each student, get their profile information from Clerk
+    const studentsWithProfiles = await Promise.all(
+      Array.from(studentMap.values()).map(async (student: any) => {
+        try {
+          // Get user information from Clerk
+          const user = await clerkClient.users.getUser(student.userId);
+
+          return {
+            ...student,
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user.emailAddresses[0]?.emailAddress || "N/A",
+            avatarUrl: user.imageUrl,
+          };
+        } catch (error) {
+          console.error(`Error fetching user ${student.userId}:`, error);
+          return {
+            ...student,
+            fullName: "Unknown User",
+            email: "N/A",
+            avatarUrl: null,
+          };
+        }
+      })
+    );
+
+    res.json({
+      message: "Student progress data retrieved successfully",
+      data: {
+        courses: teacherCourses.map((course: any) => ({
+          courseId: course.courseId,
+          title: course.title,
+          totalStudents: course.enrollments?.length || 0,
+        })),
+        students: studentsWithProfiles,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving all students progress:", error);
+    res.status(500).json({
+      message: "Error retrieving all students progress",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };

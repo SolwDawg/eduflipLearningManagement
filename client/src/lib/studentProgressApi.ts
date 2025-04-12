@@ -88,6 +88,60 @@ export interface CourseProgressItem {
   progress: number;
 }
 
+// New interface for enrolled students data
+export interface EnrolledStudent {
+  userId: string;
+  fullName: string;
+  email: string;
+  enrollmentDate: string;
+  overallProgress: number;
+  lastAccessedTimestamp: string;
+  completedChapters: number;
+  totalChapters: number;
+  quizResults: {
+    quizId: string;
+    score: number;
+    totalQuestions: number;
+    completionDate: string;
+    attemptCount: number;
+  }[];
+  averageQuizScore: number;
+}
+
+// New interfaces for all students progress
+export interface StudentCourseProgress {
+  courseId: string;
+  courseTitle: string;
+  enrollmentDate: string;
+  progress: number;
+  completedChapters: number;
+  totalChapters: number;
+  lastAccessed: string;
+  averageQuizScore: number;
+}
+
+export interface StudentWithProgress {
+  userId: string;
+  fullName: string;
+  email: string;
+  avatarUrl: string | null;
+  courses: StudentCourseProgress[];
+  totalCourses: number;
+  averageProgress: number;
+  lastActivity: string;
+}
+
+export interface TeacherCourseInfo {
+  courseId: string;
+  title: string;
+  totalStudents: number;
+}
+
+export interface AllStudentsProgressResponse {
+  courses: TeacherCourseInfo[];
+  students: StudentWithProgress[];
+}
+
 // API service functions
 export const fetchCourseProgressAnalytics = async (
   courseId: string
@@ -269,5 +323,46 @@ export const getUserProgressSummary = async (
       achievements: 0,
       courseProgress: [],
     };
+  }
+};
+
+// New function to get all enrolled students for a course
+export const fetchEnrolledStudents = async (
+  courseId: string,
+  teacherId: string
+): Promise<EnrolledStudent[]> => {
+  try {
+    const response = await axios.get(
+      `/api/progress/analytics/course/${courseId}/enrolled-students?teacherId=${teacherId}`
+    );
+
+    if (response.data && response.data.data) {
+      return response.data.data;
+    }
+
+    return [];
+  } catch (error) {
+    console.error("Error fetching enrolled students:", error);
+    return [];
+  }
+};
+
+// New function to get all students progress across all courses
+export const fetchAllStudentsProgress = async (
+  teacherId: string
+): Promise<AllStudentsProgressResponse> => {
+  try {
+    const response = await axios.get(
+      `/api/progress/analytics/all-students?teacherId=${teacherId}`
+    );
+
+    if (response.data && response.data.data) {
+      return response.data.data;
+    }
+
+    return { courses: [], students: [] };
+  } catch (error) {
+    console.error("Error fetching all students progress:", error);
+    return { courses: [], students: [] };
   }
 };

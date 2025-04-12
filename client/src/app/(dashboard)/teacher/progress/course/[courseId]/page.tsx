@@ -50,8 +50,11 @@ import {
   StudentProgressAnalytics,
   StudentProgressSummary,
   fetchCourseProgressAnalytics,
+  EnrolledStudent,
+  fetchEnrolledStudents,
 } from "@/lib/studentProgressApi";
 import { format } from "date-fns";
+import { useAuth } from "@clerk/nextjs";
 
 interface Student {
   id: string;
@@ -125,6 +128,7 @@ const CourseProgressPage = () => {
   const router = useRouter();
   const courseId = params.courseId as string;
   const { toast } = useToast();
+  const { userId } = useAuth();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
@@ -137,6 +141,10 @@ const CourseProgressPage = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [error, setError] = useState<string | null>(null);
+  const [enrolledStudents, setEnrolledStudents] = useState<EnrolledStudent[]>(
+    []
+  );
+  const [enrolledStudentsLoading, setEnrolledStudentsLoading] = useState(false);
 
   useEffect(() => {
     const fetchCourseProgress = async () => {
@@ -270,6 +278,236 @@ const CourseProgressPage = () => {
     setFilteredStudents(sorted);
   };
 
+  // New component for enrolled students table
+  const EnrolledStudentsTable = () => {
+    const [searchText, setSearchText] = useState("");
+    const [sortBy, setSortBy] = useState<string>("name");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+    // Filter students based on search
+    const filteredStudents = enrolledStudents.filter(
+      (student) =>
+        student.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
+        student.email.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    // Sort students based on selected criteria
+    const sortedStudents = [...filteredStudents].sort((a, b) => {
+      if (sortBy === "name") {
+        return sortOrder === "asc"
+          ? a.fullName.localeCompare(b.fullName)
+          : b.fullName.localeCompare(a.fullName);
+      } else if (sortBy === "progress") {
+        return sortOrder === "asc"
+          ? a.overallProgress - b.overallProgress
+          : b.overallProgress - a.overallProgress;
+      } else if (sortBy === "lastActive") {
+        return sortOrder === "asc"
+          ? new Date(a.lastAccessedTimestamp).getTime() -
+              new Date(b.lastAccessedTimestamp).getTime()
+          : new Date(b.lastAccessedTimestamp).getTime() -
+              new Date(a.lastAccessedTimestamp).getTime();
+      } else if (sortBy === "enrolled") {
+        return sortOrder === "asc"
+          ? new Date(a.enrollmentDate).getTime() -
+              new Date(b.enrollmentDate).getTime()
+          : new Date(b.enrollmentDate).getTime() -
+              new Date(a.enrollmentDate).getTime();
+      }
+      return 0;
+    });
+
+    const toggleSort = (field: string) => {
+      if (sortBy === field) {
+        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+      } else {
+        setSortBy(field);
+        setSortOrder("asc");
+      }
+    };
+
+    // Format date for display
+    const formatDate = (dateString: string) => {
+      try {
+        return format(new Date(dateString), "MMM dd, yyyy");
+      } catch (error) {
+        return "Invalid date";
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search students..."
+              className="pl-8"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </div>
+          <Button
+            variant="outline"
+            onClick={fetchStudentEnrollments}
+            disabled={enrolledStudentsLoading}
+          >
+            Refresh Data
+          </Button>
+        </div>
+
+        {enrolledStudentsLoading ? (
+          <div className="flex justify-center my-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : sortedStudents.length === 0 ? (
+          <div className="text-center py-10">
+            <Users className="mx-auto h-10 w-10 text-muted-foreground" />
+            <h3 className="mt-2 text-lg font-medium">No students found</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {searchText
+                ? "Try a different search term"
+                : "No students have enrolled in this course yet"}
+            </p>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[250px]">
+                      <button
+                        className="flex items-center"
+                        onClick={() => toggleSort("name")}
+                      >
+                        Student
+                        {sortBy === "name" && (
+                          <ChevronDown
+                            className={`ml-1 h-4 w-4 ${
+                              sortOrder === "desc" ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button
+                        className="flex items-center"
+                        onClick={() => toggleSort("enrolled")}
+                      >
+                        Enrolled On
+                        {sortBy === "enrolled" && (
+                          <ChevronDown
+                            className={`ml-1 h-4 w-4 ${
+                              sortOrder === "desc" ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </TableHead>
+                    <TableHead className="text-right">
+                      <button
+                        className="flex items-center"
+                        onClick={() => toggleSort("progress")}
+                      >
+                        Progress
+                        {sortBy === "progress" && (
+                          <ChevronDown
+                            className={`ml-1 h-4 w-4 ${
+                              sortOrder === "desc" ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      Completed Chapters
+                    </TableHead>
+                    <TableHead>
+                      <button
+                        className="flex items-center"
+                        onClick={() => toggleSort("lastActive")}
+                      >
+                        Last Active
+                        {sortBy === "lastActive" && (
+                          <ChevronDown
+                            className={`ml-1 h-4 w-4 ${
+                              sortOrder === "desc" ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedStudents.map((student) => (
+                    <TableRow key={student.userId}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              {student.fullName.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">
+                              {student.fullName}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {student.email}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {formatDate(student.enrollmentDate)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="text-sm">
+                            {Math.round(student.overallProgress * 100)}%
+                          </span>
+                          <Progress
+                            value={student.overallProgress * 100}
+                            className="w-20"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {student.completedChapters} / {student.totalChapters}
+                      </TableCell>
+                      <TableCell>
+                        {formatDate(student.lastAccessedTimestamp)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            router.push(
+                              `/teacher/progress/student/${student.userId}?courseId=${courseId}`
+                            )
+                          }
+                        >
+                          <span className="sr-only">View details</span>
+                          <BarChart className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  };
+
   const StudentProgressTable = ({ students }: { students: Student[] }) => {
     return (
       <div className="rounded-md border">
@@ -337,6 +575,33 @@ const CourseProgressPage = () => {
     );
   };
 
+  // Add a new function to fetch enrolled students
+  const fetchStudentEnrollments = async () => {
+    if (!userId) return;
+
+    try {
+      setEnrolledStudentsLoading(true);
+      const students = await fetchEnrolledStudents(courseId, userId);
+      setEnrolledStudents(students);
+    } catch (error) {
+      console.error("Failed to fetch enrolled students:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load enrolled students data.",
+        variant: "destructive",
+      });
+    } finally {
+      setEnrolledStudentsLoading(false);
+    }
+  };
+
+  // Add effect to load enrolled students when the tab changes
+  useEffect(() => {
+    if (activeTab === "enrolled-students") {
+      fetchStudentEnrollments();
+    }
+  }, [activeTab, courseId, userId]);
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -377,14 +642,21 @@ const CourseProgressPage = () => {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-          <TabsTrigger value="materials">Tài liệu và bài kiểm tra</TabsTrigger>
-          <TabsTrigger value="students">Chi tiết học sinh</TabsTrigger>
+      <Tabs
+        defaultValue="overview"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="enrolled-students">Enrollments</TabsTrigger>
+          <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+          <TabsTrigger value="discussions">Discussions</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
+        <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <Card>
               <CardHeader className="pb-2">
@@ -701,109 +973,7 @@ const CourseProgressPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="materials">
-          <div className="grid grid-cols-1 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Lượt xem tài liệu</CardTitle>
-                <CardDescription>Thống kê sử dụng tài liệu</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className=" p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <BookOpen className="h-5 w-5 text-blue-500 mr-2" />
-                      <span className="font-medium">
-                        Tổng lượt xem tài liệu
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold">
-                      {analytics?.materialAccessData.totalAccesses || 0}
-                    </div>
-                  </div>
-
-                  <div className=" p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <User className="h-5 w-5 text-orange-500 mr-2" />
-                      <span className="font-medium">
-                        Lượt xem tài liệu trung bình/học sinh
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold">
-                      {analytics?.materialAccessData.averageAccessesPerStudent.toFixed(
-                        1
-                      ) || 0}
-                    </div>
-                  </div>
-
-                  <div className=" p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <CheckCircle className="h-5 w-5 text-red-500 mr-2" />
-                      <span className="font-medium">
-                        Học sinh không truy cập tài liệu
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold">
-                      {analytics?.materialAccessData.studentsWithNoAccess || 0}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  Hiệu suất bài kiểm tra
-                </CardTitle>
-                <CardDescription>
-                  Chi tiết về hoàn thành và hiệu suất bài kiểm tra
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className=" p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <FileText className="h-5 w-5 text-green-500 mr-2" />
-                      <span className="font-medium">
-                        Điểm trung bình bài kiểm tra
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold">
-                      {Math.round(analytics?.quizData.averageScore || 0)}%
-                    </div>
-                  </div>
-
-                  <div className=" p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <Clock className="h-5 w-5 text-purple-500 mr-2" />
-                      <span className="font-medium">
-                        Tỷ lệ hoàn thành bài kiểm tra
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold">
-                      {Math.round(analytics?.quizData.completionRate || 0)}%
-                    </div>
-                  </div>
-
-                  <div className=" p-4 rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <User className="h-5 w-5 text-red-500 mr-2" />
-                      <span className="font-medium">
-                        Học sinh không làm bài kiểm tra
-                      </span>
-                    </div>
-                    <div className="text-2xl font-bold">
-                      {analytics?.quizData.studentsWithNoQuizzes || 0}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="students">
+        <TabsContent value="students" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Hiệu suất học sinh</CardTitle>
@@ -882,6 +1052,42 @@ const CourseProgressPage = () => {
                   </TableBody>
                 </Table>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="enrolled-students" className="space-y-4">
+          <EnrolledStudentsTable />
+        </TabsContent>
+
+        <TabsContent value="quizzes" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quiz Results</CardTitle>
+              <CardDescription>
+                View and analyze student quiz performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Quiz analytics feature is under development.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="discussions" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Discussion Activity</CardTitle>
+              <CardDescription>
+                Monitor student engagement in course discussions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Discussion analytics feature is under development.
+              </p>
             </CardContent>
           </Card>
         </TabsContent>
