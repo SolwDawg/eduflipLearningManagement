@@ -139,13 +139,11 @@ export const addCourseToGrade = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Course ID is required" });
     }
 
-    // Check if grade exists
     const grade = await Grade.get({ gradeId });
     if (!grade) {
       return res.status(404).json({ message: "Grade not found" });
     }
 
-    // Check if course exists
     const course = await Course.get({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });

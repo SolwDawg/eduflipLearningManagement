@@ -36,7 +36,6 @@ interface CourseProgress {
   isPlaceholder: boolean;
 }
 
-// Add a function to create default analytics data
 const createDefaultAnalytics = (
   courseId: string
 ): StudentProgressAnalytics => ({
@@ -76,6 +75,7 @@ const TeacherProgressPage = () => {
 
       // Fetch teacher's courses
       const coursesResponse = await axios.get("/api/teacher/courses");
+      console.log(coursesResponse.data);
 
       // If no courses, show empty state
       if (!coursesResponse.data || coursesResponse.data.length === 0) {

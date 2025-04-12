@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Send, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 import {
   useGetChapterCommentsQuery,
   useAddChapterCommentMutation,
@@ -174,6 +175,7 @@ export default function ChapterComments({
                       <div className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(comment.timestamp), {
                           addSuffix: true,
+                          locale: vi,
                         })}
                       </div>
 

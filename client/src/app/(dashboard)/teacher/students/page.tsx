@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 import { useGetStudentsOverviewQuery } from "@/state/api";
 import { Loader2, Users, BookOpen, AlertCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -163,6 +164,7 @@ const StudentsOverviewPage = () => {
                       Hoạt động cuối:{" "}
                       {formatDistanceToNow(new Date(student.lastActivity), {
                         addSuffix: true,
+                        locale: vi,
                       })}
                     </Badge>
                   </div>
@@ -190,6 +192,7 @@ const StudentsOverviewPage = () => {
                               new Date(course.lastActivity),
                               {
                                 addSuffix: true,
+                                locale: vi,
                               }
                             )}
                           </span>

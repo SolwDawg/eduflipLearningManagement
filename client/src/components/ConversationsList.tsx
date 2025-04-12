@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 import { MessageSquare, Search, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -141,8 +142,13 @@ export default function ConversationsList({
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {formatDistanceToNow(
-                          new Date(conversation.lastMessageTimestamp),
-                          { addSuffix: true }
+                          new Date(
+                            conversation.updatedAt || conversation.createdAt
+                          ),
+                          {
+                            addSuffix: true,
+                            locale: vi,
+                          }
                         )}
                       </div>
                     </div>

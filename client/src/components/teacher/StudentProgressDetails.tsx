@@ -31,6 +31,7 @@ import {
 import LoadingAlternative from "@/components/LoadingAlternative";
 import { formatDistanceToNow } from "date-fns";
 import { formatDateString } from "@/lib/utils";
+import { vi } from "date-fns/locale";
 
 interface StudentProgressDetailsProps {
   courseId: string;
@@ -98,18 +99,8 @@ const StudentProgressDetails = ({
   } = data.data;
 
   const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      return "Invalid date";
-    }
+    const date = new Date(dateString);
+    return formatDistanceToNow(date, { addSuffix: true, locale: vi });
   };
 
   const getTimeAgo = (dateString: string) => {

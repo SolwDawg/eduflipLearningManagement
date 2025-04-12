@@ -37,6 +37,7 @@ import {
   Zap,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -758,6 +759,7 @@ const AnalyticsPage = () => {
                       <TableCell className="text-primary-600">
                         {formatDistanceToNow(new Date(student.lastAccessed), {
                           addSuffix: true,
+                          locale: vi,
                         })}
                       </TableCell>
                     </TableRow>

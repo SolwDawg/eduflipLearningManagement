@@ -103,7 +103,6 @@ interface ChartData {
   values: number[];
 }
 
-// Default analytics object with empty values to use when API fails
 const createDefaultAnalytics = (
   courseId: string
 ): StudentProgressAnalytics => ({
@@ -156,7 +155,6 @@ const CourseProgressPage = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch course details
         try {
           const courseResponse = await axios.get(
             `/api/teacher/courses/${courseId}`
@@ -167,7 +165,6 @@ const CourseProgressPage = () => {
           setCourse({ id: courseId, title: "Course Details" });
         }
 
-        // Fetch all students and their progress for this course
         const studentsResponse = await axios.get(
           `/api/courses/${courseId}/progress`
         );
@@ -182,7 +179,6 @@ const CourseProgressPage = () => {
           setFilteredStudents([]);
         }
 
-        // Fetch analytics data - prioritize real data
         try {
           const analyticsResponse = await axios.get(
             `/api/progress/analytics/course/${courseId}`
@@ -203,7 +199,6 @@ const CourseProgressPage = () => {
           setAnalytics(createDefaultAnalytics(courseId));
         }
 
-        // Fetch leaderboard data
         try {
           const leaderboardResponse = await axios.get(
             `/api/progress/analytics/course/${courseId}/leaderboard`
@@ -587,7 +582,6 @@ const CourseProgressPage = () => {
     );
   };
 
-  // Add a new function to fetch enrolled students
   const fetchStudentEnrollments = async () => {
     if (!userId) return;
 
