@@ -49,6 +49,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Color constants for charts
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
@@ -64,76 +74,82 @@ const AnalyticsPage = () => {
   const courseId = params.id as string;
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: courseData, isLoading: isLoadingCourse } =
-    useGetCourseQuery(courseId);
+  const {
+    data: courseData,
+    isLoading: isLoadingCourse,
+    error: courseError,
+    refetch: refetchCourse,
+  } = useGetCourseQuery(courseId);
   const {
     data: analyticsResponse,
     isLoading: isLoadingAnalytics,
     error: analyticsError,
+    refetch,
   } = useGetCourseProgressAnalyticsQuery(courseId);
 
   const isLoading = isLoadingCourse || isLoadingAnalytics;
 
-  if (isLoading) {
+  if (isLoadingAnalytics || isLoadingCourse) {
     return (
-      <div className="dashboard-container">
-        <Header
-          title="Phân tích quá trình học tập"
-          subtitle="Đang tải dữ liệu..."
-        />
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-10 h-10 animate-spin text-primary-600" />
-          <span className="ml-2 text-primary-700">
-            Đang tải dữ liệu phân tích...
-          </span>
+      <div className="h-full flex justify-center items-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary-600" />
+      </div>
+    );
+  }
+
+  if (analyticsError || courseError) {
+    return (
+      <div className="h-full flex flex-col justify-center items-center">
+        <div className="text-center space-y-5">
+          <AlertCircle className="h-16 w-16 text-destructive mx-auto" />
+          <h2 className="text-2xl font-semibold">Something went wrong</h2>
+          <p className="text-muted-foreground max-w-md">
+            {analyticsError?.data?.message ||
+              courseError?.data?.message ||
+              "Failed to load analytics data. Please try again later."}
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={() => {
+                refetch();
+                if (courseError) refetchCourse();
+              }}
+            >
+              Try again
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={`/teacher/courses/${courseId}`}>Back to course</Link>
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (analyticsError) {
+  if (
+    !analyticsResponse?.data ||
+    analyticsResponse?.data?.totalStudents === 0
+  ) {
     return (
-      <div className="dashboard-container">
-        <Header
-          title="Phân tích quá trình học tập"
-          subtitle={courseData?.title || "Không tìm thấy khóa học"}
-        />
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-6 bg-red-50 rounded-lg border border-red-200">
-          <AlertCircle className="w-12 h-12 text-red-500 mb-2" />
-          <h3 className="text-xl font-medium text-primary-700">
-            Không thể tải dữ liệu phân tích
-          </h3>
-          <p className="text-primary-600 mt-1">
-            Đã xảy ra lỗi khi tải dữ liệu phân tích. Có thể khóa học này chưa có
-            dữ liệu hoặc chưa có học sinh nào đăng ký.
+      <div className="h-full flex flex-col justify-center items-center">
+        <div className="text-center space-y-5">
+          <BookOpen className="h-16 w-16 text-primary-600 mx-auto" />
+          <h2 className="text-2xl font-semibold">
+            No analytics data available
+          </h2>
+          <p className="text-muted-foreground max-w-md">
+            {analyticsResponse?.message ||
+              "This course doesn't have any enrolled students or analytics data yet."}
           </p>
+          <Button asChild>
+            <Link href={`/teacher/courses/${courseId}`}>Back to course</Link>
+          </Button>
         </div>
       </div>
     );
   }
 
   const analytics = analyticsResponse?.data;
-
-  if (!analytics) {
-    return (
-      <div className="dashboard-container">
-        <Header
-          title="Phân tích quá trình học tập"
-          subtitle={courseData?.title || "Không tìm thấy khóa học"}
-        />
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-6 bg-blue-50 rounded-lg border border-blue-200">
-          <BookOpen className="w-12 h-12 text-blue-500 mb-2" />
-          <h3 className="text-xl font-medium text-primary-700">
-            Chưa có dữ liệu phân tích
-          </h3>
-          <p className="text-primary-600 mt-1">
-            Khóa học này chưa có dữ liệu phân tích hoặc chưa có học sinh nào
-            đăng ký.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // Prepare data for charts
   const participationData = [

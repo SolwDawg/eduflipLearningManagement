@@ -172,8 +172,8 @@ const CourseProgressPage = () => {
           setStudents(studentsResponse.data);
           setFilteredStudents(studentsResponse.data);
         } else {
-          console.error("Invalid student progress data format");
-          setError("Received invalid student progress data");
+          console.error("Định dạng dữ liệu tiến độ học tập không hợp lệ");
+          setError("Nhận được dữ liệu tiến độ học tập không hợp lệ");
           setStudents([]);
           setFilteredStudents([]);
         }
@@ -195,7 +195,7 @@ const CourseProgressPage = () => {
           }
         } catch (analyticsError) {
           console.error("Failed to fetch analytics data:", analyticsError);
-          setError("Could not load analytics data from backend");
+          setError("Không thể tải dữ liệu phân tích từ backend");
           setAnalytics(createDefaultAnalytics(courseId));
         }
 
@@ -220,7 +220,7 @@ const CourseProgressPage = () => {
         }
       } catch (error) {
         console.error("Failed to fetch course progress:", error);
-        setError("Could not load course progress data");
+        setError("Không thể tải dữ liệu tiến độ khóa học");
         setStudents([]);
         setFilteredStudents([]);
         setAnalytics(createDefaultAnalytics(courseId));
@@ -342,7 +342,7 @@ const CourseProgressPage = () => {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search students..."
+              placeholder="Tìm kiếm học sinh..."
               className="pl-8"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -353,7 +353,7 @@ const CourseProgressPage = () => {
             onClick={fetchStudentEnrollments}
             disabled={enrolledStudentsLoading}
           >
-            Refresh Data
+            Tải lại dữ liệu
           </Button>
         </div>
 
@@ -364,11 +364,13 @@ const CourseProgressPage = () => {
         ) : sortedStudents.length === 0 ? (
           <div className="text-center py-10">
             <Users className="mx-auto h-10 w-10 text-muted-foreground" />
-            <h3 className="mt-2 text-lg font-medium">No students found</h3>
+            <h3 className="mt-2 text-lg font-medium">
+              Không tìm thấy học sinh
+            </h3>
             <p className="text-sm text-muted-foreground mt-1">
               {searchText
-                ? "Try a different search term"
-                : "No students have enrolled in this course yet"}
+                ? "Thử tìm kiếm với từ khác"
+                : "Không có học sinh đã đăng ký khóa học này"}
             </p>
           </div>
         ) : (
@@ -382,7 +384,7 @@ const CourseProgressPage = () => {
                         className="flex items-center"
                         onClick={() => toggleSort("name")}
                       >
-                        Student
+                        Học sinh
                         {sortBy === "name" && (
                           <ChevronDown
                             className={`ml-1 h-4 w-4 ${
@@ -397,7 +399,7 @@ const CourseProgressPage = () => {
                         className="flex items-center"
                         onClick={() => toggleSort("enrolled")}
                       >
-                        Enrolled On
+                        Đã đăng ký vào
                         {sortBy === "enrolled" && (
                           <ChevronDown
                             className={`ml-1 h-4 w-4 ${
@@ -412,7 +414,7 @@ const CourseProgressPage = () => {
                         className="flex items-center"
                         onClick={() => toggleSort("progress")}
                       >
-                        Progress
+                        Tiến độ
                         {sortBy === "progress" && (
                           <ChevronDown
                             className={`ml-1 h-4 w-4 ${
@@ -423,14 +425,14 @@ const CourseProgressPage = () => {
                       </button>
                     </TableHead>
                     <TableHead className="text-center">
-                      Completed Chapters
+                      Chương đã hoàn thành
                     </TableHead>
                     <TableHead>
                       <button
                         className="flex items-center"
                         onClick={() => toggleSort("lastActive")}
                       >
-                        Last Active
+                        Hoạt động cuối cùng
                         {sortBy === "lastActive" && (
                           <ChevronDown
                             className={`ml-1 h-4 w-4 ${
@@ -440,7 +442,7 @@ const CourseProgressPage = () => {
                         )}
                       </button>
                     </TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-right">Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -489,11 +491,13 @@ const CourseProgressPage = () => {
                           size="icon"
                           onClick={() =>
                             router.push(
-                              `/teacher/progress/student/${student.userId}?courseId=${courseId}`
+                              `/teacher/progress/student-details/${courseId}/${student.userId}`
                             )
                           }
+                          aria-label="Xem chi tiết tiến độ học tập của học sinh"
+                          title="Xem chi tiết phân tích tiến độ"
                         >
-                          <span className="sr-only">View details</span>
+                          <span className="sr-only">Xem chi tiết</span>
                           <BarChart className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -561,7 +565,11 @@ const CourseProgressPage = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleViewStudentDetails(student.id)}
+                    onClick={() =>
+                      router.push(
+                        `/teacher/progress/student-details/${courseId}/${student.id}`
+                      )
+                    }
                   >
                     <BarChart className="mr-2 h-4 w-4" />
                     Chi tiết
@@ -586,8 +594,8 @@ const CourseProgressPage = () => {
     } catch (error) {
       console.error("Failed to fetch enrolled students:", error);
       toast({
-        title: "Error",
-        description: "Failed to load enrolled students data.",
+        title: "Lỗi",
+        description: "Không thể tải dữ liệu học sinh đã đăng ký",
         variant: "destructive",
       });
     } finally {
@@ -649,11 +657,11 @@ const CourseProgressPage = () => {
         className="space-y-4"
       >
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="enrolled-students">Enrollments</TabsTrigger>
-          <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
-          <TabsTrigger value="discussions">Discussions</TabsTrigger>
+          <TabsTrigger value="overview"> Tổng quan</TabsTrigger>
+          <TabsTrigger value="students">Học sinh</TabsTrigger>
+          <TabsTrigger value="enrolled-students">Đăng ký</TabsTrigger>
+          <TabsTrigger value="quizzes">Bài kiểm tra</TabsTrigger>
+          <TabsTrigger value="discussions">Thảo luận</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -1063,14 +1071,14 @@ const CourseProgressPage = () => {
         <TabsContent value="quizzes" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Quiz Results</CardTitle>
+              <CardTitle>Kết quả bài kiểm tra</CardTitle>
               <CardDescription>
-                View and analyze student quiz performance
+                Xem và phân tích hiệu suất bài kiểm tra của học sinh
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Quiz analytics feature is under development.
+                Tính năng phân tích bài kiểm tra đang phát triển.
               </p>
             </CardContent>
           </Card>
@@ -1079,14 +1087,14 @@ const CourseProgressPage = () => {
         <TabsContent value="discussions" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Discussion Activity</CardTitle>
+              <CardTitle>Hoạt động thảo luận</CardTitle>
               <CardDescription>
-                Monitor student engagement in course discussions
+                Theo dõi sự tham gia của học sinh trong thảo luận khóa học
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Discussion analytics feature is under development.
+                Tính năng phân tích thảo luận đang phát triển.
               </p>
             </CardContent>
           </Card>

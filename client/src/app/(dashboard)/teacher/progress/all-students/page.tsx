@@ -89,8 +89,8 @@ const AllStudentsProgressPage = () => {
       } catch (error) {
         console.error("Failed to fetch student progress data:", error);
         toast({
-          title: "Error",
-          description: "Failed to load student progress data.",
+          title: "Lỗi",
+          description: "Không thể tải dữ liệu tiến độ học tập của học sinh.",
           variant: "destructive",
         });
       } finally {
@@ -172,10 +172,10 @@ const AllStudentsProgressPage = () => {
     return (
       <Select value={courseFilter} onValueChange={setCourseFilter}>
         <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Filter by course" />
+          <SelectValue placeholder="Lọc theo khóa học" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Courses</SelectItem>
+          <SelectItem value="all">Tất cả khóa học</SelectItem>
           {data.courses.map((course) => (
             <SelectItem key={course.courseId} value={course.courseId}>
               {course.title}
@@ -221,7 +221,7 @@ const AllStudentsProgressPage = () => {
             }
           >
             <BarChart className="h-4 w-4 mr-2" />
-            View Details
+            Xem chi tiết
           </Button>
         </div>
       </CardHeader>
@@ -229,13 +229,13 @@ const AllStudentsProgressPage = () => {
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="flex flex-col">
             <span className="text-sm text-muted-foreground">
-              Enrolled Courses
+              Khóa học đã đăng ký
             </span>
             <span className="text-lg font-medium">{student.totalCourses}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-muted-foreground">
-              Average Progress
+              Tiến độ học tập trung bình
             </span>
             <div className="flex items-center gap-2">
               <Progress
@@ -248,7 +248,9 @@ const AllStudentsProgressPage = () => {
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-sm text-muted-foreground">Last Activity</span>
+            <span className="text-sm text-muted-foreground">
+              Hoạt động cuối cùng
+            </span>
             <span className="text-lg font-medium">
               {formatDate(student.lastActivity)}
             </span>
@@ -256,7 +258,7 @@ const AllStudentsProgressPage = () => {
         </div>
 
         <div className="border-t pt-3">
-          <h4 className="text-sm font-medium mb-2">Course Progress</h4>
+          <h4 className="text-sm font-medium mb-2">Tiến độ khóa học</h4>
           <div className="space-y-3">
             {student.courses.map((course) => (
               <div
@@ -268,7 +270,7 @@ const AllStudentsProgressPage = () => {
                     {course.courseTitle}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Enrolled: {formatDate(course.enrollmentDate)}
+                    Đã đăng ký: {formatDate(course.enrollmentDate)}
                   </div>
                 </div>
                 <div className="flex items-center gap-4 min-w-[180px]">
@@ -287,9 +289,10 @@ const AllStudentsProgressPage = () => {
                     className="p-0 h-8 w-8"
                     onClick={() =>
                       router.push(
-                        `/teacher/progress/course/${course.courseId}/student/${student.userId}`
+                        `/teacher/progress/student-details/${course.courseId}/${student.userId}`
                       )
                     }
+                    title="Xem chi tiết phân tích"
                   >
                     <BarChart className="h-4 w-4" />
                   </Button>
@@ -306,10 +309,11 @@ const AllStudentsProgressPage = () => {
     <div className="container p-6 space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
-          All Students Progress
+          Tiến độ học tập của tất cả học sinh
         </h1>
         <p className="text-muted-foreground">
-          View and monitor all students' learning progress across your courses
+          Xem và theo dõi tiến độ học tập của tất cả học sinh trong khóa học của
+          bạn
         </p>
       </div>
 
@@ -318,7 +322,7 @@ const AllStudentsProgressPage = () => {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search students..."
+            placeholder="Tìm kiếm học sinh..."
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -333,33 +337,33 @@ const AllStudentsProgressPage = () => {
               <Button variant="outline" className="flex items-center gap-2">
                 <SlidersHorizontal className="h-4 w-4" />
                 <span>
-                  Sort by:{" "}
+                  Sắp xếp theo:{" "}
                   {sortField.charAt(0).toUpperCase() + sortField.slice(1)}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleSortChange("name")}>
-                Name{" "}
+                Tên{" "}
                 {sortField === "name" &&
                   (sortOrder === "asc" ? "(A-Z)" : "(Z-A)")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleSortChange("courses")}>
-                Courses{" "}
+                Khóa học đã đăng ký{" "}
                 {sortField === "courses" &&
-                  (sortOrder === "asc" ? "(Low-High)" : "(High-Low)")}
+                  (sortOrder === "asc" ? "(Thấp-Cao)" : "(Cao-Thấp)")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleSortChange("progress")}>
-                Progress{" "}
+                Tiến độ học tập trung bình{" "}
                 {sortField === "progress" &&
-                  (sortOrder === "asc" ? "(Low-High)" : "(High-Low)")}
+                  (sortOrder === "asc" ? "(Thấp-Cao)" : "(Cao-Thấp)")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleSortChange("lastActivity")}
               >
-                Last Activity{" "}
+                Hoạt động cuối cùng{" "}
                 {sortField === "lastActivity" &&
-                  (sortOrder === "asc" ? "(Old-New)" : "(New-Old)")}
+                  (sortOrder === "asc" ? "(Cũ-Mới)" : "(Mới-Cũ)")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -372,19 +376,21 @@ const AllStudentsProgressPage = () => {
         onValueChange={setActiveTab}
       >
         <TabsList>
-          <TabsTrigger value="students">Student Cards</TabsTrigger>
-          <TabsTrigger value="table">Table View</TabsTrigger>
+          <TabsTrigger value="students">Thẻ học sinh</TabsTrigger>
+          <TabsTrigger value="table">Bảng xem</TabsTrigger>
         </TabsList>
 
         <TabsContent value="students" className="space-y-4 mt-4">
           {filteredStudents.length === 0 ? (
             <div className="text-center py-10">
               <Users className="mx-auto h-10 w-10 text-muted-foreground" />
-              <h3 className="mt-2 text-lg font-medium">No students found</h3>
+              <h3 className="mt-2 text-lg font-medium">
+                Không tìm thấy học sinh
+              </h3>
               <p className="text-sm text-muted-foreground mt-1">
                 {searchQuery || courseFilter !== "all"
-                  ? "Try adjusting your filters"
-                  : "No students have enrolled in your courses yet"}
+                  ? "Thử điều chỉnh bộ lọc của bạn"
+                  : "Không có học sinh đã đăng ký khóa học của bạn"}
               </p>
             </div>
           ) : (
@@ -398,11 +404,13 @@ const AllStudentsProgressPage = () => {
           {filteredStudents.length === 0 ? (
             <div className="text-center py-10">
               <Users className="mx-auto h-10 w-10 text-muted-foreground" />
-              <h3 className="mt-2 text-lg font-medium">No students found</h3>
+              <h3 className="mt-2 text-lg font-medium">
+                Không tìm thấy học sinh
+              </h3>
               <p className="text-sm text-muted-foreground mt-1">
                 {searchQuery || courseFilter !== "all"
-                  ? "Try adjusting your filters"
-                  : "No students have enrolled in your courses yet"}
+                  ? "Thử điều chỉnh bộ lọc của bạn"
+                  : "Không có học sinh đã đăng ký khóa học của bạn"}
               </p>
             </div>
           ) : (
@@ -416,7 +424,7 @@ const AllStudentsProgressPage = () => {
                           className="flex items-center"
                           onClick={() => handleSortChange("name")}
                         >
-                          Student
+                          Học sinh
                           {sortField === "name" && (
                             <ChevronDown
                               className={`ml-1 h-4 w-4 ${
@@ -431,7 +439,7 @@ const AllStudentsProgressPage = () => {
                           className="flex items-center"
                           onClick={() => handleSortChange("courses")}
                         >
-                          Enrolled Courses
+                          Khóa học đã đăng ký
                           {sortField === "courses" && (
                             <ChevronDown
                               className={`ml-1 h-4 w-4 ${
@@ -446,7 +454,7 @@ const AllStudentsProgressPage = () => {
                           className="flex items-center"
                           onClick={() => handleSortChange("progress")}
                         >
-                          Average Progress
+                          Tiến độ học tập trung bình
                           {sortField === "progress" && (
                             <ChevronDown
                               className={`ml-1 h-4 w-4 ${
@@ -461,7 +469,7 @@ const AllStudentsProgressPage = () => {
                           className="flex items-center"
                           onClick={() => handleSortChange("lastActivity")}
                         >
-                          Last Activity
+                          Hoạt động cuối cùng
                           {sortField === "lastActivity" && (
                             <ChevronDown
                               className={`ml-1 h-4 w-4 ${
@@ -471,7 +479,7 @@ const AllStudentsProgressPage = () => {
                           )}
                         </button>
                       </TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="text-right">Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -536,7 +544,7 @@ const AllStudentsProgressPage = () => {
                               )
                             }
                           >
-                            View Details
+                            Xem chi tiết
                           </Button>
                         </TableCell>
                       </TableRow>

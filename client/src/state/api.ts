@@ -296,6 +296,7 @@ export const api = createApi({
     "ChatMessages",
     "Conversations",
     "StudentsOverview",
+    "StudentProgress",
   ],
   keepUnusedDataFor: 300, // Keep unused data for 5 minutes (300 seconds)
   endpoints: (build) => ({
@@ -1061,6 +1062,123 @@ export const api = createApi({
         { type: "CourseProgress", id: courseId },
       ],
       keepUnusedDataFor: 300, // 5 minutes
+      transformErrorResponse: (response: {
+        status: string | number;
+        data?: any;
+      }) => {
+        console.log("Course analytics API error:", response);
+
+        if (response.status === 500) {
+          console.error("500 Server error in course analytics API");
+          return {
+            message:
+              "Failed to retrieve student progress analytics. Server error occurred.",
+            data: {
+              totalStudents: 0,
+              averageProgress: 0,
+              materialAccessData: {
+                totalAccesses: 0,
+                averageAccessesPerStudent: 0,
+                studentsWithNoAccess: 0,
+              },
+              quizData: {
+                averageScore: 0,
+                studentsWithNoQuizzes: 0,
+                completionRate: 0,
+              },
+              discussionData: {
+                totalPosts: 0,
+                averagePostsPerStudent: 0,
+                participationLevels: {
+                  high: 0,
+                  medium: 0,
+                  low: 0,
+                  none: 0,
+                },
+              },
+              studentDetails: [],
+            },
+          };
+        } else if (response.status === 404) {
+          console.error("404 Not found error in course analytics API");
+          return {
+            message:
+              "Analytics data not found. The course may not exist or have no enrolled students.",
+            data: {
+              totalStudents: 0,
+              averageProgress: 0,
+              materialAccessData: {
+                totalAccesses: 0,
+                averageAccessesPerStudent: 0,
+                studentsWithNoAccess: 0,
+              },
+              quizData: {
+                averageScore: 0,
+                studentsWithNoQuizzes: 0,
+                completionRate: 0,
+              },
+              discussionData: {
+                totalPosts: 0,
+                averagePostsPerStudent: 0,
+                participationLevels: {
+                  high: 0,
+                  medium: 0,
+                  low: 0,
+                  none: 0,
+                },
+              },
+              studentDetails: [],
+            },
+          };
+        }
+
+        // Handle any other error type
+        return {
+          message: response.data?.message || "Failed to load analytics data",
+          data: {
+            totalStudents: 0,
+            averageProgress: 0,
+            materialAccessData: {
+              totalAccesses: 0,
+              averageAccessesPerStudent: 0,
+              studentsWithNoAccess: 0,
+            },
+            quizData: {
+              averageScore: 0,
+              studentsWithNoQuizzes: 0,
+              completionRate: 0,
+            },
+            discussionData: {
+              totalPosts: 0,
+              averagePostsPerStudent: 0,
+              participationLevels: {
+                high: 0,
+                medium: 0,
+                low: 0,
+                none: 0,
+              },
+            },
+            studentDetails: [],
+          },
+        };
+      },
+    }),
+
+    // Add the new endpoint for student progress details
+    getStudentProgressDetails: build.query({
+      query: ({ courseId, userId }) => ({
+        url: `/api/progress/analytics/course/${courseId}/student/${userId}`,
+        method: "GET",
+      }),
+      providesTags: ["StudentProgress"],
+    }),
+
+    getUser: build.query({
+      query: (userId) => ({
+        url: `/users/${userId}`,
+        method: "GET",
+      }),
+      providesTags: ["Users"],
     }),
   }),
 });
@@ -1113,4 +1231,6 @@ export const {
   useMarkMessageAsReadMutation,
   useGetStudentsOverviewQuery,
   useGetCourseProgressAnalyticsQuery,
+  useGetStudentProgressDetailsQuery,
+  useGetUserQuery,
 } = api;
