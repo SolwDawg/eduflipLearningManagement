@@ -82,14 +82,15 @@ const StudentSidebar = () => {
             >
               <div className="app-sidebar__logo-container group">
                 <div className="app-sidebar__logo-wrapper">
-                  <Image
-                    src="/logo.svg"
-                    alt="logo"
-                    width={25}
-                    height={20}
-                    className="app-sidebar__logo"
-                  />
-                  <p className="app-sidebar__title">Eduflip</p>
+                  <div className="app-sidebar__logo-wrapper">
+                    <Image
+                      src="/images/eduflipLogo.png"
+                      alt="logo"
+                      width={110}
+                      height={10}
+                      className="app-sidebar__logo"
+                    />
+                  </div>
                 </div>
                 <PanelLeft className="app-sidebar__collapse-icon" />
               </div>

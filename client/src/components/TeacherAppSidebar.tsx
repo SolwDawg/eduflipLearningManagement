@@ -69,13 +69,12 @@ const AppSidebar = () => {
               <div className="app-sidebar__logo-container group">
                 <div className="app-sidebar__logo-wrapper">
                   <Image
-                    src="/logo.svg"
+                    src="/images/eduflipLogo.png"
                     alt="logo"
-                    width={25}
-                    height={20}
+                    width={110}
+                    height={10}
                     className="app-sidebar__logo"
                   />
-                  <p className="app-sidebar__title">Eduflip</p>
                 </div>
                 <PanelLeft className="app-sidebar__collapse-icon" />
               </div>
