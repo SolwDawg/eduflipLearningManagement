@@ -1054,7 +1054,7 @@ export const api = createApi({
       string
     >({
       query: (courseId) => ({
-        url: `progress/analytics/course/${courseId}`,
+        url: `/api/progress/analytics/course/${courseId}`,
         method: "GET",
       }),
       providesTags: (result, error, courseId) => [
