@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import {
   Card,
   CardContent,
@@ -64,6 +65,7 @@ interface AllStudentsProgressData {
 
 const AllStudentsProgress = () => {
   const router = useRouter();
+  const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"students" | "courses">(
     "students"
@@ -71,7 +73,9 @@ const AllStudentsProgress = () => {
   const [sortField, setSortField] = useState<string>("fullName");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const { data, isLoading, error } = useGetAllStudentsProgressQuery();
+  const { data, isLoading, error } = useGetAllStudentsProgressQuery(
+    user?.id || ""
+  );
 
   // Handle searching
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,7 +105,7 @@ const AllStudentsProgress = () => {
         (student) =>
           student.fullName.toLowerCase().includes(lowercasedSearch) ||
           student.email.toLowerCase().includes(lowercasedSearch) ||
-          student.enrolledCourses.some((course) =>
+          student.enrolledCourses.some((course: any) =>
             course.title.toLowerCase().includes(lowercasedSearch)
           )
       );
@@ -155,7 +159,7 @@ const AllStudentsProgress = () => {
 
     // Calculate average progress
     const totalProgress = students.reduce(
-      (sum, student) => sum + student.overallProgress,
+      (sum: number, student: Student) => sum + student.overallProgress,
       0
     );
     const averageProgress =
@@ -165,14 +169,14 @@ const AllStudentsProgress = () => {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    const activeStudents = students.filter((student) => {
+    const activeStudents = students.filter((student: Student) => {
       const lastActivity = new Date(student.lastActivity);
       return lastActivity >= oneWeekAgo;
     }).length;
 
     // Count students enrolled in multiple courses
     const studentsWithMultipleCourses = students.filter(
-      (student) => student.enrolledCourses.length > 1
+      (student: Student) => student.enrolledCourses.length > 1
     ).length;
 
     return {
@@ -452,7 +456,7 @@ const AllStudentsProgress = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.data.courses.map((course) => (
+                {data.data.courses.map((course: Course) => (
                   <TableRow key={course.courseId}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
@@ -526,7 +530,7 @@ const AllStudentsProgress = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {student.enrolledCourses.map((course) => (
+                    {student.enrolledCourses.map((course: any) => (
                       <Card
                         key={`${student.userId}-${course.courseId}`}
                         className="border shadow-sm"

@@ -85,6 +85,12 @@ const AllStudentsProgress = () => {
     return "bg-green-500";
   };
 
+  const getProgressIndicatorColor = (progress: number) => {
+    if (progress < 30) return "bg-red-500";
+    if (progress < 70) return "bg-yellow-500";
+    return "bg-green-500";
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -172,13 +178,14 @@ const AllStudentsProgress = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Progress
-                          value={student.averageProgress}
-                          className={`h-2 w-24`}
-                          indicatorClassName={getProgressColor(
-                            student.averageProgress
-                          )}
-                        />
+                        <div className="w-24 bg-slate-200 rounded-full">
+                          <div
+                            className={`h-2 rounded-full ${getProgressColor(
+                              student.averageProgress
+                            )}`}
+                            style={{ width: `${student.averageProgress}%` }}
+                          />
+                        </div>
                         <span>{student.averageProgress}%</span>
                       </div>
                     </TableCell>
@@ -186,7 +193,7 @@ const AllStudentsProgress = () => {
                     <TableCell>
                       <Badge
                         variant={
-                          student.coursesCompleted > 0 ? "success" : "outline"
+                          student.coursesCompleted > 0 ? "secondary" : "outline"
                         }
                       >
                         {student.coursesCompleted}
