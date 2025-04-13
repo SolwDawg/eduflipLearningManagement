@@ -4,7 +4,16 @@ import { auth } from "@clerk/nextjs/server";
 export async function POST(request: NextRequest) {
   try {
     // Verify user authentication
-    const { userId } = await auth();
+    const { userId, getToken } = await auth();
+
+    // Get the token
+    let token = null;
+    try {
+      token = await getToken();
+    } catch (error) {
+      console.error("Failed to get auth token:", error);
+    }
+
     if (!userId) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -36,7 +45,7 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${userId}`,
+          Authorization: token ? `Bearer ${token}` : `Bearer ${userId}`,
           "X-User-ID": userId,
         },
         body: JSON.stringify(data),

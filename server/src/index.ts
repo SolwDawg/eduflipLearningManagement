@@ -12,7 +12,6 @@ import {
   createClerkClient,
   requireAuth,
 } from "@clerk/express";
-import { flexibleAuth } from "./middleware/auth";
 import {
   ClerkExpressRequireAuth,
   ClerkExpressWithAuth,
@@ -21,6 +20,7 @@ import AWS from "aws-sdk";
 import rateLimit from "express-rate-limit";
 import logger from "./config/logger";
 import { getMonthlyLeaderboard } from "./controllers/userCourseProgressController";
+import { flexibleAuth } from "./middleware/auth";
 /* ROUTE IMPORTS */
 import courseRoutes from "./routes/courseRoutes";
 import userClerkRoutes from "./routes/userClerkRoutes";
@@ -80,6 +80,14 @@ export const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
 });
 
+// CORS configuration with more permissive settings
+const corsOptions = {
+  origin: "*", // Allow requests from any origin
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-User-ID"],
+  credentials: true,
+};
+
 const app = express();
 app.use(express.json());
 app.use(helmet());
@@ -87,7 +95,7 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(clerkMiddleware());
 
 /* ROUTES */
