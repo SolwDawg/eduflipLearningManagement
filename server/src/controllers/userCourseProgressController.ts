@@ -540,10 +540,32 @@ export const getStudentProgressAnalytics = async (
   const { courseId } = req.params;
 
   try {
+    // Validate courseId format
+    if (!courseId) {
+      res.status(400).json({
+        message: "Course ID is required",
+      });
+      return;
+    }
+
+    console.log(`Retrieving progress analytics for course: ${courseId}`);
+
     // Get all progress records for this course
-    const progressRecords = await UserCourseProgress.query("courseId")
-      .eq(courseId)
-      .exec();
+    let progressRecords;
+    try {
+      progressRecords = await UserCourseProgress.query("courseId")
+        .eq(courseId)
+        .exec();
+      console.log(`Found ${progressRecords?.length || 0} progress records`);
+    } catch (dbError) {
+      console.error("Database error when querying progress records:", dbError);
+      res.status(500).json({
+        message: "Failed to retrieve student progress analytics",
+        error: "Database query error",
+        details: dbError instanceof Error ? dbError.message : String(dbError),
+      });
+      return;
+    }
 
     if (!progressRecords || progressRecords.length === 0) {
       // Return empty analytics structure instead of 404 error
@@ -619,55 +641,65 @@ export const getStudentProgressAnalytics = async (
     let studentsWithQuizzes = 0;
     let totalPosts = 0;
 
-    progressRecords.forEach((record: any) => {
-      totalProgress += record.overallProgress || 0;
-      totalMaterialAccesses += record.totalMaterialAccessCount || 0;
+    try {
+      progressRecords.forEach((record: any) => {
+        totalProgress += record.overallProgress || 0;
+        totalMaterialAccesses += record.totalMaterialAccessCount || 0;
 
-      if (record.averageQuizScore) {
-        totalQuizScores += record.averageQuizScore;
-        studentsWithQuizzes++;
-      }
+        if (record.averageQuizScore) {
+          totalQuizScores += record.averageQuizScore;
+          studentsWithQuizzes++;
+        }
 
-      if (!record.totalMaterialAccessCount) {
-        analytics.materialAccessData.studentsWithNoAccess++;
-      }
+        if (!record.totalMaterialAccessCount) {
+          analytics.materialAccessData.studentsWithNoAccess++;
+        }
 
-      if (!record.quizResults || record.quizResults.length === 0) {
-        analytics.quizData.studentsWithNoQuizzes++;
-      }
+        if (!record.quizResults || record.quizResults.length === 0) {
+          analytics.quizData.studentsWithNoQuizzes++;
+        }
 
-      if (record.participationLevel === "High") {
-        analytics.discussionData.participationLevels.high++;
-      } else if (record.participationLevel === "Medium") {
-        analytics.discussionData.participationLevels.medium++;
-      } else if (record.participationLevel === "Low") {
-        analytics.discussionData.participationLevels.low++;
-      } else {
-        analytics.discussionData.participationLevels.none++;
-      }
+        if (record.participationLevel === "High") {
+          analytics.discussionData.participationLevels.high++;
+        } else if (record.participationLevel === "Medium") {
+          analytics.discussionData.participationLevels.medium++;
+        } else if (record.participationLevel === "Low") {
+          analytics.discussionData.participationLevels.low++;
+        } else {
+          analytics.discussionData.participationLevels.none++;
+        }
 
-      if (record.discussionActivity) {
-        record.discussionActivity.forEach((discussion: any) => {
-          totalPosts += discussion.postsCount || 0;
-        });
-      }
-    });
+        if (record.discussionActivity) {
+          record.discussionActivity.forEach((discussion: any) => {
+            totalPosts += discussion.postsCount || 0;
+          });
+        }
+      });
 
-    // Set calculated values
-    analytics.averageProgress = totalProgress / progressRecords.length;
-    analytics.materialAccessData.totalAccesses = totalMaterialAccesses;
-    analytics.materialAccessData.averageAccessesPerStudent =
-      totalMaterialAccesses / progressRecords.length;
-    analytics.quizData.averageScore = studentsWithQuizzes
-      ? totalQuizScores / studentsWithQuizzes
-      : 0;
-    analytics.quizData.completionRate =
-      ((progressRecords.length - analytics.quizData.studentsWithNoQuizzes) /
-        progressRecords.length) *
-      100;
-    analytics.discussionData.totalPosts = totalPosts;
-    analytics.discussionData.averagePostsPerStudent =
-      totalPosts / progressRecords.length;
+      // Set calculated values
+      analytics.averageProgress = totalProgress / progressRecords.length;
+      analytics.materialAccessData.totalAccesses = totalMaterialAccesses;
+      analytics.materialAccessData.averageAccessesPerStudent =
+        totalMaterialAccesses / progressRecords.length;
+      analytics.quizData.averageScore = studentsWithQuizzes
+        ? totalQuizScores / studentsWithQuizzes
+        : 0;
+      analytics.quizData.completionRate =
+        ((progressRecords.length - analytics.quizData.studentsWithNoQuizzes) /
+          progressRecords.length) *
+        100;
+      analytics.discussionData.totalPosts = totalPosts;
+      analytics.discussionData.averagePostsPerStudent =
+        totalPosts / progressRecords.length;
+    } catch (calcError) {
+      console.error("Error calculating analytics:", calcError);
+      res.status(500).json({
+        message: "Failed to calculate student progress analytics",
+        error:
+          calcError instanceof Error ? calcError.message : "Calculation error",
+      });
+      return;
+    }
 
     res.status(200).json({
       message: "Student progress analytics retrieved successfully",
@@ -675,9 +707,10 @@ export const getStudentProgressAnalytics = async (
     });
   } catch (error) {
     console.error("Error retrieving student progress analytics:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to retrieve student progress analytics" });
+    res.status(500).json({
+      message: "Failed to retrieve student progress analytics",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 

@@ -603,8 +603,8 @@ const CourseDetails = ({ courseId }: { courseId: string }) => {
                           </div>
                           <Progress value={completionRate} className="h-2" />
                           <div className="text-xs text-muted-foreground">
-                            {completionCount} của {totalStudents} học sinh
-                            đã hoàn thành
+                            {completionCount} của {totalStudents} học sinh đã
+                            hoàn thành
                           </div>
                         </div>
                       );
