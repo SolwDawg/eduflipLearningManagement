@@ -180,7 +180,7 @@ const StudentsOverviewPage = () => {
                         className="bg-green-50 text-green-700 border-green-200"
                       >
                         <Award className="w-4 h-4 text-green-600 mr-1" />
-                        Điểm TB: {student.averageQuizScore}%
+                        Điểm TB: {student.averageQuizScore}
                       </Badge>
                     )}
                     <Badge
@@ -229,7 +229,7 @@ const StudentsOverviewPage = () => {
                             {course.totalChapters} bài học
                           </span>
                           <span className="text-sm font-medium text-primary-800">
-                            {course.completionPercentage}%
+                            {course.completionPercentage}
                           </span>
                         </div>
                         <Progress
@@ -246,7 +246,7 @@ const StudentsOverviewPage = () => {
                                 Bài kiểm tra đã làm: {course.totalQuizzesTaken}
                               </span>
                               <span className="text-sm font-medium text-primary-800">
-                                Điểm TB: {course.averageQuizScore}%
+                                Điểm TB: {course.averageQuizScore}
                               </span>
                             </div>
 
@@ -256,21 +256,31 @@ const StudentsOverviewPage = () => {
                                   <p className="text-blue-700 font-medium">
                                     Bài kiểm tra gần đây nhất:
                                   </p>
-                                  <div className="flex justify-between mt-1">
-                                    <span className="text-blue-600">
-                                      Điểm số: {course.quizResults[0].score}%
-                                    </span>
-                                    <span className="text-blue-600">
-                                      {formatDistanceToNow(
-                                        new Date(
-                                          course.quizResults[0].completionDate
-                                        ),
-                                        {
-                                          addSuffix: true,
-                                          locale: vi,
-                                        }
-                                      )}
-                                    </span>
+                                  <div className="flex flex-col mt-1">
+                                    <div className="text-blue-600 font-medium">
+                                      {course.quizResults[0].quizTitle ||
+                                        `Bài kiểm tra #${course.quizResults[0].quizId.substring(
+                                          0,
+                                          8
+                                        )}`}
+                                    </div>
+                                    <div className="flex justify-between mt-1">
+                                      <span className="text-blue-600">
+                                        Điểm số: {course.quizResults[0].score}/
+                                        {course.quizResults[0].totalQuestions}
+                                      </span>
+                                      <span className="text-blue-600">
+                                        {formatDistanceToNow(
+                                          new Date(
+                                            course.quizResults[0].completionDate
+                                          ),
+                                          {
+                                            addSuffix: true,
+                                            locale: vi,
+                                          }
+                                        )}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               )}

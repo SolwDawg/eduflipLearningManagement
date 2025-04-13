@@ -24,6 +24,7 @@ interface QuizResult {
   totalQuestions: number;
   completionDate: string;
   attemptCount: number;
+  quizTitle?: string;
 }
 
 interface Student {

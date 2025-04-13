@@ -1029,6 +1029,7 @@ export const api = createApi({
                 totalQuestions: number;
                 completionDate: string;
                 attemptCount: number;
+                quizTitle?: string;
               }>;
               totalQuizzesTaken: number;
               averageQuizScore: number;
@@ -1040,6 +1041,7 @@ export const api = createApi({
               totalQuestions: number;
               completionDate: string;
               attemptCount: number;
+              quizTitle?: string;
             }>;
             totalQuizzesTaken: number;
             averageQuizScore: number;

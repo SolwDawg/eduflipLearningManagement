@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import Course from "../models/courseModel";
 import UserCourseProgress from "../models/userCourseProgressModel";
-import { clerkClient } from "../index";
+import { clerkClient } from "@clerk/clerk-sdk-node";
+import Quiz from "../models/quizModel";
 
 /**
  * Get teacher dashboard data including summary of courses and students
@@ -284,12 +285,31 @@ export const getTeacherStudentsOverview = async (
 
               // Add quiz results data if available
               if (progress.quizResults && progress.quizResults.length > 0) {
+                // Get all unique quiz IDs to fetch their titles
+                const quizIds = progress.quizResults.map(
+                  (quiz: any) => quiz.quizId
+                );
+
+                // Fetch quiz titles
+                const quizzes = await Quiz.scan({
+                  quizId: { in: quizIds },
+                }).exec();
+
+                // Create a map of quizId to quiz title for quick lookup
+                const quizTitleMap = quizzes.reduce((map: any, quiz: any) => {
+                  map[quiz.quizId] = quiz.title;
+                  return map;
+                }, {});
+
                 course.quizResults = progress.quizResults.map((quiz: any) => ({
                   quizId: quiz.quizId,
                   score: quiz.score,
                   totalQuestions: quiz.totalQuestions,
                   completionDate: quiz.completionDate,
                   attemptCount: quiz.attemptCount,
+                  quizTitle:
+                    quizTitleMap[quiz.quizId] ||
+                    `Bài kiểm tra ${quiz.quizId.substring(0, 8)}`,
                 }));
 
                 // Add quiz data to the course
