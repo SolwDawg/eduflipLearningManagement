@@ -174,15 +174,6 @@ const StudentsOverviewPage = () => {
                         {student.totalQuizzesTaken} bài kiểm tra
                       </Badge>
                     )}
-                    {student.averageQuizScore > 0 && (
-                      <Badge
-                        variant="outline"
-                        className="bg-green-50 text-green-700 border-green-200"
-                      >
-                        <Award className="w-4 h-4 text-green-600 mr-1" />
-                        Điểm TB: {student.averageQuizScore}
-                      </Badge>
-                    )}
                     <Badge
                       variant="outline"
                       className="bg-primary-50 text-primary-700 border-primary-200"
@@ -245,9 +236,6 @@ const StudentsOverviewPage = () => {
                                 <FileText className="w-3 h-3 inline mr-1" />
                                 Bài kiểm tra đã làm: {course.totalQuizzesTaken}
                               </span>
-                              <span className="text-sm font-medium text-primary-800">
-                                Điểm TB: {course.averageQuizScore}
-                              </span>
                             </div>
 
                             {course.quizResults &&
@@ -266,8 +254,8 @@ const StudentsOverviewPage = () => {
                                     </div>
                                     <div className="flex justify-between mt-1">
                                       <span className="text-blue-600">
-                                        Điểm số: {course.quizResults[0].score}/
-                                        {course.quizResults[0].totalQuestions}
+                                        Điểm số:{" "}
+                                        {course.quizResults[0].score / 10}
                                       </span>
                                       <span className="text-blue-600">
                                         {formatDistanceToNow(
