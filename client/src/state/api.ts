@@ -1528,6 +1528,59 @@ export const api = createApi({
         { type: "QuizAttempt", id: courseId },
       ],
     }),
+
+    getDetailedCourseStudentPerformance: build.query<
+      {
+        courseId: string;
+        title: string;
+        enrollmentCount: number;
+        studentsWithQuizzesCount: number;
+        quizCompletionRate: number;
+        activeStudentsCount: number;
+        courseActivityRate: number;
+        students: Array<{
+          userId: string;
+          fullName: string;
+          email: string;
+          enrollmentDate: string;
+          lastAccessDate: string;
+          overallProgress: number;
+          totalMaterialAccessCount: number;
+          participationLevel: string;
+          completedChaptersCount: number;
+          hasCompletedQuizzes: boolean;
+          completedQuizzes: Array<{
+            quizId: string;
+            title: string;
+            score: number;
+            totalQuestions: number;
+            completionDate: string;
+            attemptCount: number;
+            scorePercentage: number;
+          }>;
+          averageQuizScore: number;
+          totalQuizzesCompleted: number;
+          discussionActivity: Array<{
+            discussionId: string;
+            postsCount: number;
+            lastActivityDate: string;
+          }>;
+          totalDiscussionPosts: number;
+        }>;
+      },
+      string
+    >({
+      query: (courseId) => ({
+        url: `api/teachers/course/${courseId}/student-performance`,
+        method: "GET",
+      }),
+      providesTags: (result, error, courseId) => [
+        { type: "Enrollments", id: courseId },
+        { type: "QuizAttempt", id: courseId },
+        { type: "StudentsOverview", id: courseId },
+        { type: "StudentProgress", id: courseId },
+      ],
+    }),
   }),
 });
 
@@ -1595,4 +1648,5 @@ export const {
   useGetCourseEnrollmentDetailsQuery,
   useGetCourseQuizCompletionCountQuery,
   useGetStudentsWithQuizCompletionsQuery,
+  useGetDetailedCourseStudentPerformanceQuery,
 } = api;

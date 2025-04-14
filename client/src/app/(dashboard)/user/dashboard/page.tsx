@@ -86,7 +86,7 @@ export default function UserDashboardPage() {
   console.log("dashboard raw: ", dashboard);
 
   if (!userId) {
-    return <div>Please log in to view your dashboard.</div>;
+    return <div>Đăng nhập để xem tiến độ của bạn.</div>;
   }
 
   if (isLoading) {
@@ -112,12 +112,14 @@ export default function UserDashboardPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <PageTitle title="Learning Dashboard" />
+      <PageTitle title="Trang tổng quan học tập" />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tổng số khóa học
+            </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -129,7 +131,9 @@ export default function UserDashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Đang tiến triển
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -141,7 +145,7 @@ export default function UserDashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CardTitle className="text-sm font-medium">Đã hoàn thành</CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -153,7 +157,9 @@ export default function UserDashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Điểm trung bình
+            </CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -166,16 +172,16 @@ export default function UserDashboardPage() {
 
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
-          <TabsTrigger value="courses">My Courses</TabsTrigger>
-          <TabsTrigger value="quizzes">My Quizzes</TabsTrigger>
+          <TabsTrigger value="courses">Khóa học của tôi</TabsTrigger>
+          <TabsTrigger value="quizzes">Bài kiểm tra của tôi</TabsTrigger>
         </TabsList>
 
         <TabsContent value="courses" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Enrolled Courses</CardTitle>
+              <CardTitle>Khóa học đã đăng ký</CardTitle>
               <CardDescription>
-                View your progress in all enrolled courses
+                Xem tiến độ của bạn trong tất cả khóa học đã đăng ký
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -183,13 +189,13 @@ export default function UserDashboardPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Course</TableHead>
-                      <TableHead>Teacher</TableHead>
-                      <TableHead>Level</TableHead>
-                      <TableHead>Enrolled On</TableHead>
-                      <TableHead>Last Accessed</TableHead>
-                      <TableHead>Progress</TableHead>
-                      <TableHead>Action</TableHead>
+                      <TableHead>Khóa học</TableHead>
+                      <TableHead>Giáo viên</TableHead>
+                      <TableHead>Cấp độ</TableHead>
+                      <TableHead>Ngày đăng ký</TableHead>
+                      <TableHead>Lần truy cập cuối</TableHead>
+                      <TableHead>Tiến độ</TableHead>
+                      <TableHead>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -243,14 +249,14 @@ export default function UserDashboardPage() {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-muted-foreground">
-                    You are not enrolled in any courses yet.
+                    Bạn chưa đăng ký khóa học nào.
                   </p>
                   <Button
                     variant="outline"
                     className="mt-2"
                     onClick={() => router.push("/user/courses")}
                   >
-                    Browse Courses
+                    Xem khóa học
                   </Button>
                 </div>
               )}
@@ -261,9 +267,9 @@ export default function UserDashboardPage() {
         <TabsContent value="quizzes" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Quiz Results</CardTitle>
+              <CardTitle>Kết quả bài kiểm tra</CardTitle>
               <CardDescription>
-                View all your quiz attempts and results
+                Xem tất cả các bài kiểm tra của bạn và kết quả
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -271,12 +277,11 @@ export default function UserDashboardPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Quiz</TableHead>
-                      <TableHead>Course</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Completed</TableHead>
-                      <TableHead>Time Spent</TableHead>
+                      <TableHead>Bài kiểm tra</TableHead>
+                      <TableHead>Khóa học</TableHead>
+                      <TableHead>Điểm</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead>Thời gian</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -287,18 +292,18 @@ export default function UserDashboardPage() {
                         </TableCell>
                         <TableCell>{quiz.courseTitle}</TableCell>
                         <TableCell>
-                          {quiz.score}% ({quiz.passingScore}% to pass)
+                          {quiz.score}% ({quiz.passingScore}% để đạt)
                         </TableCell>
                         <TableCell>
                           {quiz.passed ? (
                             <div className="flex items-center text-green-500">
                               <CheckCircle className="h-4 w-4 mr-1" />
-                              Passed
+                              Đạt
                             </div>
                           ) : (
                             <div className="flex items-center text-red-500">
                               <XCircle className="h-4 w-4 mr-1" />
-                              Failed
+                              Không đạt
                             </div>
                           )}
                         </TableCell>
@@ -316,14 +321,14 @@ export default function UserDashboardPage() {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-muted-foreground">
-                    You haven&apos;t completed any quizzes yet.
+                    Bạn chưa hoàn thành bài kiểm tra nào.
                   </p>
                   <Button
                     variant="outline"
                     className="mt-2"
                     onClick={() => router.push("/user/courses")}
                   >
-                    Browse Courses
+                    Xem khóa học
                   </Button>
                 </div>
               )}
