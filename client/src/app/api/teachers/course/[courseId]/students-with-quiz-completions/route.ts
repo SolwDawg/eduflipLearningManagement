@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
+type Params = {
+  params: {
+    courseId: string;
+  };
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { courseId: string } }
+  { params }: Params
 ): Promise<NextResponse> {
   try {
     // Verify authentication
