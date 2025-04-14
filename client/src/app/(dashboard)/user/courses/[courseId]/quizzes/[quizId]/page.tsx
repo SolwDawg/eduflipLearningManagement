@@ -45,17 +45,17 @@ export default function StudentQuizPage() {
 
   if (!user) {
     return (
-      <div className="container py-6 sm:py-8 px-4 sm:px-6">
+      <div className="container py-8">
         Vui lòng đăng nhập để xem bài kiểm tra này.
       </div>
     );
   }
 
   return (
-    <div className="container py-4 sm:py-6 md:py-8 px-4 sm:px-6">
-      <div className="mb-4 sm:mb-6">
-        <div className="flex items-center gap-2 mb-3 sm:mb-4">
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+    <div className="container py-6">
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Button variant="ghost" size="icon" asChild>
             <Link href={`/user/courses/${courseId}`}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
@@ -63,23 +63,18 @@ export default function StudentQuizPage() {
           <Header
             title={quiz?.title || "Bài kiểm tra"}
             subtitle={
-              reviewMode
-                ? "Xem lại câu trả lời của bạn"
-                : "Kiểm tra kiến thức của bạn"
+              reviewMode ? "Review your answers" : "Kiểm tra kiến thức của bạn"
             }
-            className="text-lg sm:text-xl md:text-2xl"
           />
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto">
-        <StudentQuizView
-          quizId={quizId as string}
-          courseId={courseId as string}
-          onComplete={handleQuizComplete}
-          reviewMode={reviewMode}
-        />
-      </div>
+      <StudentQuizView
+        quizId={quizId as string}
+        courseId={courseId as string}
+        onComplete={handleQuizComplete}
+        reviewMode={reviewMode}
+      />
     </div>
   );
 }

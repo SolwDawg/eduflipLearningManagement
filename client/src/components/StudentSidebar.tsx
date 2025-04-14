@@ -69,75 +69,76 @@ const StudentSidebar = () => {
   return (
     <Sidebar
       collapsible="icon"
-      className="h-full bg-customgreys-primarybg border-primary-200 shadow-lg"
+      style={{ height: "100vh" }}
+      className="bg-customgreys-primarybg border-primary-200 shadow-lg"
     >
       <SidebarHeader>
-        <SidebarMenu className="flex items-center justify-between p-2">
+        <SidebarMenu className="app-sidebar__menu">
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
               onClick={() => toggleSidebar()}
-              className="group hover:bg-customgreys-secondarybg p-2 w-full flex items-center"
+              className="group hover:bg-customgreys-secondarybg"
             >
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center">
-                  <Image
-                    src="/images/eduflipLogo.png"
-                    alt="logo"
-                    width={110}
-                    height={10}
-                    className="h-auto w-auto"
-                  />
+              <div className="app-sidebar__logo-container group">
+                <div className="app-sidebar__logo-wrapper">
+                  <div className="app-sidebar__logo-wrapper">
+                    <Image
+                      src="/images/eduflipLogo.png"
+                      alt="logo"
+                      width={110}
+                      height={10}
+                      className="app-sidebar__logo"
+                    />
+                  </div>
                 </div>
-                <PanelLeft className="h-5 w-5 text-gray-500" />
+                <PanelLeft className="app-sidebar__collapse-icon" />
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="overflow-y-auto">
-        <SidebarMenu className="flex flex-col space-y-1 p-2">
+      <SidebarContent>
+        <SidebarMenu className="app-sidebar__nav-menu">
           {studentNavLinks.map((link) => {
             const isActive = pathname.startsWith(link.href);
             return (
               <SidebarMenuItem
                 key={link.href}
                 className={cn(
-                  "rounded-md overflow-hidden relative",
-                  isActive && "bg-gray-100"
+                  "app-sidebar__nav-item",
+                  isActive && "bg-gray-800"
                 )}
               >
                 <SidebarMenuButton
                   asChild
                   size="lg"
                   className={cn(
-                    "p-2 w-full flex items-center",
+                    "app-sidebar__nav-button",
                     !isActive && "text-customgreys-dirtyGrey"
                   )}
                 >
                   <Link
                     href={link.href}
-                    className="flex items-center w-full"
+                    className="app-sidebar__nav-link"
                     scroll={false}
                   >
                     <link.icon
-                      className={cn(
-                        "h-5 w-5 mr-2",
+                      className={
                         isActive ? "text-primary-700" : "text-primary-500"
-                      )}
+                      }
                     />
                     <span
-                      className={cn(
-                        "font-medium",
+                      className={`app-sidebar__nav-text ${
                         isActive ? "text-primary-700" : "text-primary-500"
-                      )}
+                      }`}
                     >
                       {link.label}
                     </span>
                   </Link>
                 </SidebarMenuButton>
                 {isActive && (
-                  <div className="absolute left-0 top-0 h-full w-1 bg-primary-600" />
+                  <div className="app-sidebar__active-indicator bg-primary-600" />
                 )}
               </SidebarMenuItem>
             );
@@ -145,27 +146,20 @@ const StudentSidebar = () => {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu className="p-2 mt-auto">
-          <SidebarMenuItem className="space-y-2">
-            <SidebarMenuButton
-              asChild
-              className="w-full p-2 rounded-md hover:bg-gray-100"
-            >
-              <Link href="/" className="flex items-center">
-                <Home className="h-5 w-5 mr-2 text-primary-500" />
-                <span className="text-primary-500 font-medium">Trang chủ</span>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/" className="app-sidebar__signout">
+                <span>Trang chủ</span>
               </Link>
             </SidebarMenuButton>
-            <SidebarMenuButton
-              asChild
-              className="w-full p-2 rounded-md hover:bg-gray-100"
-            >
+            <SidebarMenuButton asChild>
               <button
                 onClick={() => signOut()}
-                className="flex items-center w-full"
+                className="app-sidebar__signout"
               >
-                <LogOut className="h-5 w-5 mr-2 text-primary-500" />
-                <span className="text-primary-500 font-medium">Đăng xuất</span>
+                <LogOut className="mr-2 h-6 w-6" />
+                <span>Đăng xuất</span>
               </button>
             </SidebarMenuButton>
           </SidebarMenuItem>
