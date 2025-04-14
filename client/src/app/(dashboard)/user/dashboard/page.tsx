@@ -225,9 +225,7 @@ export default function UserDashboardPage() {
                         </TableCell>
                         <TableCell>
                           {course.lastAccessedTimestamp
-                            ? formatDuration(
-                                new Date(course.lastAccessedTimestamp).getTime()
-                              )
+                            ? formatDate(course.lastAccessedTimestamp)
                             : "Chưa truy cập"}
                         </TableCell>
                         <TableCell>
@@ -237,7 +235,7 @@ export default function UserDashboardPage() {
                               className="h-2"
                             />
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center justify-center space-x-2">
                             <span className="text-xs text-muted-foreground">
                               {course.overallProgress}%
                             </span>
