@@ -83,7 +83,7 @@ export default function UserDashboardPage() {
     userId as string,
     { skip: !userId }
   );
-  console.log("dashboard: ", dashboard);
+  console.log("dashboard raw: ", dashboard);
 
   if (!userId) {
     return <div>Please log in to view your dashboard.</div>;
@@ -93,20 +93,18 @@ export default function UserDashboardPage() {
     return <LoadingAlternative />;
   }
 
-  const { enrolledCourses, quizResults, overallStats } = dashboard?.data || {
-    enrolledCourses: [] as EnrolledCourse[],
-    quizResults: [] as QuizResult[],
-    overallStats: {
-      totalCourses: 0,
-      coursesInProgress: 0,
-      coursesCompleted: 0,
-      averageScore: 0,
-    } as OverallStats,
+  const enrolledCourses = dashboard?.data?.enrolledCourses || [];
+  const quizResults = dashboard?.data?.quizResults || [];
+  const overallStats = dashboard?.data?.overallStats || {
+    totalCourses: 0,
+    coursesInProgress: 0,
+    coursesCompleted: 0,
+    averageScore: 0,
   };
 
-  console.log("enrolledCourses: ", enrolledCourses);
-  console.log("quizResults: ", quizResults);
-  console.log("overallStats: ", overallStats);
+  console.log("Extracted enrolledCourses: ", enrolledCourses);
+  console.log("Extracted quizResults: ", quizResults);
+  console.log("Extracted overallStats: ", overallStats);
 
   return (
     <div className="p-6 space-y-6">
