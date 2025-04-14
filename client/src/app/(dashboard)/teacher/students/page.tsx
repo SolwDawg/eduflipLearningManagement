@@ -48,7 +48,7 @@ const StudentsOverviewPage = () => {
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
         />
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-[400px] mt-4">
           <Loader2 className="w-10 h-10 animate-spin text-primary-600" />
           <span className="ml-2 text-primary-700">Đang tải...</span>
         </div>
@@ -63,7 +63,7 @@ const StudentsOverviewPage = () => {
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
         />
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-6 bg-red-50 rounded-lg border border-red-200">
+        <div className="flex flex-col items-center justify-center min-h-[400px] p-6 bg-red-50 rounded-lg border border-red-200 mt-4">
           <AlertCircle className="w-12 h-12 text-red-500 mb-2" />
           <h3 className="text-xl font-medium text-primary-700">
             Không thể tải dữ liệu
@@ -165,7 +165,7 @@ const StudentsOverviewPage = () => {
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 mt-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-primary-800 text-lg font-medium">

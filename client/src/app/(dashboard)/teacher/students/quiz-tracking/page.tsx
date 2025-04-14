@@ -351,7 +351,7 @@ export default function QuizTrackingPage() {
                                 hoàn thành
                               </Badge>
                               <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                                Điểm trung bình:{" "}
+                                Điểm:{" "}
                                 {student.averageQuizScore.toFixed(1)}%
                               </Badge>
                             </div>
@@ -386,7 +386,7 @@ export default function QuizTrackingPage() {
                                         }
                                       `}
                                     >
-                                      {quiz.score}%
+                                      {quiz.score /10}
                                     </Badge>
                                   </TableCell>
                                   <TableCell>{quiz.totalQuestions}</TableCell>

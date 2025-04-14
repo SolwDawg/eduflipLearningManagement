@@ -635,6 +635,27 @@ export const api = createApi({
       providesTags: (result, error, userId) => [
         { type: "UserCourseProgress", id: userId },
       ],
+      // Add error handling to prevent parsing errors
+      transformErrorResponse: (response) => {
+        console.log("Dashboard API error:", response);
+
+        // Return empty data structure on error to prevent UI crashes
+        return {
+          data: {
+            message: "Failed to fetch dashboard data",
+            data: {
+              enrolledCourses: [],
+              quizResults: [],
+              overallStats: {
+                totalCourses: 0,
+                coursesInProgress: 0,
+                coursesCompleted: 0,
+                averageScore: 0,
+              },
+            },
+          },
+        };
+      },
     }),
 
     getMonthlyLeaderboard: build.query<any, void>({

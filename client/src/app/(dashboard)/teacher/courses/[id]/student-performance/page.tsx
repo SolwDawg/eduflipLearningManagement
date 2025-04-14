@@ -457,7 +457,7 @@ const StudentPerformancePage = () => {
                           </TableCell>
                           <TableCell>
                             {student.hasCompletedQuizzes
-                              ? `${student.averageQuizScore}%`
+                              ? `${student.averageQuizScore}`
                               : "No quizzes"}
                           </TableCell>
                         </TableRow>

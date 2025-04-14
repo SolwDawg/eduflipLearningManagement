@@ -236,7 +236,7 @@ const AnalyticsPage = () => {
             <div className="flex items-center mb-2">
               <CheckCircle className="w-8 h-8 text-primary-600 mr-3" />
               <span className="text-3xl font-bold text-primary-800">
-                {analytics.quizData.averageScore.toFixed(1)}%
+                {analytics.quizData.averageScore.toFixed(1)}
               </span>
             </div>
             <Progress
@@ -442,7 +442,7 @@ const AnalyticsPage = () => {
                 <div className="flex items-center mb-2">
                   <CheckCircle className="w-6 h-6 text-primary-600 mr-2" />
                   <span className="text-2xl font-bold text-primary-800">
-                    {analytics.quizData.averageScore.toFixed(1)}%
+                    {analytics.quizData.averageScore.toFixed(1)}
                   </span>
                 </div>
                 <Progress

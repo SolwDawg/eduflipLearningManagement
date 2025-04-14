@@ -93,13 +93,13 @@ export default function UserDashboardPage() {
     return <LoadingAlternative />;
   }
 
-  // Cast to any to overcome TypeScript limitations while debugging
-  const rawDashboard = dashboard as any;
+  // Properly handle the nested data structure from the API
+  const dashboardData = (dashboard?.data || {}) as DashboardData;
 
-  // Access directly from raw dashboard
-  const enrolledCourses = rawDashboard?.enrolledCourses || [];
-  const quizResults = rawDashboard?.quizResults || [];
-  const overallStats = rawDashboard?.overallStats || {
+  // Access data from the correct structure
+  const enrolledCourses = dashboardData.enrolledCourses || [];
+  const quizResults = dashboardData.quizResults || [];
+  const overallStats = dashboardData.overallStats || {
     totalCourses: 0,
     coursesInProgress: 0,
     coursesCompleted: 0,
