@@ -1461,7 +1461,7 @@ export const api = createApi({
       string
     >({
       query: (courseId) => ({
-        url: `api/teachers/course/${courseId}/enrollment-details`,
+        url: `/api/teachers/course/${courseId}/enrollment-details`,
         method: "GET",
       }),
       providesTags: (result, error, courseId) => [

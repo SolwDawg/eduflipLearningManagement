@@ -39,11 +39,7 @@ const TeacherSidebar = () => {
 
   const teacherNavLinks = [
     { icon: BookOpen, label: "Khoá học", href: "/teacher/courses" },
-    {
-      icon: BarChart,
-      label: "Theo dõi khóa học",
-      href: "/teacher/course-tracker",
-    },
+
     { icon: Users, label: "Học sinh", href: "/teacher/students" },
     {
       icon: ListChecks,
