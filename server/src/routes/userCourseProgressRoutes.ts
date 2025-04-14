@@ -14,9 +14,12 @@ import {
   getCourseQuizResults,
   getEnrolledStudentsWithProgress,
   getAllStudentsProgress,
+  getUserDashboard,
 } from "../controllers/userCourseProgressController";
 
 const router = express.Router();
+
+router.get("/:userId/dashboard", getUserDashboard as RequestHandler);
 
 router.get(
   "/:userId/enrolled-courses",

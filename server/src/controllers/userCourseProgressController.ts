@@ -5,6 +5,7 @@ import Course from "../models/courseModel";
 import { calculateOverallProgress } from "../utils/utils";
 import { mergeSections } from "../utils/utils";
 import { clerkClient } from "@clerk/clerk-sdk-node";
+import Quiz from "../models/quizModel";
 
 export const getUserEnrolledCourses = async (
   req: Request,
@@ -1211,6 +1212,187 @@ export const getAllStudentsProgress = async (
     console.error("Error retrieving all students progress:", error);
     res.status(500).json({
       message: "Error retrieving all students progress",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+// New controller for user dashboard
+export const getUserDashboard = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId } = req.params;
+
+  try {
+    // Get all user course progress entries
+    const progressEntries = await UserCourseProgress.query("userId")
+      .eq(userId)
+      .exec();
+
+    if (!progressEntries || progressEntries.length === 0) {
+      // Return empty dashboard if no enrolled courses
+      res.json({
+        message: "No dashboard data found",
+        data: {
+          enrolledCourses: [],
+          quizResults: [],
+          overallStats: {
+            totalCourses: 0,
+            coursesInProgress: 0,
+            coursesCompleted: 0,
+            averageScore: 0,
+          },
+        },
+      });
+      return;
+    }
+
+    // Get course IDs to fetch course details
+    const courseIds = progressEntries.map((entry: any) => entry.courseId);
+
+    // Fetch all courses user is enrolled in
+    const courses = await Course.batchGet(courseIds).catch(() => {
+      // Fallback to individual queries if batchGet fails
+      const promises = courseIds.map((id) => Course.get(id).catch(() => null));
+      return Promise.all(promises).then((results) => results.filter(Boolean));
+    });
+
+    // Process enrolled courses data
+    const enrolledCourses = await Promise.all(
+      progressEntries.map(async (progress: any) => {
+        const course = courses.find(
+          (c: any) => c.courseId === progress.courseId
+        );
+
+        if (!course) return null;
+
+        // Calculate total chapters in the course
+        const totalChapters = calculateTotalChapters(course);
+
+        // Get teacher name if possible
+        let teacherName = "Unknown";
+        try {
+          if (course.teacherId) {
+            const teacher = await clerkClient.users.getUser(course.teacherId);
+            teacherName = teacher.firstName + " " + teacher.lastName;
+          }
+        } catch (error) {
+          console.error("Error fetching teacher info:", error);
+        }
+
+        return {
+          courseId: course.courseId,
+          title: course.title,
+          image: course.image || "",
+          teacherName,
+          level: course.level || "Beginner",
+          enrollmentDate: progress.enrollmentDate,
+          lastAccessedTimestamp: progress.lastAccessedTimestamp,
+          overallProgress: progress.overallProgress,
+          totalChapters,
+          completedChapters: progress.completedChapters
+            ? progress.completedChapters.length
+            : 0,
+        };
+      })
+    );
+
+    // Filter out null entries and sort by last accessed (most recent first)
+    const filteredEnrolledCourses = enrolledCourses
+      .filter(Boolean)
+      .sort((a: any, b: any) => {
+        if (!a.lastAccessedTimestamp) return 1;
+        if (!b.lastAccessedTimestamp) return -1;
+        return (
+          new Date(b.lastAccessedTimestamp).getTime() -
+          new Date(a.lastAccessedTimestamp).getTime()
+        );
+      });
+
+    // Collect all quiz results
+    const allQuizResults: any[] = [];
+    for (const progress of progressEntries) {
+      if (progress.quizResults && progress.quizResults.length > 0) {
+        const course = courses.find(
+          (c: any) => c.courseId === progress.courseId
+        );
+
+        if (!course) continue;
+
+        for (const result of progress.quizResults) {
+          // Try to find quiz details
+          const quiz = await Quiz.get(result.quizId).catch(() => null);
+
+          if (!quiz) continue;
+
+          // Find section title if possible
+          let sectionTitle = "Unknown Section";
+          if (quiz.sectionId && course.sections) {
+            const section = course.sections.find(
+              (s: any) => s.sectionId === quiz.sectionId
+            );
+            if (section) {
+              sectionTitle = section.title;
+            }
+          }
+
+          allQuizResults.push({
+            quizId: result.quizId,
+            quizTitle: quiz.title || "Unknown Quiz",
+            sectionTitle,
+            courseId: progress.courseId,
+            courseTitle: course.title,
+            score: result.score,
+            passingScore: quiz.passingScore || 70,
+            passed: result.score >= (quiz.passingScore || 70),
+            completedAt: result.completionDate,
+            timeSpent: result.timeSpent || 0,
+          });
+        }
+      }
+    }
+
+    // Sort quiz results by completion date (newest first)
+    const sortedQuizResults = allQuizResults.sort(
+      (a, b) =>
+        new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+    );
+
+    // Calculate overall stats
+    const totalCourses = filteredEnrolledCourses.length;
+    const coursesCompleted = filteredEnrolledCourses.filter(
+      (course: any) => course.overallProgress === 100
+    ).length;
+    const coursesInProgress = totalCourses - coursesCompleted;
+
+    // Calculate average quiz score
+    let averageScore = 0;
+    if (sortedQuizResults.length > 0) {
+      averageScore = Math.round(
+        sortedQuizResults.reduce((acc, quiz) => acc + quiz.score, 0) /
+          sortedQuizResults.length
+      );
+    }
+
+    // Return the dashboard data
+    res.json({
+      message: "Dashboard data retrieved successfully",
+      data: {
+        enrolledCourses: filteredEnrolledCourses,
+        quizResults: sortedQuizResults,
+        overallStats: {
+          totalCourses,
+          coursesInProgress,
+          coursesCompleted,
+          averageScore,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving dashboard data:", error);
+    res.status(500).json({
+      message: "Error retrieving dashboard data",
       error: error instanceof Error ? error.message : String(error),
     });
   }

@@ -227,7 +227,7 @@ export default function QuizTrackingPage() {
                               <TableRow>
                                 <TableHead>Tên bài kiểm tra</TableHead>
                                 <TableHead>Số học viên hoàn thành</TableHead>
-                                <TableHead>Điểm trung bình</TableHead>
+                                <TableHead>Điểm</TableHead>
                                 <TableHead>Tỷ lệ hoàn thành</TableHead>
                               </TableRow>
                             </TableHeader>
@@ -352,7 +352,7 @@ export default function QuizTrackingPage() {
                               </Badge>
                               <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
                                 Điểm:{" "}
-                                {student.averageQuizScore.toFixed(1)}%
+                                {(student.averageQuizScore / 10).toFixed(1)}
                               </Badge>
                             </div>
                           </div>
@@ -386,7 +386,7 @@ export default function QuizTrackingPage() {
                                         }
                                       `}
                                     >
-                                      {quiz.score /10}
+                                      {quiz.score / 10}
                                     </Badge>
                                   </TableCell>
                                   <TableCell>{quiz.totalQuestions}</TableCell>
