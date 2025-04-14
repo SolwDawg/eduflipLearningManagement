@@ -242,14 +242,6 @@ const ChapterItem = ({
               {chapter.type}
             </span>
           </div>
-
-          {chapter.freePreview && (
-            <div className="mt-1">
-              <span className="text-xs bg-primary-100 text-primary-800 px-2 py-0.5 rounded-full">
-                Xem trước miễn phí
-              </span>
-            </div>
-          )}
         </div>
 
         <div className="flex items-center space-x-1">

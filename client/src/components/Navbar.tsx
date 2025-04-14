@@ -21,13 +21,12 @@ const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
             <SidebarTrigger className="dashboard-navbar__sidebar-trigger" />
           </div>
         </div>
-        
+
         <SmartSearch placeholder="Tìm kiếm khoá học..." />
 
         <div className="dashboard-navbar__actions">
           <button className="nondashboard-navbar__notification-button">
             <span className="nondashboard-navbar__notification-indicator"></span>
-            <Bell className="nondashboard-navbar__notification-icon" />
           </button>
 
           <UserButton

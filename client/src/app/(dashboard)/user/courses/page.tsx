@@ -101,7 +101,7 @@ const Courses = () => {
   }
 
   return (
-    <div className="user-courses">
+    <div className="user-courses p-4 sm:p-6 md:p-8">
       <Header
         title="Khóa học của tôi"
         subtitle="Xem khóa học đã đăng ký của bạn"
@@ -110,7 +110,7 @@ const Courses = () => {
         onSearch={setSearchTerm}
         onCategoryChange={setSelectedCategory}
       /> */}
-      <div className="user-courses__grid">
+      <div className="user-courses__grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-6">
         {filteredCourses.map((course) => (
           <CourseCard
             key={course.courseId}

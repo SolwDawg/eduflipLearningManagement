@@ -143,36 +143,40 @@ export default function CourseView() {
       : 0;
 
   return (
-    <div className="container max-w-6xl mx-auto py-12 px-4">
+    <div className="container mx-auto py-6 sm:py-8 md:py-12 px-4 sm:px-6">
       <Button
         variant="ghost"
         onClick={() => router.push("/user/courses")}
-        className="mb-6"
+        className="mb-4 sm:mb-6"
       >
         <ChevronLeft className="mr-2 h-4 w-4" />
-        Quay lại khóa học của tôi
+        <span className="text-sm sm:text-base">Quay lại khóa học của tôi</span>
       </Button>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2">
-          <h1 className="text-3xl font-bold mb-4">{course.title}</h1>
-          <div className="flex items-center gap-2 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="md:col-span-2 space-y-6">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4">
+            {course.title}
+          </h1>
+          <div className="flex items-center gap-2 mb-4 sm:mb-6">
             <Avatar className="h-8 w-8">
               <AvatarImage src="" alt={course.teacherName} />
               <AvatarFallback>{course.teacherName[0]}</AvatarFallback>
             </Avatar>
-            <span>{course.teacherName}</span>
+            <span className="text-sm sm:text-base">{course.teacherName}</span>
           </div>
 
           {course.meetLink && (
-            <div className="mb-6 p-4 border rounded-md bg-blue-50 dark:bg-blue-950/30 flex items-center justify-between">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 border rounded-md bg-blue-50 dark:bg-blue-950/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary-700 text-white rounded-md">
-                  <Link size={20} />
+                <div className="p-2 bg-primary-700 text-white rounded-md flex-shrink-0">
+                  <Link size={18} className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <h3 className="font-medium">Phòng học ảo</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <h3 className="font-medium text-sm sm:text-base">
+                    Phòng học ảo
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                     Giáo viên đã tạo phòng học ảo cho khóa học này
                   </p>
                 </div>
@@ -181,14 +185,15 @@ export default function CourseView() {
                 onClick={() =>
                   window.open(formatMeetLink(course.meetLink || ""), "_blank")
                 }
-                className="bg-primary-700 hover:bg-primary-600"
+                className="bg-primary-700 hover:bg-primary-600 whitespace-nowrap text-sm"
+                size="sm"
               >
                 Tham gia lớp
               </Button>
             </div>
           )}
 
-          <div className="relative aspect-video rounded-lg overflow-hidden mb-8">
+          <div className="relative aspect-video rounded-lg overflow-hidden mb-6 sm:mb-8">
             <Image
               src={course.image || "/placeholder.png"}
               alt={course.title}
@@ -197,34 +202,40 @@ export default function CourseView() {
             />
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Giới thiệu khóa học</h2>
-            <p className="text-muted-foreground">{course.description}</p>
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
+              Giới thiệu khóa học
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {course.description}
+            </p>
           </div>
 
-          <Separator className="my-8" />
+          <Separator className="my-6 sm:my-8" />
 
           <div>
-            <h2 className="text-xl font-semibold">Nội dung khóa học </h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">
+              Nội dung khóa học
+            </h2>
 
             {/* Add course-level quizzes */}
             <div className="mb-6">
               <StudentQuizList courseId={courseId as string} />
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 sm:space-y-6">
               {course.sections?.map((section, i) => (
-                <Card key={section.sectionId}>
-                  <CardHeader>
-                    <CardTitle>
+                <Card key={section.sectionId} className="overflow-hidden">
+                  <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
+                    <CardTitle className="text-base sm:text-lg">
                       Chương {i + 1}: {section.sectionTitle}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs sm:text-sm">
                       {section.sectionDescription}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
+                  <CardContent className="p-4 sm:p-6 pt-2 sm:pt-3">
+                    <ul className="space-y-1 sm:space-y-2">
                       {section.chapters.map((chapter, j) => {
                         const isCompleted =
                           progress?.completedChapters?.includes(
@@ -234,7 +245,7 @@ export default function CourseView() {
                         return (
                           <li
                             key={chapter.chapterId}
-                            className="flex justify-between items-center p-2 rounded hover:bg-muted cursor-pointer"
+                            className="flex justify-between items-center p-2 sm:p-3 rounded-md hover:bg-muted cursor-pointer transition-colors"
                             onClick={() =>
                               router.push(
                                 `/user/courses/${courseId}/chapters/${chapter.chapterId}`
@@ -243,11 +254,11 @@ export default function CourseView() {
                           >
                             <div className="flex items-center gap-2">
                               {isCompleted ? (
-                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                               ) : (
-                                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                                <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                               )}
-                              <span>
+                              <span className="text-sm sm:text-base">
                                 {j + 1}. {chapter.title}
                               </span>
                             </div>
@@ -270,18 +281,20 @@ export default function CourseView() {
           </div>
         </div>
 
-        <div className="md:col-span-1">
-          <Card className="sticky top-24">
-            <CardHeader>
-              <CardTitle>Tiến độ học tập</CardTitle>
+        <div className="md:col-span-1 order-first md:order-last mb-6 md:mb-0">
+          <Card className="sticky top-20">
+            <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg">
+                Tiến độ học tập
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-4 sm:p-6 pt-2 sm:pt-3 space-y-4">
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     {completedChapters}/{totalChapters} chương đã hoàn thành
                   </span>
-                  <span className="text-sm font-medium">
+                  <span className="text-xs sm:text-sm font-medium">
                     {progressPercentage}%
                   </span>
                 </div>
@@ -290,8 +303,8 @@ export default function CourseView() {
 
               {course.meetLink && (
                 <div className="py-3 border rounded-lg p-3 bg-blue-50 dark:bg-blue-950/30">
-                  <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5">
-                    <Link size={16} className="text-primary-700" />
+                  <h3 className="text-xs sm:text-sm font-medium mb-2 flex items-center gap-1.5">
+                    <Link size={14} className="text-primary-700" />
                     Phòng học ảo
                   </h3>
                   <div className="flex flex-col gap-2">
@@ -299,10 +312,13 @@ export default function CourseView() {
                       href={formatMeetLink(course.meetLink)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm bg-primary-700 text-white py-2 px-3 rounded-md flex items-center justify-center gap-2 hover:bg-primary-600 transition-colors"
+                      className="text-xs sm:text-sm bg-primary-700 text-white py-2 px-3 rounded-md flex items-center justify-center gap-2 hover:bg-primary-600 transition-colors"
                     >
                       Tham gia Google Meet
-                      <ExternalLink size={14} />
+                      <ExternalLink
+                        size={12}
+                        className="h-3 w-3 sm:h-4 sm:w-4"
+                      />
                     </a>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="text-xs text-gray-500 flex-1 truncate">
@@ -323,13 +339,16 @@ export default function CourseView() {
                                   "Liên kết Google Meet đã được sao chép vào bộ nhớ"
                                 );
                               }}
-                              className="h-8 w-8 text-primary-700"
+                              className="h-7 w-7 sm:h-8 sm:w-8 text-primary-700"
                             >
-                              <Copy size={16} />
+                              <Copy
+                                size={14}
+                                className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+                              />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Sao chép liên kết</p>
+                            <p className="text-xs">Sao chép liên kết</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -338,7 +357,10 @@ export default function CourseView() {
                 </div>
               )}
 
-              <Button onClick={handleStartLearning} className="w-full mt-4">
+              <Button
+                onClick={handleStartLearning}
+                className="w-full mt-4 text-sm"
+              >
                 {completedChapters > 0 ? "Tiếp tục học tập" : "Bắt đầu học tập"}
               </Button>
             </CardContent>

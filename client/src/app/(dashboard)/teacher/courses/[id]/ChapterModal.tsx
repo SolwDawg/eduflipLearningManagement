@@ -228,14 +228,6 @@ const ChapterModal = () => {
               )}
             />
 
-            <CustomFormField
-              name="freePreview"
-              label="Xem trước miễn phí"
-              type="switch"
-              description="Cho phép học viên xem bài học này mà không cần đăng ký khoá học"
-              inputClassName="data-[state=checked]:bg-green-500"
-            />
-
             <div className="flex flex-col xs:flex-row pt-4 gap-2 sm:justify-end">
               <Button
                 type="button"
