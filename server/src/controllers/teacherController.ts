@@ -910,3 +910,271 @@ export const getStudentsWithQuizCompletions = async (
     });
   }
 };
+
+/**
+ * Get comprehensive information about all students in a course including enrollment status,
+ * quiz performance, and overall course participation
+ */
+export const getDetailedCourseStudentPerformance = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const auth = getAuth(req);
+
+    if (!auth || !auth.userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const teacherId = auth.userId;
+
+    // Verify that the course exists and the teacher owns it
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== teacherId) {
+      res.status(403).json({
+        message: "You do not have permission to access this course's data",
+      });
+      return;
+    }
+
+    // If there are no enrollments, return empty data
+    if (!course.enrollments || course.enrollments.length === 0) {
+      res.json({
+        message: "No students enrolled in this course",
+        data: {
+          courseId: course.courseId,
+          title: course.title,
+          enrollmentCount: 0,
+          students: [],
+        },
+      });
+      return;
+    }
+
+    const enrollmentCount = course.enrollments.length;
+
+    // Extract all student IDs from enrollments
+    const enrolledStudentIds = course.enrollments.map(
+      (enrollment: any) => enrollment.userId
+    );
+
+    // Get all progress records for this course
+    const progressRecords = await UserCourseProgress.scan("courseId")
+      .eq(courseId)
+      .exec();
+
+    // Create a map for quick access to progress records
+    const progressMap = new Map();
+    progressRecords.forEach((record) => {
+      progressMap.set(record.userId, record);
+    });
+
+    // Try to get all quiz titles for this course
+    const allQuizIds = new Set<string>();
+    progressRecords.forEach((record) => {
+      if (record.quizResults && Array.isArray(record.quizResults)) {
+        record.quizResults.forEach((result: any) => {
+          allQuizIds.add(result.quizId);
+        });
+      }
+    });
+
+    const quizTitleMap: Record<string, string> = {};
+
+    // Get quiz titles if there are any quiz IDs
+    if (allQuizIds.size > 0) {
+      try {
+        const quizzes = await Quiz.scan("quizId")
+          .in(Array.from(allQuizIds))
+          .exec();
+
+        quizzes.forEach((quiz: any) => {
+          quizTitleMap[quiz.quizId] = quiz.title;
+        });
+      } catch (error) {
+        console.error("Error fetching quiz titles:", error);
+        // Continue without titles if there's an error
+      }
+    }
+
+    // Get detailed information for each enrolled student
+    const studentDetailsPromises = enrolledStudentIds.map(
+      async (userId: string) => {
+        try {
+          // Get student details from Clerk
+          const user = await clerkClient.users.getUser(userId);
+
+          const progress = progressMap.get(userId) || null;
+
+          // Basic student information
+          const studentInfo = {
+            userId,
+            fullName:
+              `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+              "Unknown",
+            email:
+              user.emailAddresses.length > 0
+                ? user.emailAddresses[0].emailAddress
+                : "N/A",
+            enrollmentDate: progress ? progress.enrollmentDate : "N/A",
+            lastAccessDate: progress ? progress.lastAccessedTimestamp : null,
+
+            // Course participation metrics
+            overallProgress: progress ? progress.overallProgress : 0,
+            totalMaterialAccessCount: progress
+              ? progress.totalMaterialAccessCount
+              : 0,
+            participationLevel: progress ? progress.participationLevel : "None",
+            completedChaptersCount:
+              progress && progress.completedChapters
+                ? progress.completedChapters.length
+                : 0,
+
+            // Quiz performance
+            hasCompletedQuizzes: false,
+            completedQuizzes: [],
+            averageQuizScore: 0,
+            totalQuizzesCompleted: 0,
+
+            // Discussion activity
+            discussionActivity:
+              progress && progress.discussionActivity
+                ? progress.discussionActivity
+                : [],
+            totalDiscussionPosts: 0,
+          };
+
+          // Calculate total discussion posts
+          if (
+            progress &&
+            progress.discussionActivity &&
+            Array.isArray(progress.discussionActivity)
+          ) {
+            studentInfo.totalDiscussionPosts =
+              progress.discussionActivity.reduce(
+                (sum: number, activity: any) =>
+                  sum + (activity.postsCount || 0),
+                0
+              );
+          }
+
+          // Process quiz results if they exist
+          if (
+            progress &&
+            progress.quizResults &&
+            progress.quizResults.length > 0
+          ) {
+            studentInfo.hasCompletedQuizzes = true;
+            studentInfo.completedQuizzes = progress.quizResults.map(
+              (result: any) => {
+                return {
+                  quizId: result.quizId,
+                  title:
+                    quizTitleMap[result.quizId] ||
+                    `Quiz ${result.quizId.substring(0, 8)}`,
+                  score: result.score,
+                  totalQuestions: result.totalQuestions,
+                  completionDate: result.completionDate,
+                  attemptCount: result.attemptCount || 1,
+                  scorePercentage: Math.round(
+                    (result.score / result.totalQuestions) * 100
+                  ),
+                };
+              }
+            );
+
+            studentInfo.totalQuizzesCompleted =
+              studentInfo.completedQuizzes.length;
+
+            // Calculate average quiz score
+            const totalScorePercentage = studentInfo.completedQuizzes.reduce(
+              (sum: number, quiz: any) => sum + quiz.scorePercentage,
+              0
+            );
+            studentInfo.averageQuizScore =
+              studentInfo.totalQuizzesCompleted > 0
+                ? Math.round(
+                    totalScorePercentage / studentInfo.totalQuizzesCompleted
+                  )
+                : 0;
+          }
+
+          return studentInfo;
+        } catch (error) {
+          console.error(`Error fetching details for user ${userId}:`, error);
+          // Return minimal info if we can't get the details
+          return {
+            userId,
+            fullName: "Unknown User",
+            email: "N/A",
+            enrollmentDate: "N/A",
+            overallProgress: 0,
+            hasCompletedQuizzes: false,
+            completedQuizzes: [],
+            averageQuizScore: 0,
+            totalQuizzesCompleted: 0,
+            totalMaterialAccessCount: 0,
+            participationLevel: "None",
+            completedChaptersCount: 0,
+            discussionActivity: [],
+            totalDiscussionPosts: 0,
+          };
+        }
+      }
+    );
+
+    const detailedStudents = await Promise.all(studentDetailsPromises);
+
+    // Get summary statistics
+    const studentsWithQuizzes = detailedStudents.filter(
+      (student) => student.hasCompletedQuizzes
+    );
+    const quizCompletionRate =
+      enrollmentCount > 0
+        ? Math.round((studentsWithQuizzes.length / enrollmentCount) * 100)
+        : 0;
+
+    const activeStudents = detailedStudents.filter(
+      (student) =>
+        student.lastAccessDate &&
+        new Date().getTime() - new Date(student.lastAccessDate).getTime() <
+          30 * 24 * 60 * 60 * 1000 // 30 days
+    );
+    const activeStudentsCount = activeStudents.length;
+    const courseActivityRate =
+      enrollmentCount > 0
+        ? Math.round((activeStudentsCount / enrollmentCount) * 100)
+        : 0;
+
+    res.json({
+      message: "Detailed course student performance retrieved successfully",
+      data: {
+        courseId: course.courseId,
+        title: course.title,
+        enrollmentCount,
+        studentsWithQuizzesCount: studentsWithQuizzes.length,
+        quizCompletionRate,
+        activeStudentsCount,
+        courseActivityRate,
+        students: detailedStudents,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Error retrieving detailed course student performance:",
+      error
+    );
+    res.status(500).json({
+      message: "Error retrieving detailed course student performance",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};

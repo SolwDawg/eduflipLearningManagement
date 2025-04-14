@@ -8,6 +8,7 @@ import {
   getCourseEnrollmentDetails,
   getCourseQuizCompletionCount,
   getStudentsWithQuizCompletions,
+  getDetailedCourseStudentPerformance,
 } from "../controllers/teacherController";
 
 const router = express.Router();
@@ -47,6 +48,13 @@ router.get(
   "/course/:courseId/students-with-quiz-completions",
   requireAuth(),
   getStudentsWithQuizCompletions
+);
+
+// Get comprehensive data about all students in a course including enrollment, quiz performance, and participation
+router.get(
+  "/course/:courseId/student-performance",
+  requireAuth(),
+  getDetailedCourseStudentPerformance
 );
 
 export default router;

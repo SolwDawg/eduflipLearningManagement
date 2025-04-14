@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-type Params = {
-  params: {
-    courseId: string;
-  };
-};
-
 export async function GET(
   request: NextRequest,
-  { params }: Params
+  { params }: { params: Promise<{ courseId: string }> }
 ): Promise<NextResponse> {
   try {
     // Verify authentication
@@ -27,7 +21,7 @@ export async function GET(
       console.error("Failed to get auth token:", error);
     }
 
-    const { courseId } = params;
+    const { courseId } = await params;
 
     console.log(
       "Fetching students with quiz completions for course:",
