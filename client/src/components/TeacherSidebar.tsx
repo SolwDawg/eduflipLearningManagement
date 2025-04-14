@@ -59,7 +59,6 @@ const TeacherSidebar = () => {
       label: "Hình ảnh trang chủ",
       href: "/teacher/homepage-images",
     },
-    // { icon: MessageSquare, label: "Messages", href: "/teacher/messages" },
   ];
 
   if (!isLoaded) return <Loading />;

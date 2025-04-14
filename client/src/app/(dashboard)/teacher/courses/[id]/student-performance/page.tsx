@@ -109,7 +109,7 @@ const StudentPerformancePage = () => {
     );
   }
 
-  if (!performanceData?.data || performanceData?.data?.enrollmentCount === 0) {
+  if (!performanceData || performanceData.enrollmentCount === 0) {
     return (
       <div className="h-full flex flex-col justify-center items-center">
         <div className="text-center space-y-5">
@@ -118,8 +118,7 @@ const StudentPerformancePage = () => {
             No student performance data available
           </h2>
           <p className="text-muted-foreground max-w-md">
-            {performanceData?.message ||
-              "This course doesn't have any enrolled students yet."}
+            {"This course doesn't have any enrolled students yet."}
           </p>
           <Button asChild>
             <Link href={`/teacher/courses/${courseId}`}>Back to course</Link>
@@ -129,7 +128,7 @@ const StudentPerformancePage = () => {
     );
   }
 
-  const data = performanceData?.data;
+  const data = performanceData;
 
   // Filter student details based on search term
   const filteredStudents = data.students.filter(
