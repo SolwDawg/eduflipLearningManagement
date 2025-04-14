@@ -43,7 +43,7 @@ const StudentSidebar = () => {
 
   const studentNavLinks = [
     { icon: BookOpen, label: "Khoá học", href: "/user/courses" },
-    { icon: BarChart, label: "Tiến độ", href: "/user/progress" },
+    { icon: BarChart, label: "Tiến độ", href: "/user/dashboard" },
     // { icon: MessageSquare, label: "Tin nhắn", href: "/student/messages" },
     { icon: User, label: "Hồ sơ", href: "/user/profile" },
     { icon: Settings, label: "Cài đặt", href: "/user/settings" },
