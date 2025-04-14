@@ -1468,6 +1468,66 @@ export const api = createApi({
         { type: "Enrollments", id: courseId },
       ],
     }),
+
+    // Quiz completion tracking endpoints
+    getCourseQuizCompletionCount: build.query<
+      {
+        courseId: string;
+        title: string;
+        enrollmentCount: number;
+        quizCompletionCount: number;
+        completionRate: number;
+        quizData: Array<{
+          quizId: string;
+          title: string;
+          completedCount: number;
+          averageScore: number;
+        }>;
+      },
+      string
+    >({
+      query: (courseId) => ({
+        url: `api/teachers/course/${courseId}/quiz-completion-count`,
+        method: "GET",
+      }),
+      providesTags: (result, error, courseId) => [
+        { type: "Enrollments", id: courseId },
+        { type: "QuizAttempt", id: courseId },
+      ],
+    }),
+
+    getStudentsWithQuizCompletions: build.query<
+      {
+        courseId: string;
+        title: string;
+        enrollmentCount: number;
+        studentsWithQuizzes: Array<{
+          userId: string;
+          fullName: string;
+          email: string;
+          completedQuizzes: Array<{
+            quizId: string;
+            title: string;
+            score: number;
+            totalQuestions: number;
+            completionDate: string;
+            attemptCount: number;
+          }>;
+          averageQuizScore: number;
+          totalQuizzesCompleted: number;
+        }>;
+      },
+      string
+    >({
+      query: (courseId) => ({
+        url: `api/teachers/course/${courseId}/students-with-quiz-completions`,
+        method: "GET",
+      }),
+      providesTags: (result, error, courseId) => [
+        { type: "Enrollments", id: courseId },
+        { type: "QuizAttempt", id: courseId },
+      ],
+    }),
   }),
 });
 
@@ -1533,4 +1593,6 @@ export const {
   useGetUserDashboardQuery,
   useGetCourseEnrollmentCountQuery,
   useGetCourseEnrollmentDetailsQuery,
+  useGetCourseQuizCompletionCountQuery,
+  useGetStudentsWithQuizCompletionsQuery,
 } = api;

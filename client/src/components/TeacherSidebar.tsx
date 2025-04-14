@@ -24,6 +24,7 @@ import {
   MessageSquare,
   ListChecks,
   Users,
+  CheckCircle,
 } from "lucide-react";
 import Loading from "./Loading";
 import Image from "next/image";
@@ -48,6 +49,11 @@ const TeacherSidebar = () => {
       icon: ListChecks,
       label: "Theo dõi đăng ký",
       href: "/teacher/students/enrollment-tracking",
+    },
+    {
+      icon: CheckCircle,
+      label: "Theo dõi bài kiểm tra",
+      href: "/teacher/students/quiz-tracking",
     },
     { icon: Briefcase, label: "Lớp", href: "/teacher/grades" },
     { icon: User, label: "Hồ sơ", href: "/teacher/profile" },
