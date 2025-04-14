@@ -32,9 +32,9 @@ const SignUpComponent = () => {
       appearance={{
         baseTheme: dark,
         elements: {
-          rootBox: "flex justify-center items-center py-5",
+          rootBox: "flex justify-center items-center py-5 bg-[#FFF7E6]",
           cardBox: "shadow-none",
-          card: "bg-customgreys-secondarybg w-full shadow-none",
+          card: "bg-white w-full shadow-none",
           footer: {
             background: "#25262F",
             padding: "0rem 2.5rem",
