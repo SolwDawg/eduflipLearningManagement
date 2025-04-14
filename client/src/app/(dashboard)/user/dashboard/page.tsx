@@ -83,6 +83,7 @@ export default function UserDashboardPage() {
     userId as string,
     { skip: !userId }
   );
+  console.log("dashboard: ", dashboard);
 
   if (!userId) {
     return <div>Please log in to view your dashboard.</div>;
@@ -102,6 +103,10 @@ export default function UserDashboardPage() {
       averageScore: 0,
     } as OverallStats,
   };
+
+  console.log("enrolledCourses: ", enrolledCourses);
+  console.log("quizResults: ", quizResults);
+  console.log("overallStats: ", overallStats);
 
   return (
     <div className="p-6 space-y-6">
