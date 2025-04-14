@@ -33,7 +33,12 @@ import {
 } from "lucide-react";
 import PageTitle from "@/components/PageTitle";
 import LoadingAlternative from "@/components/LoadingAlternative";
-import { formatDateString, formatDistanceToNow } from "@/lib/utils";
+import {
+  formatDate,
+  formatDateString,
+  formatDistanceToNow,
+  formatDuration,
+} from "@/lib/utils";
 import { useGetUserDashboardQuery } from "@/state/api";
 
 interface EnrolledCourse {
@@ -93,22 +98,49 @@ export default function UserDashboardPage() {
     return <LoadingAlternative />;
   }
 
-  // Properly handle the nested data structure from the API
-  const dashboardData = (dashboard?.data || {}) as DashboardData;
+  // RTK Query sometimes nests the data differently from how it appears in the console
+  // Try to get the data from where it actually exists rather than where it should be
+  const dashboardResponse = dashboard as any;
 
-  // Access data from the correct structure
-  const enrolledCourses = dashboardData.enrolledCourses || [];
-  const quizResults = dashboardData.quizResults || [];
-  const overallStats = dashboardData.overallStats || {
+  // Based on the console.log image, the actual data appears to be in the _ property
+  let enrolledCourses: any[] = [];
+  let quizResults: any[] = [];
+  let overallStats = {
     totalCourses: 0,
     coursesInProgress: 0,
     coursesCompleted: 0,
     averageScore: 0,
   };
 
+  // Try all possible locations where the data might be
+  if (dashboardResponse?.data?.enrolledCourses) {
+    enrolledCourses = dashboardResponse.data.enrolledCourses;
+  } else if (dashboardResponse?.enrolledCourses) {
+    enrolledCourses = dashboardResponse.enrolledCourses;
+  } else if (dashboardResponse?._?.enrolledCourses) {
+    enrolledCourses = dashboardResponse._.enrolledCourses;
+  }
+
+  if (dashboardResponse?.data?.quizResults) {
+    quizResults = dashboardResponse.data.quizResults;
+  } else if (dashboardResponse?.quizResults) {
+    quizResults = dashboardResponse.quizResults;
+  } else if (dashboardResponse?._?.quizResults) {
+    quizResults = dashboardResponse._.quizResults;
+  }
+
+  if (dashboardResponse?.data?.overallStats) {
+    overallStats = dashboardResponse.data.overallStats;
+  } else if (dashboardResponse?.overallStats) {
+    overallStats = dashboardResponse.overallStats;
+  } else if (dashboardResponse?._?.overallStats) {
+    overallStats = dashboardResponse._.overallStats;
+  }
+
   console.log("Extracted enrolledCourses: ", enrolledCourses);
   console.log("Extracted quizResults: ", quizResults);
   console.log("Extracted overallStats: ", overallStats);
+  console.log("enrolledCourses length:", enrolledCourses.length);
 
   return (
     <div className="p-6 space-y-6">
@@ -154,20 +186,6 @@ export default function UserDashboardPage() {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Điểm trung bình
-            </CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {overallStats?.averageScore || 0}%
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       <Tabs defaultValue="courses" className="w-full">
@@ -190,8 +208,6 @@ export default function UserDashboardPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Khóa học</TableHead>
-                      <TableHead>Giáo viên</TableHead>
-                      <TableHead>Cấp độ</TableHead>
                       <TableHead>Ngày đăng ký</TableHead>
                       <TableHead>Lần truy cập cuối</TableHead>
                       <TableHead>Tiến độ</TableHead>
@@ -204,31 +220,31 @@ export default function UserDashboardPage() {
                         <TableCell className="font-medium">
                           {course.title}
                         </TableCell>
-                        <TableCell>{course.teacherName}</TableCell>
-                        <TableCell>{course.level}</TableCell>
                         <TableCell>
-                          {formatDateString(course.enrollmentDate)}
+                          {formatDate(course.enrollmentDate)}
                         </TableCell>
                         <TableCell>
                           {course.lastAccessedTimestamp
-                            ? formatDistanceToNow(
-                                new Date(course.lastAccessedTimestamp)
+                            ? formatDuration(
+                                new Date(course.lastAccessedTimestamp).getTime()
                               )
-                            : "Not accessed yet"}
+                            : "Chưa truy cập"}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center">
                             <Progress
                               value={course.overallProgress}
                               className="h-2"
                             />
+                          </div>
+                          <div className="flex items-center space-x-2">
                             <span className="text-xs text-muted-foreground">
                               {course.overallProgress}%
                             </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {course.completedChapters}/{course.totalChapters}{" "}
-                            chapters
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {course.completedChapters}/{course.totalChapters}{" "}
+                              Chương
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -291,9 +307,7 @@ export default function UserDashboardPage() {
                           {quiz.quizTitle}
                         </TableCell>
                         <TableCell>{quiz.courseTitle}</TableCell>
-                        <TableCell>
-                          {quiz.score}% ({quiz.passingScore}% để đạt)
-                        </TableCell>
+                        <TableCell>{quiz.score / 10}</TableCell>
                         <TableCell>
                           {quiz.passed ? (
                             <div className="flex items-center text-green-500">
@@ -307,13 +321,8 @@ export default function UserDashboardPage() {
                             </div>
                           )}
                         </TableCell>
-                        <TableCell>
-                          {formatDistanceToNow(new Date(quiz.completedAt))}
-                        </TableCell>
-                        <TableCell>
-                          {Math.floor(quiz.timeSpent / 60)} min{" "}
-                          {quiz.timeSpent % 60} sec
-                        </TableCell>
+                        <TableCell>{formatDate(quiz.completedAt)}</TableCell>
+                        <TableCell>{formatDuration(quiz.timeSpent)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
