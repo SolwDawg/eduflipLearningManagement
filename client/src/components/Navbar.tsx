@@ -25,10 +25,6 @@ const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
         <SmartSearch placeholder="Tìm kiếm khoá học..." />
 
         <div className="dashboard-navbar__actions">
-          <button className="nondashboard-navbar__notification-button">
-            <span className="nondashboard-navbar__notification-indicator"></span>
-          </button>
-
           <UserButton
             appearance={{
               baseTheme: dark,

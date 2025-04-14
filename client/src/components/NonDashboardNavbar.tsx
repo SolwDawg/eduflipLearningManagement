@@ -40,10 +40,6 @@ const NonDashboardNavbar = () => {
           </div>
         </div>
         <div className="nondashboard-navbar__actions">
-          <button className="nondashboard-navbar__notification-button">
-            <span className="nondashboard-navbar__notification-indicator"></span>
-          </button>
-
           <SignedIn>
             <Link
               href="/user/courses"

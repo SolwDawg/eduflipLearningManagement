@@ -74,6 +74,82 @@ export default function ChaptersSidebar() {
     return progress.completedChapters.includes(chapterId);
   };
 
+  // Mobile view with horizontal scrolling
+  if (isMobile) {
+    return (
+      <div className="w-full border-b bg-gray-50 md:hidden">
+        <div className="p-3 bg-white">
+          <h3 className="font-medium text-sm truncate">{course.title}</h3>
+          <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+            <BookOpen className="h-3 w-3" />
+            <span>Nội dung khóa học</span>
+          </div>
+        </div>
+
+        <div
+          className="overflow-x-auto scrollbar-hide pb-4 -mx-2 overscroll-x-contain scroll-smooth"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <div className="inline-flex px-4 py-2 space-x-4">
+            {course.sections?.map((section, sectionIndex) => (
+              <div
+                key={section.sectionId}
+                className="min-w-[280px] max-w-[280px] bg-white p-3 rounded-md shadow-sm border"
+              >
+                <h4 className="font-medium mb-2 text-xs text-muted-foreground uppercase tracking-wide">
+                  <span>Section {sectionIndex + 1}: </span>
+                  <span className="ml-1">{section.sectionTitle}</span>
+                </h4>
+                <ul className="space-y-1.5">
+                  {section.chapters.map((chapter, chapterIndex) => {
+                    const isActive = chapter.chapterId === chapterId;
+                    const isCompleted = isChapterCompleted(chapter.chapterId);
+
+                    return (
+                      <li key={chapter.chapterId}>
+                        <Link
+                          href={`/user/courses/${courseId}/chapters/${chapter.chapterId}`}
+                          className={cn(
+                            "flex items-center gap-1.5 p-1.5 text-xs rounded-md transition-colors",
+                            isActive
+                              ? "bg-primary/10 text-primary font-medium"
+                              : "hover:bg-muted"
+                          )}
+                        >
+                          <div className="flex-shrink-0 h-4 w-4 flex items-center justify-center">
+                            {isCompleted ? (
+                              <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                            ) : isActive ? (
+                              <Play
+                                className="h-3.5 w-3.5 text-primary"
+                                fill="currentColor"
+                              />
+                            ) : (
+                              <div className="h-4 w-4 rounded-full border border-muted-foreground/60 flex items-center justify-center text-[9px]">
+                                {chapterIndex + 1}
+                              </div>
+                            )}
+                          </div>
+                          <span className="flex-1 truncate">
+                            {chapter.title}
+                          </span>
+                          {isCompleted && !isActive && (
+                            <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop view (existing code)
   return (
     <div className="flex-col h-full border-r bg-gray-50 w-full md:w-72 lg:w-80 hidden md:flex overflow-auto">
       <div className="p-3 sm:p-4 border-b flex-shrink-0 bg-white">
@@ -127,7 +203,9 @@ export default function ChaptersSidebar() {
                             </div>
                           )}
                         </div>
-                        <span className="flex-1 truncate">{chapter.title}</span>
+                        <div className="flex-1 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                          <span className="truncate">{chapter.title}</span>
+                        </div>
                         {isCompleted && !isActive && (
                           <span className="hidden sm:flex text-[9px] md:text-xs font-medium text-green-500 px-1 py-0.5 rounded-full bg-green-50">
                             Đã Hoàn thành
