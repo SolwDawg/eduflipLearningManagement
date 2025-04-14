@@ -33,8 +33,8 @@ import PageTitle from "@/components/PageTitle";
 import LoadingAlternative from "@/components/LoadingAlternative";
 import {
   useGetUserEnrolledCoursesQuery,
-  useGetCourseProgressQuery,
-  useGetCourseQuizResultsQuery,
+  useGetUserProgressSummaryQuery,
+  useGetUserQuizResultsQuery,
 } from "@/state/api";
 import { formatDateString, formatDistanceToNow } from "@/lib/utils";
 
@@ -43,10 +43,10 @@ export default function UserProgressPage() {
   const router = useRouter();
 
   const { data: progressSummary, isLoading: isSummaryLoading } =
-    useGetCourseProgressQuery(`${userId}/summary`, { skip: !userId });
+    useGetUserProgressSummaryQuery(userId as string, { skip: !userId });
 
   const { data: quizResults, isLoading: isQuizLoading } =
-    useGetCourseQuizResultsQuery(userId as string, { skip: !userId });
+    useGetUserQuizResultsQuery(userId as string, { skip: !userId });
 
   if (!userId) {
     return <div>Please log in to view your progress.</div>;
