@@ -9,7 +9,12 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import SmartSearch from "./SmartSearch";
 
-const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
+interface NavbarProps {
+  isCoursePage: boolean;
+  children?: React.ReactNode;
+}
+
+const Navbar = ({ isCoursePage, children }: NavbarProps) => {
   const { user } = useUser();
   const userRole = user?.publicMetadata?.userType as "student" | "teacher";
 
@@ -20,6 +25,7 @@ const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
           <div className="md:hidden">
             <SidebarTrigger className="dashboard-navbar__sidebar-trigger" />
           </div>
+          {children}
         </div>
 
         <SmartSearch placeholder="Tìm kiếm khoá học..." />

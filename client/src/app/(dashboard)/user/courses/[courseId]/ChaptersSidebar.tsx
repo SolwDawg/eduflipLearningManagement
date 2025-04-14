@@ -43,10 +43,10 @@ export default function ChaptersSidebar() {
 
   if (isLoadingCourse)
     return (
-      <div className="w-full h-full border-r p-3 sm:p-4">
+      <div className="w-full h-full border-r p-3 sm:p-4 flex flex-col">
         <Skeleton className="h-5 sm:h-6 w-3/4 mb-1 sm:mb-2" />
         <Skeleton className="h-3 sm:h-4 w-1/2 mb-4 sm:mb-6" />
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-3 sm:space-y-4 flex-1">
           {[1, 2, 3].map((i) => (
             <div key={i} className="space-y-1.5 sm:space-y-2">
               <Skeleton className="h-4 sm:h-5 w-2/3 mb-1 sm:mb-2" />
@@ -63,7 +63,7 @@ export default function ChaptersSidebar() {
 
   if (!course)
     return (
-      <div className="p-3 sm:p-4 text-muted-foreground text-xs sm:text-sm">
+      <div className="p-3 sm:p-4 text-muted-foreground text-xs sm:text-sm h-full flex flex-col items-center justify-center">
         Không tìm thấy khóa học
       </div>
     );
@@ -75,7 +75,7 @@ export default function ChaptersSidebar() {
   };
 
   return (
-    <div className="flex flex-col h-full border-r bg-gray-50 w-full md:w-72 lg:w-80 hidden md:flex overflow-hidden">
+    <div className="flex flex-col h-full bg-gray-50 border-r overflow-hidden">
       <div className="p-3 sm:p-4 border-b flex-shrink-0 bg-white">
         <h3 className="font-medium text-sm sm:text-base md:text-lg truncate">
           {course.title}
@@ -97,7 +97,7 @@ export default function ChaptersSidebar() {
                 <span>Section {sectionIndex + 1}:</span>
                 <span className="ml-1 truncate">{section.sectionTitle}</span>
               </h4>
-              <ul className="space-y-1 sm:space-y-1.5 md:space-y-2">
+              <ul className="space-y-1 sm:space-y-1.5">
                 {section.chapters.map((chapter, chapterIndex) => {
                   const isActive = chapter.chapterId === chapterId;
                   const isCompleted = isChapterCompleted(chapter.chapterId);
