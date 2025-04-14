@@ -116,7 +116,7 @@ export default function CourseQuizzes() {
             onValueChange={setActiveTab}
             className="space-y-4"
           >
-            <TabsList>
+            <TabsList className="w-full flex flex-wrap">
               <TabsTrigger value="existing">Bài kiểm tra hiện có</TabsTrigger>
               <TabsTrigger value="create">Tạo bài kiểm tra</TabsTrigger>
             </TabsList>
@@ -125,16 +125,18 @@ export default function CourseQuizzes() {
               {isLoadingQuizzes ? (
                 <div className="text-center py-8">Đang tải bài kiểm tra...</div>
               ) : quizzes && quizzes.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {quizzes.map((quiz) => (
-                    <Card key={quiz.quizId}>
+                    <Card key={quiz.quizId} className="flex flex-col h-full">
                       <CardHeader>
-                        <CardTitle>{quiz.title}</CardTitle>
+                        <CardTitle className="text-lg sm:text-xl line-clamp-2">
+                          {quiz.title}
+                        </CardTitle>
                         <CardDescription>
                           {getScopeDisplay(quiz)}
                         </CardDescription>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className="flex-grow">
                         <div className="space-y-2 text-sm">
                           <div>
                             <span className="font-medium">Câu hỏi:</span>{" "}
@@ -166,8 +168,13 @@ export default function CourseQuizzes() {
                           </div>
                         </div>
                       </CardContent>
-                      <CardFooter className="flex justify-between">
-                        <Button variant="outline" size="sm" asChild>
+                      <CardFooter className="flex justify-between mt-auto pt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          asChild
+                        >
                           <Link
                             href={`/teacher/courses/${courseId}/quizzes/${quiz.quizId}`}
                           >

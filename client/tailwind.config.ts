@@ -93,8 +93,8 @@ const config = {
           foreground: "#FFFFFF",
         },
         white: {
-          "50": "#FFFFFF",
-          "100": "#F5F5F5",
+          "50": "#F5F5F5",
+          "100": "#FFFFFF",
         },
         tertiary: {
           "50": "#FFF9C4", // vàng nhạt pastel

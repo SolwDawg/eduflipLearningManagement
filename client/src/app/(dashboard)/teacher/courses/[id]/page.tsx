@@ -795,7 +795,7 @@ const CourseEditor = () => {
                 </div>
               </div>
 
-              <div className="bg-white-100 mt-4 md:mt-0 p-4 rounded-lg basis-1/2">
+              <div className="bg-white-50 mt-4 md:mt-0 p-4 rounded-lg basis-1/2">
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-2xl font-semibold text-black">Chương</h2>
 

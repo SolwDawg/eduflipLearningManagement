@@ -104,8 +104,8 @@ const Option = memo(
     );
 
     return (
-      <div className="flex items-start space-x-2 mb-3">
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row items-start space-y-2 sm:space-y-0 sm:space-x-2 py-1 border border-transparent hover:border-gray-100 hover:bg-gray-50 rounded-md px-1">
+        <div className="w-full sm:flex-1">
           <Input
             {...register(`options.${index}.text`)}
             placeholder={`Tùy chọn ${index + 1}`}
@@ -117,16 +117,22 @@ const Option = memo(
             </p>
           )}
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={getValues(`options.${index}.isCorrect`)}
-            onCheckedChange={handleCorrectChange}
-          />
+        <div className="flex items-center justify-between w-full sm:w-auto space-x-2">
+          <div className="flex items-center space-x-1">
+            <Switch
+              checked={getValues(`options.${index}.isCorrect`)}
+              onCheckedChange={handleCorrectChange}
+            />
+            <span className="text-xs sm:text-sm text-muted-foreground">
+              Đúng
+            </span>
+          </div>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={() => onRemove(index)}
+            className="h-8 w-8"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -310,18 +316,20 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
 
                 <TabsContent value="basic" className="pt-4">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Tạo bài kiểm tra mới</CardTitle>
+                    <CardHeader className="px-4 sm:px-6">
+                      <CardTitle className="text-xl sm:text-2xl">
+                        Tạo bài kiểm tra mới
+                      </CardTitle>
                       <CardDescription>
                         Thiết lập thông tin cơ bản cho bài kiểm tra của bạn
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-4 sm:px-6">
                       <Form {...quizForm}>
                         <form
                           id="quiz-form"
                           onSubmit={quizForm.handleSubmit(onSubmitQuiz)}
-                          className="space-y-6"
+                          className="space-y-4 sm:space-y-6"
                         >
                           <FormField
                             control={quizForm.control}
@@ -333,6 +341,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                   <Input
                                     placeholder="Nhập tiêu đề bài kiểm tra"
                                     {...field}
+                                    className="w-full"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -350,6 +359,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                   <Textarea
                                     placeholder="Nhập mô tả bài kiểm tra"
                                     {...field}
+                                    className="w-full min-h-[100px]"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -357,44 +367,74 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                             )}
                           />
 
-                          <FormField
-                            control={quizForm.control}
-                            name="scope"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Phạm vi bài kiểm tra</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Chọn phạm vi bài kiểm tra" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value={QuizScope.COURSE}>
-                                      Toàn khóa học
-                                    </SelectItem>
-                                    <SelectItem value={QuizScope.SECTION}>
-                                      chương
-                                    </SelectItem>
-                                    <SelectItem value={QuizScope.CHAPTER}>
-                                      Bài học
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormDescription>
-                                  Chọn phạm vi bài kiểm tra là toàn khóa học,
-                                  một chương hoặc một bài học
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <FormField
+                              control={quizForm.control}
+                              name="scope"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Phạm vi bài kiểm tra</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Chọn phạm vi bài kiểm tra" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value={QuizScope.COURSE}>
+                                        Toàn khóa học
+                                      </SelectItem>
+                                      <SelectItem value={QuizScope.SECTION}>
+                                        chương
+                                      </SelectItem>
+                                      <SelectItem value={QuizScope.CHAPTER}>
+                                        Bài học
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormDescription className="text-xs sm:text-sm">
+                                    Chọn phạm vi bài kiểm tra là toàn khóa học,
+                                    một chương hoặc một bài học
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                          {selectedScope === QuizScope.SECTION ||
-                          selectedScope === QuizScope.CHAPTER ? (
+                            <FormField
+                              control={quizForm.control}
+                              name="timeLimit"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Thời gian giới hạn (phút)
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      min="1"
+                                      placeholder="Không có giới hạn thời gian"
+                                      onChange={(e) => {
+                                        const value = e.target.value
+                                          ? parseInt(e.target.value, 10)
+                                          : undefined;
+                                        field.onChange(value);
+                                      }}
+                                      value={field.value || ""}
+                                      className="w-full"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          {(selectedScope === QuizScope.SECTION ||
+                            selectedScope === QuizScope.CHAPTER) && (
                             <FormField
                               control={quizForm.control}
                               name="sectionId"
@@ -411,7 +451,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                     value={field.value}
                                   >
                                     <FormControl>
-                                      <SelectTrigger>
+                                      <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Chọn chương" />
                                       </SelectTrigger>
                                     </FormControl>
@@ -430,76 +470,50 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                 </FormItem>
                               )}
                             />
-                          ) : null}
+                          )}
 
                           {selectedScope === QuizScope.CHAPTER &&
-                          selectedSection ? (
-                            <FormField
-                              control={quizForm.control}
-                              name="chapterId"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Bài học</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Chọn bài học" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {chapterOptions.map((option) => (
-                                        <SelectItem
-                                          key={option.value}
-                                          value={option.value}
-                                        >
-                                          {option.label}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          ) : null}
-
-                          <FormField
-                            control={quizForm.control}
-                            name="timeLimit"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>
-                                  Thời gian giới hạn (phút, tùy chọn)
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="1"
-                                    placeholder="Không có giới hạn thời gian"
-                                    onChange={(e) => {
-                                      const value = e.target.value
-                                        ? parseInt(e.target.value, 10)
-                                        : undefined;
-                                      field.onChange(value);
-                                    }}
-                                    value={field.value || ""}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
+                            selectedSection && (
+                              <FormField
+                                control={quizForm.control}
+                                name="chapterId"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Bài học</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      value={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full">
+                                          <SelectValue placeholder="Chọn bài học" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {chapterOptions.map((option) => (
+                                          <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                          >
+                                            {option.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             )}
-                          />
                         </form>
                       </Form>
                     </CardContent>
-                    <CardFooter className="flex justify-end">
+                    <CardFooter className="flex justify-end px-4 sm:px-6 py-4 sm:py-6">
                       <Button
                         type="submit"
                         form="quiz-form"
                         disabled={isCreatingQuiz}
+                        className="w-full sm:w-auto"
                       >
                         {isCreatingQuiz && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -514,15 +528,17 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
               {quizCreated && quizId && (
                 <div className="mt-8">
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Câu hỏi</CardTitle>
+                    <CardHeader className="px-4 sm:px-6">
+                      <CardTitle className="text-xl sm:text-2xl">
+                        Câu hỏi
+                      </CardTitle>
                       <CardDescription>
                         Thêm câu hỏi vào bài kiểm tra của bạn
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="px-4 sm:px-6">
                       {questions.length === 0 && !creatingQuestion ? (
-                        <div className="text-center py-8">
+                        <div className="text-center py-6 sm:py-8">
                           <p className="text-muted-foreground mb-4">
                             Không có câu hỏi nào. Thêm câu hỏi đầu tiên để bắt
                             đầu.
@@ -530,6 +546,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                           <Button
                             onClick={() => setCreatingQuestion(true)}
                             variant="outline"
+                            className="w-full sm:w-auto"
                           >
                             <Plus className="h-4 w-4 mr-2" />
                             Thêm câu hỏi
@@ -542,10 +559,10 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                               key={question.questionId}
                               className="bg-muted/40"
                             >
-                              <CardHeader className="pb-2">
-                                <div className="flex justify-between items-start">
+                              <CardHeader className="pb-2 px-3 sm:px-4">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                                   <div>
-                                    <div className="text-sm text-muted-foreground mb-1">
+                                    <div className="text-xs sm:text-sm text-muted-foreground mb-1">
                                       Câu hỏi {index + 1} (
                                       {question.type ===
                                       QuestionType.MULTIPLE_CHOICE
@@ -554,13 +571,13 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                       ) - {question.points}{" "}
                                       {question.points === 1 ? "điểm" : "điểm"}
                                     </div>
-                                    <div className="font-medium">
+                                    <div className="font-medium text-sm sm:text-base break-words">
                                       {question.text}
                                     </div>
                                   </div>
                                 </div>
                               </CardHeader>
-                              <CardContent>
+                              <CardContent className="px-3 sm:px-4 py-2 sm:py-3">
                                 {question.type ===
                                 QuestionType.MULTIPLE_CHOICE ? (
                                   <div className="grid gap-2">
@@ -568,7 +585,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                       (option: any, i: number) => (
                                         <div
                                           key={option.optionId}
-                                          className={`p-2 rounded-md text-sm ${
+                                          className={`p-2 rounded-md text-xs sm:text-sm ${
                                             option.isCorrect
                                               ? "bg-primary-700 text-primary-50 border border-primary-600"
                                               : "bg-customgreys-secondarybg text-primary-800 border border-customgreys-darkerGrey"
@@ -585,7 +602,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                     )}
                                   </div>
                                 ) : (
-                                  <div className="bg-customgreys-secondarybg border border-customgreys-darkerGrey p-3 rounded-md text-sm text-primary-800">
+                                  <div className="bg-customgreys-secondarybg border border-customgreys-darkerGrey p-2 sm:p-3 rounded-md text-xs sm:text-sm text-primary-800">
                                     <div className="text-muted-foreground mb-1">
                                       Câu trả lời tham khảo:
                                     </div>
@@ -602,6 +619,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                               <Button
                                 onClick={() => setCreatingQuestion(true)}
                                 variant="outline"
+                                className="w-full sm:w-auto"
                               >
                                 <Plus className="h-4 w-4 mr-2" />
                                 Thêm câu hỏi khác
@@ -611,54 +629,81 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
 
                           {creatingQuestion && (
                             <Card className="border-dashed">
-                              <CardHeader>
-                                <CardTitle className="text-xl">
+                              <CardHeader className="px-4 sm:px-6">
+                                <CardTitle className="text-lg sm:text-xl">
                                   Thêm câu hỏi mới
                                 </CardTitle>
                               </CardHeader>
-                              <CardContent>
+                              <CardContent className="px-4 sm:px-6">
                                 <Form {...questionForm}>
                                   <form
                                     id="question-form"
                                     onSubmit={questionForm.handleSubmit(
                                       onSubmitQuestion
                                     )}
-                                    className="space-y-6"
+                                    className="space-y-4 sm:space-y-6"
                                   >
-                                    <FormField
-                                      control={questionForm.control}
-                                      name="type"
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormLabel>Loại câu hỏi</FormLabel>
-                                          <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                          >
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      <FormField
+                                        control={questionForm.control}
+                                        name="type"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Loại câu hỏi</FormLabel>
+                                            <Select
+                                              onValueChange={field.onChange}
+                                              defaultValue={field.value}
+                                            >
+                                              <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                  <SelectValue placeholder="Chọn loại câu hỏi" />
+                                                </SelectTrigger>
+                                              </FormControl>
+                                              <SelectContent>
+                                                <SelectItem
+                                                  value={
+                                                    QuestionType.MULTIPLE_CHOICE
+                                                  }
+                                                >
+                                                  Trắc nghiệm
+                                                </SelectItem>
+                                                <SelectItem
+                                                  value={QuestionType.ESSAY}
+                                                >
+                                                  Tự luận
+                                                </SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+
+                                      <FormField
+                                        control={questionForm.control}
+                                        name="points"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Điểm</FormLabel>
                                             <FormControl>
-                                              <SelectTrigger>
-                                                <SelectValue placeholder="Chọn loại câu hỏi" />
-                                              </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                              <SelectItem
-                                                value={
-                                                  QuestionType.MULTIPLE_CHOICE
+                                              <Input
+                                                type="number"
+                                                min="1"
+                                                {...field}
+                                                onChange={(e) =>
+                                                  field.onChange(
+                                                    parseInt(e.target.value) ||
+                                                      1
+                                                  )
                                                 }
-                                              >
-                                                Trắc nghiệm
-                                              </SelectItem>
-                                              <SelectItem
-                                                value={QuestionType.ESSAY}
-                                              >
-                                                Tự luận
-                                              </SelectItem>
-                                            </SelectContent>
-                                          </Select>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
+                                                className="w-full"
+                                              />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </div>
 
                                     <FormField
                                       control={questionForm.control}
@@ -671,31 +716,8 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                           <FormControl>
                                             <Textarea
                                               placeholder="Nhập nội dung câu hỏi"
-                                              className="min-h-[100px]"
+                                              className="min-h-[100px] w-full"
                                               {...field}
-                                            />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-
-                                    <FormField
-                                      control={questionForm.control}
-                                      name="points"
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormLabel>Điểm</FormLabel>
-                                          <FormControl>
-                                            <Input
-                                              type="number"
-                                              min="1"
-                                              {...field}
-                                              onChange={(e) =>
-                                                field.onChange(
-                                                  parseInt(e.target.value) || 1
-                                                )
-                                              }
                                             />
                                           </FormControl>
                                           <FormMessage />
@@ -706,7 +728,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                     {selectedQuestionType ===
                                     QuestionType.MULTIPLE_CHOICE ? (
                                       <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                           <FormLabel className="text-base">
                                             Câu trả lời
                                           </FormLabel>
@@ -715,26 +737,29 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                             variant="outline"
                                             size="sm"
                                             onClick={handleAddOption}
+                                            className="w-full sm:w-auto"
                                           >
                                             <Plus className="h-3 w-3 mr-1" />{" "}
                                             Thêm câu trả lời
                                           </Button>
                                         </div>
 
-                                        {questionOptions?.map((_, index) => (
-                                          <Option
-                                            key={index}
-                                            index={index}
-                                            register={questionForm.register}
-                                            errors={
-                                              questionForm.formState.errors
-                                            }
-                                            setValue={questionForm.setValue}
-                                            getValues={questionForm.getValues}
-                                            onRemove={handleRemoveOption}
-                                          />
-                                        ))}
-                                        <FormDescription>
+                                        <div className="space-y-3">
+                                          {questionOptions?.map((_, index) => (
+                                            <Option
+                                              key={index}
+                                              index={index}
+                                              register={questionForm.register}
+                                              errors={
+                                                questionForm.formState.errors
+                                              }
+                                              setValue={questionForm.setValue}
+                                              getValues={questionForm.getValues}
+                                              onRemove={handleRemoveOption}
+                                            />
+                                          ))}
+                                        </div>
+                                        <FormDescription className="text-xs sm:text-sm">
                                           Đánh dấu ít nhất một câu trả lời là
                                           đúng bằng cách sử dụng công tắc
                                         </FormDescription>
@@ -751,11 +776,11 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                             <FormControl>
                                               <Textarea
                                                 placeholder="Nhập câu trả lời tham khảo"
-                                                className="min-h-[100px]"
+                                                className="min-h-[100px] w-full"
                                                 {...field}
                                               />
                                             </FormControl>
-                                            <FormDescription>
+                                            <FormDescription className="text-xs sm:text-sm">
                                               Đây sẽ là tài liệu tham khảo cho
                                               việc chấm điểm, nhưng sẽ không
                                               được hiển thị cho học sinh
@@ -768,11 +793,12 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                   </form>
                                 </Form>
                               </CardContent>
-                              <CardFooter className="flex justify-between">
+                              <CardFooter className="flex flex-col sm:flex-row justify-between gap-3 px-4 sm:px-6 py-4 sm:py-6">
                                 <Button
                                   type="button"
                                   variant="outline"
                                   onClick={() => setCreatingQuestion(false)}
+                                  className="w-full sm:w-auto order-2 sm:order-1"
                                 >
                                   Hủy bỏ
                                 </Button>
@@ -780,6 +806,7 @@ export default function QuizCreator({ courseId, sections }: QuizCreatorProps) {
                                   type="submit"
                                   form="question-form"
                                   disabled={isAddingQuestion}
+                                  className="w-full sm:w-auto order-1 sm:order-2"
                                 >
                                   {isAddingQuestion && (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
