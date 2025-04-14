@@ -593,6 +593,50 @@ export const api = createApi({
       ],
     }),
 
+    getUserDashboard: build.query<
+      {
+        message: string;
+        data: {
+          enrolledCourses: Array<{
+            courseId: string;
+            title: string;
+            image: string;
+            teacherName: string;
+            level: string;
+            enrollmentDate: string;
+            lastAccessedTimestamp: string | null;
+            overallProgress: number;
+            totalChapters: number;
+            completedChapters: number;
+          }>;
+          quizResults: Array<{
+            quizId: string;
+            quizTitle: string;
+            sectionTitle: string;
+            courseId: string;
+            courseTitle: string;
+            score: number;
+            passingScore: number;
+            passed: boolean;
+            completedAt: string;
+            timeSpent: number;
+          }>;
+          overallStats: {
+            totalCourses: number;
+            coursesInProgress: number;
+            coursesCompleted: number;
+            averageScore: number;
+          };
+        };
+      },
+      string
+    >({
+      query: (userId) => `api/progress/${userId}/dashboard`,
+      providesTags: (result, error, userId) => [
+        { type: "UserCourseProgress", id: userId },
+      ],
+    }),
+
     getMonthlyLeaderboard: build.query<any, void>({
       query: () => "users/course-progress/leaderboard/monthly",
       providesTags: ["Leaderboard"],
@@ -1443,4 +1487,5 @@ export const {
   useGetTeacherCoursesQuery,
   useGetAllTeacherCoursesWithAnalyticsQuery,
   useUpdateUserCourseProgressMutation,
+  useGetUserDashboardQuery,
 } = api;
