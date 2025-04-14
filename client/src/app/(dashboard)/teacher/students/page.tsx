@@ -130,11 +130,13 @@ const StudentsOverviewPage = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <PageTitle
-        title="Quản lý học viên"
-        description="Theo dõi và quản lý học viên trong các khoá học của bạn"
-        icon={<Users className="h-6 w-6" />}
-      />
+      <div className="mb-4 pb-4">
+        <PageTitle
+          title="Quản lý học viên"
+          description="Theo dõi và quản lý học viên trong các khoá học của bạn"
+          icon={<Users className="h-6 w-6" />}
+        />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {studentCards.map((card, index) => (
