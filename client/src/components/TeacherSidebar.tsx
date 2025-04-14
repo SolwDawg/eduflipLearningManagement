@@ -41,16 +41,6 @@ const TeacherSidebar = () => {
     { icon: BookOpen, label: "Khoá học", href: "/teacher/courses" },
 
     { icon: Users, label: "Học sinh", href: "/teacher/students" },
-    {
-      icon: ListChecks,
-      label: "Theo dõi đăng ký",
-      href: "/teacher/students/enrollment-tracking",
-    },
-    {
-      icon: CheckCircle,
-      label: "Theo dõi bài kiểm tra",
-      href: "/teacher/students/quiz-tracking",
-    },
     { icon: Briefcase, label: "Lớp", href: "/teacher/grades" },
     { icon: User, label: "Hồ sơ", href: "/teacher/profile" },
     { icon: Settings, label: "Cài đặt", href: "/teacher/settings" },
