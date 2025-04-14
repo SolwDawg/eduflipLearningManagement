@@ -46,7 +46,7 @@ export const useCourseProgressData = () => {
       return false;
 
     const section = userProgress.sections.find(
-      (s) => s.sectionId === currentSection.sectionId
+      (s: any) => s.sectionId === currentSection.sectionId
     );
 
     if (
@@ -58,7 +58,7 @@ export const useCourseProgressData = () => {
 
     return (
       section?.chapters.some(
-        (c) => c.chapterId === currentChapter.chapterId && c.completed
+        (c: any) => c.chapterId === currentChapter.chapterId && c.completed
       ) ?? false
     );
   };

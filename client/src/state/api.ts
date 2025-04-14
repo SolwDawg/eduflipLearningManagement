@@ -559,6 +559,26 @@ export const api = createApi({
       ],
     }),
 
+    updateUserCourseProgress: build.mutation<
+      any,
+      {
+        userId: string;
+        courseId: string;
+        progressData: {
+          sections: any[];
+        };
+      }
+    >({
+      query: ({ userId, courseId, progressData }) => ({
+        url: `users/course-progress/${userId}/courses/${courseId}`,
+        method: "PUT",
+        body: progressData,
+      }),
+      invalidatesTags: (result, error, { userId, courseId }) => [
+        { type: "UserCourseProgress", id: `${userId}-${courseId}` },
+      ],
+    }),
+
     getUserQuizResults: build.query<any, string>({
       query: (userId) => `users/course-progress/${userId}/quiz-results`,
       providesTags: (result, error, userId) => [
@@ -1376,6 +1396,8 @@ export const {
   useGetUploadImageUrlMutation,
   useGetUserEnrolledCoursesQuery,
   useGetUserCourseProgressQuery,
+  useGetUserQuizResultsQuery,
+  useGetUserProgressSummaryQuery,
   useGetGradesQuery,
   useGetGradeQuery,
   useCreateGradeMutation,
@@ -1420,4 +1442,5 @@ export const {
   useGetAllStudentsProgressQuery,
   useGetTeacherCoursesQuery,
   useGetAllTeacherCoursesWithAnalyticsQuery,
+  useUpdateUserCourseProgressMutation,
 } = api;
