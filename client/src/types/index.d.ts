@@ -131,6 +131,7 @@ declare global {
     title: string;
     subtitle: string;
     rightElement?: ReactNode;
+    className?: string;
   }
 
   interface SharedNotificationSettingsProps {
