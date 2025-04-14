@@ -526,22 +526,13 @@ export const api = createApi({
     =============== 
     */
     getUserEnrolledCourses: build.query<Course[], string>({
-      query: (userId) => `users/course-progress/${userId}/enrolled-courses`,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ courseId }) => ({
-                type: "Courses" as const,
-                id: courseId,
-              })),
-              { type: "UserCourseProgress", id: "LIST" },
-              { type: "Courses", id: "LIST" },
-            ]
-          : [
-              { type: "UserCourseProgress", id: "LIST" },
-              { type: "Courses", id: "LIST" },
-            ],
-      keepUnusedDataFor: 600, // 10 minutes
+      query: (userId) => ({
+        url: `users/course-progress/${userId}/enrolled-courses`,
+        method: "GET",
+      }),
+      providesTags: (result, error, userId) => [
+        { type: "EnrolledCourses", id: userId },
+      ],
     }),
 
     enrollCourse: build.mutation<
@@ -556,52 +547,30 @@ export const api = createApi({
     }),
 
     getUserCourseProgress: build.query<
-      UserCourseProgress,
+      any,
       { userId: string; courseId: string }
     >({
-      query: ({ userId, courseId }) =>
-        `users/course-progress/${userId}/courses/${courseId}`,
-      providesTags: ["UserCourseProgress"],
+      query: ({ userId, courseId }) => ({
+        url: `users/course-progress/${userId}/courses/${courseId}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, { userId, courseId }) => [
+        { type: "UserCourseProgress", id: `${userId}-${courseId}` },
+      ],
     }),
 
-    updateUserCourseProgress: build.mutation<
-      UserCourseProgress,
-      {
-        userId: string;
-        courseId: string;
-        progressData: {
-          sections: SectionProgress[];
-        };
-      }
-    >({
-      query: ({ userId, courseId, progressData }) => ({
-        url: `users/course-progress/${userId}/courses/${courseId}`,
-        method: "PUT",
-        body: progressData,
-      }),
-      invalidatesTags: ["UserCourseProgress"],
-      async onQueryStarted(
-        { userId, courseId, progressData },
-        { dispatch, queryFulfilled }
-      ) {
-        const patchResult = dispatch(
-          api.util.updateQueryData(
-            "getUserCourseProgress",
-            { userId, courseId },
-            (draft) => {
-              Object.assign(draft, {
-                ...draft,
-                sections: progressData.sections,
-              });
-            }
-          )
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
+    getUserQuizResults: build.query<any, string>({
+      query: (userId) => `users/course-progress/${userId}/quiz-results`,
+      providesTags: (result, error, userId) => [
+        { type: "QuizAttempt", id: userId },
+      ],
+    }),
+
+    getUserProgressSummary: build.query<any, string>({
+      query: (userId) => `api/progress/${userId}/summary`,
+      providesTags: (result, error, userId) => [
+        { type: "UserCourseProgress", id: userId },
+      ],
     }),
 
     getMonthlyLeaderboard: build.query<any, void>({
@@ -1407,7 +1376,6 @@ export const {
   useGetUploadImageUrlMutation,
   useGetUserEnrolledCoursesQuery,
   useGetUserCourseProgressQuery,
-  useUpdateUserCourseProgressMutation,
   useGetGradesQuery,
   useGetGradeQuery,
   useCreateGradeMutation,

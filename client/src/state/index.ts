@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { api } from "./api";
 
 interface InitialStateTypes {
   courseEditor: {
@@ -117,3 +118,17 @@ export const {
 } = globalSlice.actions;
 
 export default globalSlice.reducer;
+
+export const {
+  useGetCoursesQuery,
+  useGetCourseQuery,
+  useCreateCourseMutation,
+  useUpdateCourseMutation,
+  useDeleteCourseMutation,
+  useEnrollCourseMutation,
+  useGetUserEnrolledCoursesQuery,
+  useGetUserCourseProgressQuery,
+  useGetUserQuizResultsQuery,
+  useGetUserProgressSummaryQuery,
+  useGetMonthlyLeaderboardQuery,
+} = api;

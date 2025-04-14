@@ -4,6 +4,7 @@ import * as z from "zod";
 import { api } from "../state/api";
 import { toast } from "sonner";
 import axios from "axios";
+import { format, formatDistanceToNow as fDistanceToNow } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -669,17 +670,10 @@ export function formatDate(dateString: string): string {
  */
 export function formatDateString(dateString: string): string {
   if (!dateString) return "N/A";
-
   try {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
+    return format(new Date(dateString), "PPP");
   } catch (error) {
+    console.error("Error formatting date:", error);
     return "Invalid Date";
   }
 }
@@ -704,4 +698,13 @@ export function formatDuration(seconds: number): string {
   }
 
   return `${minutes} phút ${remainingSeconds} giây`;
+}
+
+export function formatDistanceToNow(date: Date): string {
+  try {
+    return fDistanceToNow(date, { addSuffix: true });
+  } catch (error) {
+    console.error("Error formatting distance to now:", error);
+    return "Invalid Date";
+  }
 }

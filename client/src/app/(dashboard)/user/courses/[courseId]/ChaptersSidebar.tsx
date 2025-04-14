@@ -86,10 +86,7 @@ export default function ChaptersSidebar() {
           </div>
         </div>
 
-        <div
-          className="overflow-x-auto scrollbar-hide pb-4 -mx-2 overscroll-x-contain scroll-smooth"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
+        <div className="overflow-x-auto pb-4 -mx-2 overscroll-x-contain scroll-smooth">
           <div className="inline-flex px-4 py-2 space-x-4">
             {course.sections?.map((section, sectionIndex) => (
               <div
@@ -203,7 +200,7 @@ export default function ChaptersSidebar() {
                             </div>
                           )}
                         </div>
-                        <div className="flex-1 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                        <div className="flex-1 overflow-x-auto whitespace-nowrap">
                           <span className="truncate">{chapter.title}</span>
                         </div>
                         {isCompleted && !isActive && (

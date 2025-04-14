@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import React, { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -11,192 +12,237 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import {
   BookOpen,
   FileText,
   Award,
-  GraduationCap,
-  BarChart,
-  AlertCircle,
+  ChevronRight,
+  Clock,
+  CheckCircle,
 } from "lucide-react";
-import QuizReviewList from "@/components/QuizReviewList";
-import Header from "@/components/Header";
-import Loading from "@/components/Loading";
+import PageTitle from "@/components/PageTitle";
+import LoadingAlternative from "@/components/LoadingAlternative";
 import {
-  getUserProgressSummary,
-  ProgressSummary,
-} from "@/lib/studentProgressApi";
-import { format } from "date-fns";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+  useGetUserEnrolledCoursesQuery,
+  useGetCourseProgressQuery,
+  useGetCourseQuizResultsQuery,
+} from "@/state/api";
+import { formatDateString, formatDistanceToNow } from "@/lib/utils";
 
 export default function UserProgressPage() {
-  const { user, isLoaded } = useUser();
-  const [progressData, setProgressData] = useState<ProgressSummary | null>(
-    null
-  );
-  const [isLoadingProgress, setIsLoadingProgress] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { userId } = useAuth();
+  const router = useRouter();
 
-  useEffect(() => {
-    const fetchProgressData = async () => {
-      if (!user) return;
+  const { data: progressSummary, isLoading: isSummaryLoading } =
+    useGetCourseProgressQuery(`${userId}/summary`, { skip: !userId });
 
-      setIsLoadingProgress(true);
-      setError(null);
-      try {
-        const data = await getUserProgressSummary(user.id);
-        setProgressData(data);
-      } catch (err) {
-        console.error("Error fetching progress data:", err);
-        setError("Lỗi tải dữ liệu tiến độ. Vui lòng thử lại sau.");
-      } finally {
-        setIsLoadingProgress(false);
-      }
-    };
+  const { data: quizResults, isLoading: isQuizLoading } =
+    useGetCourseQuizResultsQuery(userId as string, { skip: !userId });
 
-    if (user) {
-      fetchProgressData();
-    }
-  }, [user]);
+  if (!userId) {
+    return <div>Please log in to view your progress.</div>;
+  }
 
-  if (!isLoaded || isLoadingProgress) return <Loading />;
-  if (!user) return <div>Vui lòng đăng nhập để xem tiến độ của bạn. </div>;
-
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "MMM d, yyyy");
-    } catch (error) {
-      return "Unknown date";
-    }
-  };
+  if (isSummaryLoading || isQuizLoading) {
+    return <LoadingAlternative />;
+  }
 
   return (
-    <div className="container mx-auto p-6">
-      <Header
-        title="Tiến độ của tôi"
-        subtitle="Theo dõi thành tích học tập của bạn"
-      />
+    <div className="p-6 space-y-6">
+      <PageTitle title="My Learning Progress" />
 
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Lỗi</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Enrolled Courses
+            </CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {progressSummary?.enrolledCourses || 0}
+            </div>
+          </CardContent>
+        </Card>
 
-      <Tabs defaultValue="quizzes" className="w-full mt-6">
-        <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="overview" className="py-3">
-            <GraduationCap className="h-4 w-4 mr-2" />
-            Tổng quan học tập
-          </TabsTrigger>
-          <TabsTrigger value="quizzes" className="py-3">
-            <FileText className="h-4 w-4 mr-2" />
-            Kết quả bài kiểm tra
-          </TabsTrigger>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Completed Quizzes
+            </CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {progressSummary?.completedQuizzes || 0}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Achievements</CardTitle>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {progressSummary?.achievements || 0}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="courses" className="w-full">
+        <TabsList>
+          <TabsTrigger value="courses">My Courses</TabsTrigger>
+          <TabsTrigger value="quizzes">My Quizzes</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <BookOpen className="mr-2 h-5 w-5 text-primary" />
-                  Khóa học
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {progressData?.enrolledCourses || 0}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Khóa học đã đăng ký
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <FileText className="mr-2 h-5 w-5 text-blue-500" />
-                  Bài kiểm tra
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {progressData?.completedQuizzes || 0}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Bài kiểm tra đã hoàn thành
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Award className="mr-2 h-5 w-5 text-yellow-500" />
-                  Thành tích
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {progressData?.achievements || 0}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Thành tích học tập
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="mb-8">
+        <TabsContent value="courses" className="space-y-4">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-xl">Tổng quan tiến độ</CardTitle>
+              <CardTitle>Course Progress</CardTitle>
               <CardDescription>
-                Trạng thái hoàn thành khóa học trong tất cả các đăng ký
+                View your progress in enrolled courses
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {progressData?.courseProgress &&
-              progressData.courseProgress.length > 0 ? (
-                <div className="space-y-8">
-                  {progressData.courseProgress.map((course) => (
-                    <div key={course.courseId}>
-                      <div className="flex justify-between mb-2">
-                        <div>
-                          <h3 className="font-medium">{course.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Đăng ký vào {formatDate(course.enrollmentDate)}
-                          </p>
-                        </div>
-                        <span className="font-medium">
-                          {Math.round(course.progress)}%
-                        </span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary"
-                          style={{ width: `${course.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {progressSummary?.courseProgress?.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Course</TableHead>
+                      <TableHead>Enrolled On</TableHead>
+                      <TableHead>Progress</TableHead>
+                      <TableHead>Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {progressSummary.courseProgress.map((course: any) => (
+                      <TableRow key={course.courseId}>
+                        <TableCell className="font-medium">
+                          {course.title}
+                        </TableCell>
+                        <TableCell>
+                          {formatDateString(course.enrollmentDate)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Progress value={course.progress} className="h-2" />
+                            <span className="text-xs text-muted-foreground">
+                              {course.progress}%
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              router.push(`/user/courses/${course.courseId}`)
+                            }
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               ) : (
-                <div className="py-8 text-center">
+                <div className="text-center py-4">
                   <p className="text-muted-foreground">
-                    Không có dữ liệu tiến độ khóa học. Đăng ký khóa học để theo
-                    dõi tiến độ của bạn.
+                    You are not enrolled in any courses yet.
                   </p>
+                  <Button
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => router.push("/user/courses")}
+                  >
+                    Browse Courses
+                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="quizzes">
-          <QuizReviewList userId={user.id} />
+        <TabsContent value="quizzes" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quiz Results</CardTitle>
+              <CardDescription>
+                View all your quiz attempts and results
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {quizResults?.data?.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Quiz</TableHead>
+                      <TableHead>Score</TableHead>
+                      <TableHead>Completed</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {quizResults.data.map((quiz: any) => (
+                      <TableRow key={quiz.quizId}>
+                        <TableCell className="font-medium">
+                          {quiz.courseTitle} - {quiz.quizTitle || "Quiz"}
+                        </TableCell>
+                        <TableCell>
+                          {quiz.score}/{quiz.totalQuestions} (
+                          {Math.round((quiz.score / quiz.totalQuestions) * 100)}
+                          %)
+                        </TableCell>
+                        <TableCell>
+                          {formatDistanceToNow(new Date(quiz.completionDate))}
+                        </TableCell>
+                        <TableCell>
+                          {quiz.score / quiz.totalQuestions >= 0.7 ? (
+                            <div className="flex items-center text-green-500">
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Passed
+                            </div>
+                          ) : (
+                            <div className="flex items-center text-amber-500">
+                              <Clock className="h-4 w-4 mr-1" />
+                              Needs Improvement
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground">
+                    You haven&apos;t completed any quizzes yet.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => router.push("/user/courses")}
+                  >
+                    Browse Courses
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
