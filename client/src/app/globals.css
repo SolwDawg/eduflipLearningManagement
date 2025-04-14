@@ -1452,3 +1452,75 @@ input[type="color"] {
   align-items: center;
   gap: 1rem;
 }
+
+/* Add responsive utility classes for course editor */
+@layer components {
+  /* Responsive Course Editor Styles */
+  .course-editor-container {
+    @apply container mx-auto px-4 py-6;
+  }
+
+  .course-editor-header {
+    @apply flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4;
+  }
+
+  .course-editor-actions {
+    @apply flex flex-wrap gap-3 my-4;
+  }
+
+  .course-editor-action-button {
+    @apply flex-grow sm:flex-grow-0 whitespace-nowrap;
+  }
+
+  .course-editor-form {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-6 mt-5;
+  }
+
+  .course-editor-form-section {
+    @apply space-y-4;
+  }
+
+  .course-editor-chapters {
+    @apply bg-white-50 p-4 rounded-lg;
+  }
+
+  .course-editor-chapter-header {
+    @apply flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2;
+  }
+
+  .course-editor-add-chapter {
+    @apply border-dashed flex w-full sm:w-auto justify-center;
+  }
+
+  /* Responsive form header */
+  .form-header-container {
+    @apply mb-6;
+  }
+
+  .form-header-actions {
+    @apply flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 sm:mt-0;
+  }
+
+  .form-header-button {
+    @apply w-full sm:w-auto;
+  }
+
+  /* Responsive field groups */
+  .field-group {
+    @apply flex flex-col space-y-2;
+  }
+
+  .field-group-row {
+    @apply flex flex-col sm:flex-row gap-3;
+  }
+
+  /* Responsive image preview */
+  .image-preview-container {
+    @apply relative w-full h-40 sm:h-48 md:h-56 rounded-md overflow-hidden;
+  }
+
+  /* Responsive button containers */
+  .button-container {
+    @apply flex flex-wrap items-center gap-2;
+  }
+}

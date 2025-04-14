@@ -74,19 +74,21 @@ const SectionModal = () => {
 
   return (
     <CustomModal isOpen={isSectionModalOpen} onClose={onClose}>
-      <div className="section-modal">
-        <div className="section-modal__header">
-          <h2 className="section-modal__title">Thêm/Sửa chương</h2>
-          <button onClick={onClose} className="section-modal__close">
-            <X className="w-6 h-6" />
+      <div className="max-w-lg w-full mx-auto">
+        <div className="flex items-center justify-between mb-4 pb-2 border-b">
+          <h2 className="text-xl font-semibold text-primary-800">
+            {selectedSectionIndex === null ? "Thêm chương" : "Sửa chương"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <Form {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(onSubmit)}
-            className="section-modal__form"
-          >
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
             <CustomFormField
               name="title"
               label="Tiêu đề chương"
@@ -100,20 +102,20 @@ const SectionModal = () => {
               placeholder="Mô tả chương"
             />
 
-            <div className="section-modal__actions">
+            <div className="flex flex-col xs:flex-row pt-4 gap-2 sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className="text-primary-600 hover:text-primary-700"
+                className="w-full xs:w-auto"
               >
                 Huỷ
               </Button>
               <Button
                 type="submit"
-                className="bg-primary-700 text-primary-50 hover:text-primary-100"
+                className="w-full xs:w-auto bg-primary-700 hover:bg-primary-600"
               >
-                Lưu
+                {selectedSectionIndex === null ? "Thêm" : "Cập nhật"}
               </Button>
             </div>
           </form>

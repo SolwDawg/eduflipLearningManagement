@@ -533,59 +533,59 @@ const CourseEditor = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="course-editor">
-        <div className="course-editor__header">
-          <div className="course-editor__back">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/teacher/courses")}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </div>
-          <div className="course-editor__title">
-            <h1>{course?.title || "Khoá học mới"}</h1>
-          </div>
-          <div className="course-editor__actions my-4">
-            <Button
-              variant="outline"
-              className="mr-2"
-              onClick={() => router.push(`/teacher/courses/${id}/quizzes`)}
-            >
-              <BookCheck className="mr-2 h-4 w-4" />
-              Bài kiểm tra
-            </Button>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+          <Button
+            variant="ghost"
+            className="flex items-center text-muted-foreground w-fit"
+            onClick={() => router.push("/teacher/courses")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Trở về danh sách khoá học
+          </Button>
 
-            <Button
-              type="button"
-              onClick={handleMeetingActions}
-              className="whitespace-nowrap"
-              variant="outline"
+          <div className="flex flex-col xs:flex-row gap-2">
+            <Link
+              href={`/teacher/courses/${id}/analytics`}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
             >
-              {course?.meetLink ? (
-                <>
-                  <LinkIcon className="mr-2 h-4 w-4" />
-                  Google Meet
-                </>
-              ) : (
-                <>
-                  <LinkIcon className="mr-2 h-4 w-4" />
-                  Tạo Google Meet
-                </>
-              )}
-            </Button>
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Phân tích
+            </Link>
           </div>
         </div>
 
-        <Form {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <div className="flex flex-wrap gap-4 items-center my-4">
+          <Button
+            variant="outline"
+            className="flex-grow sm:flex-grow-0"
+            onClick={() => router.push(`/teacher/courses/${id}/quizzes`)}
+          >
+            <BookCheck className="mr-2 h-4 w-4" />
+            <span className="whitespace-nowrap">Bài kiểm tra</span>
+          </Button>
+
+          <Button
+            type="button"
+            onClick={handleMeetingActions}
+            className="whitespace-nowrap flex-grow sm:flex-grow-0"
+            variant="outline"
+          >
+            <LinkIcon className="mr-2 h-4 w-4" />
+            {course?.meetLink ? "Google Meet" : "Tạo Google Meet"}
+          </Button>
+        </div>
+      </div>
+
+      <Form {...methods}>
+        <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <div className="mb-6">
             <Header
               title="Thiết lập khoá học"
               subtitle="Hoàn tất tất cả các trường và lưu khoá học của bạn"
               rightElement={
-                <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 sm:mt-0">
                   <CustomFormField
                     name="courseStatus"
                     label={
@@ -602,234 +602,242 @@ const CourseEditor = () => {
                   />
                   <Button
                     type="submit"
-                    className="bg-primary-700 hover:bg-primary-600"
+                    className="bg-primary-700 hover:bg-primary-600 w-full sm:w-auto"
                   >
                     {methods.watch("courseStatus")
-                      ? "Cập nhật khoá học đã xuất bản"
+                      ? "Cập nhật khoá học"
                       : "Lưu bản nháp"}
                   </Button>
                 </div>
               }
             />
+          </div>
 
-            <div className="flex justify-between md:flex-row flex-col gap-10 mt-5 font-dm-sans">
-              <div className="basis-1/2">
-                <div className="space-y-4">
-                  <CustomFormField
-                    name="courseTitle"
-                    label="Tiêu đề khoá học"
-                    type="text"
-                    placeholder="Tiêu đề khoá học"
-                    className="border-none"
-                    initialValue={course?.title}
-                  />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-5 font-dm-sans">
+            <div>
+              <div className="space-y-4">
+                <CustomFormField
+                  name="courseTitle"
+                  label="Tiêu đề khoá học"
+                  type="text"
+                  placeholder="Tiêu đề khoá học"
+                  className="border-none"
+                  initialValue={course?.title}
+                />
 
-                  <CustomFormField
-                    name="courseDescription"
-                    label="Mô tả khoá học"
-                    type="textarea"
-                    placeholder="Mô tả khoá học"
-                    initialValue={course?.description}
-                  />
+                <CustomFormField
+                  name="courseDescription"
+                  label="Mô tả khoá học"
+                  type="textarea"
+                  placeholder="Mô tả khoá học"
+                  initialValue={course?.description}
+                />
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Liên kết lớp trực tuyến
-                    </label>
-                    <div className="flex flex-col space-y-3">
-                      <div className="relative flex items-center">
-                        <div className="absolute left-3">
-                          <LinkIcon size={16} className="text-gray-500" />
-                        </div>
-                        <Input
-                          type="text"
-                          placeholder="Nhập mã cuộc họp (ví dụ: abc-defg-hij)"
-                          value={meetLink}
-                          onChange={(e) => {
-                            const inputValue = e.target.value;
-                            if (inputValue.includes("meet.google.com/")) {
-                              setMeetLink(extractMeetCode(inputValue));
-                            } else {
-                              setMeetLink(inputValue);
-                            }
-                          }}
-                          className="pl-10"
-                        />
-                        <div className="absolute right-2 flex gap-1">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  type="button"
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={copyMeetLinkToClipboard}
-                                  disabled={!meetLink}
-                                  className="h-8 w-8"
-                                >
-                                  <Copy size={16} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Copy link</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  type="button"
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    if (meetLink) {
-                                      // Make sure it's a valid URL
-                                      const url = meetLink.includes("http")
-                                        ? meetLink
-                                        : `https://meet.google.com/${meetLink}`;
-                                      window.open(url, "_blank");
-                                    }
-                                  }}
-                                  disabled={!meetLink}
-                                  className="h-8 w-8"
-                                >
-                                  <ExternalLink size={16} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Mở liên kết</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Liên kết lớp trực tuyến
+                  </label>
+                  <div className="flex flex-col space-y-3">
+                    <div className="relative flex items-center">
+                      <div className="absolute left-3">
+                        <LinkIcon size={16} className="text-gray-500" />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          onClick={handleUpdateMeetLink}
-                          disabled={isUpdatingMeetLink || !meetLink}
-                          className="w-fit"
-                        >
-                          {isUpdatingMeetLink
-                            ? "Đang cập nhật..."
-                            : "Lưu liên kết"}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="default"
-                          size="sm"
-                          onClick={generateMeetLink}
-                          disabled={isUpdatingMeetLink}
-                          className="w-fit"
-                        >
-                          Tạo cuộc họp mới
-                        </Button>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Nhập mã cuộc họp (ví dụ: abc-defg-hij) hoặc dán liên kết
-                        hoàn chỉnh. Nhấp vào &quot;Tạo cuộc họp mới&quot; để tạo
-                        cuộc họp Google Meet mới, sau đó sao chép mã từ thanh
-                        địa chỉ và dán lại vào đây.{" "}
-                        <span className="text-primary-700">
-                          Liên kết cuộc họp sẽ được lưu tự động khi bạn cập nhật
-                          khoá học.
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Hình ảnh khoá học
-                    </label>
-                    <div className="flex flex-col space-y-3">
-                      {imagePreview && (
-                        <div className="relative w-full h-40 rounded-md overflow-hidden">
-                          <Image
-                            width={200}
-                            height={200}
-                            src={imagePreview}
-                            alt="Course preview"
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setImagePreview(null);
-                              setImageFile(null);
-                            }}
-                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <line x1="18" y1="6" x2="6" y2="18"></line>
-                              <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                          </button>
-                        </div>
-                      )}
-                      <input
-                        type="file"
-                        id="courseImage"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                          file:rounded-full file:text-white-100 file:border-0 file:text-sm file:font-semibold
-                          file:bg-primary-700 file:text-white hover:file:bg-primary-600"
+                      <Input
+                        type="text"
+                        placeholder="Nhập mã cuộc họp (ví dụ: abc-defg-hij)"
+                        value={meetLink}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (inputValue.includes("meet.google.com/")) {
+                            setMeetLink(extractMeetCode(inputValue));
+                          } else {
+                            setMeetLink(inputValue);
+                          }
+                        }}
+                        className="pl-10 pr-20"
                       />
+                      <div className="absolute right-2 flex gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                onClick={copyMeetLinkToClipboard}
+                                disabled={!meetLink}
+                                className="h-8 w-8"
+                              >
+                                <Copy size={16} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy link</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => {
+                                  if (meetLink) {
+                                    // Make sure it's a valid URL
+                                    const url = meetLink.includes("http")
+                                      ? meetLink
+                                      : `https://meet.google.com/${meetLink}`;
+                                    window.open(url, "_blank");
+                                  }
+                                }}
+                                disabled={!meetLink}
+                                className="h-8 w-8"
+                              >
+                                <ExternalLink size={16} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Mở liên kết</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleUpdateMeetLink}
+                        disabled={isUpdatingMeetLink || !meetLink}
+                        className="w-fit"
+                      >
+                        {isUpdatingMeetLink
+                          ? "Đang cập nhật..."
+                          : "Lưu liên kết"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={generateMeetLink}
+                        disabled={isUpdatingMeetLink}
+                        className="w-fit"
+                      >
+                        Tạo cuộc họp mới
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Nhập mã cuộc họp (ví dụ: abc-defg-hij) hoặc dán liên kết
+                      hoàn chỉnh. Nhấp vào &quot;Tạo cuộc họp mới&quot; để tạo
+                      cuộc họp Google Meet mới, sau đó sao chép mã từ thanh địa
+                      chỉ và dán lại vào đây.{" "}
+                      <span className="text-primary-700">
+                        Liên kết cuộc họp sẽ được lưu tự động khi bạn cập nhật
+                        khoá học.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Hình ảnh khoá học
+                  </label>
+                  <div className="flex flex-col space-y-3">
+                    {imagePreview && (
+                      <div className="relative w-full h-40 sm:h-48 md:h-56 rounded-md overflow-hidden">
+                        <Image
+                          width={200}
+                          height={200}
+                          src={imagePreview}
+                          alt="Course preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImagePreview(null);
+                            setImageFile(null);
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      id="courseImage"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:text-white-100 file:border-0 file:text-sm file:font-semibold
+                        file:bg-primary-700 file:text-white hover:file:bg-primary-600"
+                    />
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="bg-white-50 mt-4 md:mt-0 p-4 rounded-lg basis-1/2">
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-2xl font-semibold text-black">Chương</h2>
+            <div className="bg-white-50 mt-4 lg:mt-0 p-4 rounded-lg">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                <h2 className="text-xl md:text-2xl font-semibold text-black">
+                  Chương
+                </h2>
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      dispatch(openSectionModal({ sectionIndex: null }))
-                    }
-                    className="border-none text-primary-700 group"
-                  >
-                    <Plus className="mr-1 h-4 w-4 text-primary-700 group-hover:white-100" />
-                    <span className="text-primary-700 group-hover:white-100">
-                      Thêm chương
-                    </span>
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    dispatch(openSectionModal({ sectionIndex: null }))
+                  }
+                  className="border-none text-primary-700 group"
+                >
+                  <Plus className="mr-1 h-4 w-4 text-primary-700 group-hover:white-100" />
+                  <span className="text-primary-700 group-hover:white-100">
+                    Thêm chương
+                  </span>
+                </Button>
+              </div>
 
+              <div className="min-h-[200px]">
                 {isLoading ? (
-                  <p>Đang tải nội dung khoá học...</p>
+                  <p className="text-center py-4">
+                    Đang tải nội dung khoá học...
+                  </p>
                 ) : sections.length > 0 ? (
                   <DroppableComponent />
                 ) : (
-                  <p>Không có chương trình học nào</p>
+                  <p className="text-center py-4 text-muted-foreground">
+                    Không có chương trình học nào
+                  </p>
                 )}
               </div>
             </div>
-          </form>
-        </Form>
+          </div>
+        </form>
+      </Form>
 
-        <ChapterModal />
-        <SectionModal />
-      </div>
+      <ChapterModal />
+      <SectionModal />
     </div>
   );
 };

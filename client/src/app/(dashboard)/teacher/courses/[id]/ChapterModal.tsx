@@ -114,19 +114,21 @@ const ChapterModal = () => {
 
   return (
     <CustomModal isOpen={isChapterModalOpen} onClose={onClose}>
-      <div className="chapter-modal">
-        <div className="chapter-modal__header">
-          <h2 className="chapter-modal__title">Thêm/Sửa Bài học</h2>
-          <button onClick={onClose} className="chapter-modal__close">
-            <X className="w-6 h-6" />
+      <div className="max-w-lg w-full mx-auto">
+        <div className="flex items-center justify-between mb-4 pb-2 border-b">
+          <h2 className="text-xl font-semibold text-primary-800">
+            {selectedChapterIndex === null ? "Thêm Bài học" : "Sửa Bài học"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <Form {...methods}>
-          <form
-            onSubmit={methods.handleSubmit(onSubmit)}
-            className="chapter-modal__form"
-          >
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
             <CustomFormField
               name="title"
               label="Tiêu đề bài học"
@@ -144,12 +146,13 @@ const ChapterModal = () => {
               control={methods.control}
               name="video"
               render={({ field: { onChange, value } }) => (
-                <FormItem>
-                  <FormLabel className="text-primary-600 text-sm">
-                    <Video className="w-4 h-4 inline mr-1" /> Video bài học
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-primary-600 text-sm flex items-center">
+                    <Video className="w-4 h-4 mr-1.5" />
+                    <span>Video bài học</span>
                   </FormLabel>
                   <FormControl>
-                    <div>
+                    <div className="space-y-2">
                       <Input
                         type="file"
                         accept="video/*"
@@ -159,16 +162,20 @@ const ChapterModal = () => {
                             onChange(file);
                           }
                         }}
-                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer text-primary-100"
+                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer text-primary-100 w-full"
                       />
                       {typeof value === "string" && value && (
-                        <div className="my-2 text-sm text-primary-500">
-                          Video hiện tại: {value.split("/").pop()}
+                        <div className="text-sm text-primary-500 bg-primary-50 p-2 rounded-md">
+                          <p className="truncate">
+                            Video hiện tại: {value.split("/").pop()}
+                          </p>
                         </div>
                       )}
                       {value instanceof File && (
-                        <div className="my-2 text-sm text-primary-500">
-                          Video đã chọn: {value.name}
+                        <div className="text-sm text-primary-500 bg-primary-50 p-2 rounded-md">
+                          <p className="truncate">
+                            Video đã chọn: {value.name}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -182,13 +189,13 @@ const ChapterModal = () => {
               control={methods.control}
               name="presentation"
               render={({ field: { onChange, value } }) => (
-                <FormItem>
-                  <FormLabel className="text-primary-600 text-sm">
-                    <FileUp className="w-4 h-4 inline mr-1" /> PowerPoint
-                    Presentation
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-primary-600 text-sm flex items-center">
+                    <FileUp className="w-4 h-4 mr-1.5" />
+                    <span>PowerPoint Presentation</span>
                   </FormLabel>
                   <FormControl>
-                    <div>
+                    <div className="space-y-2">
                       <Input
                         type="file"
                         accept=".ppt,.pptx,.pps,.ppsx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.presentationml.slideshow"
@@ -198,20 +205,20 @@ const ChapterModal = () => {
                             onChange(file);
                           }
                         }}
-                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer text-primary-100"
+                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer text-primary-100 w-full"
                       />
-                      <div className="text-xs text-primary-400 mt-1">
-                        Supported formats: .ppt, .pptx, .pps, .ppsx
-                      </div>
                       {typeof value === "string" && value && (
-                        <div className="my-2 text-sm text-primary-500">
-                          Current presentation: {value.split("/").pop()}
+                        <div className="text-sm text-primary-500 bg-primary-50 p-2 rounded-md">
+                          <p className="truncate">
+                            Presentation hiện tại: {value.split("/").pop()}
+                          </p>
                         </div>
                       )}
                       {value instanceof File && (
-                        <div className="my-2 text-sm text-primary-500">
-                          Selected presentation: {value.name} (
-                          {(value.size / (1024 * 1024)).toFixed(2)} MB)
+                        <div className="text-sm text-primary-500 bg-primary-50 p-2 rounded-md">
+                          <p className="truncate">
+                            Presentation đã chọn: {value.name}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -221,20 +228,28 @@ const ChapterModal = () => {
               )}
             />
 
-            <div className="chapter-modal__actions">
+            <CustomFormField
+              name="freePreview"
+              label="Xem trước miễn phí"
+              type="switch"
+              description="Cho phép học viên xem bài học này mà không cần đăng ký khoá học"
+              inputClassName="data-[state=checked]:bg-green-500"
+            />
+
+            <div className="flex flex-col xs:flex-row pt-4 gap-2 sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className="text-primary-600 hover:text-primary-700"
+                className="w-full xs:w-auto"
               >
                 Huỷ
               </Button>
               <Button
                 type="submit"
-                className="bg-primary-700 text-primary-50 hover:text-primary-100"
+                className="w-full xs:w-auto bg-primary-700 hover:bg-primary-600"
               >
-                Lưu
+                {selectedChapterIndex === null ? "Thêm" : "Cập nhật"}
               </Button>
             </div>
           </form>
