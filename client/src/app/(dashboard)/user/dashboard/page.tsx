@@ -93,9 +93,13 @@ export default function UserDashboardPage() {
     return <LoadingAlternative />;
   }
 
-  const enrolledCourses = dashboard?.data?.enrolledCourses || [];
-  const quizResults = dashboard?.data?.quizResults || [];
-  const overallStats = dashboard?.data?.overallStats || {
+  // Cast to any to overcome TypeScript limitations while debugging
+  const rawDashboard = dashboard as any;
+
+  // Access directly from raw dashboard
+  const enrolledCourses = rawDashboard?.enrolledCourses || [];
+  const quizResults = rawDashboard?.quizResults || [];
+  const overallStats = rawDashboard?.overallStats || {
     totalCourses: 0,
     coursesInProgress: 0,
     coursesCompleted: 0,
