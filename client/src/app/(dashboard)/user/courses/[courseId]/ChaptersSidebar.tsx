@@ -75,7 +75,7 @@ export default function ChaptersSidebar() {
   };
 
   return (
-    <div className="flex flex-col h-full border-r bg-gray-50 w-full md:w-72 lg:w-80 hidden md:flex overflow-hidden">
+    <div className="flex flex-col h-full border-r bg-gray-50 w-full overflow-hidden">
       <div className="p-3 sm:p-4 border-b flex-shrink-0 bg-white">
         <h3 className="font-medium text-sm sm:text-base md:text-lg truncate">
           {course.title}

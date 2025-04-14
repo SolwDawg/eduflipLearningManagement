@@ -16,6 +16,12 @@ import { UserButton } from "@clerk/nextjs";
 import StudentSidebar from "@/components/StudentSidebar";
 import { useTokenExpirationCheck } from "@/hooks/useTokenExpirationCheck";
 import MobileNavigation from "@/components/MobileNavigation";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { CustomResizableHandle } from "@/components/ui/custom-resizable-handle";
 
 export default function DashboardLayout({
   children,
@@ -29,6 +35,49 @@ export default function DashboardLayout({
   const isCoursePage = /^\/user\/courses\/[^\/]+(?:\/chapters\/[^\/]+)?$/.test(
     pathname
   );
+
+  // Default sidebar sizes with localStorage support
+  const [navSize, setNavSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("navSize");
+      return saved ? parseInt(saved) : 15;
+    }
+    return 15;
+  });
+
+  const [contentSize, setContentSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("contentSize");
+      return saved ? parseInt(saved) : 85;
+    }
+    return 85;
+  });
+
+  const [chaptersSize, setChaptersSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("chaptersSize");
+      return saved ? parseInt(saved) : 20;
+    }
+    return 20;
+  });
+
+  const [mainContentSize, setMainContentSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("mainContentSize");
+      return saved ? parseInt(saved) : 80;
+    }
+    return 80;
+  });
+
+  // Save sizes to localStorage when they change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("navSize", navSize.toString());
+      localStorage.setItem("contentSize", contentSize.toString());
+      localStorage.setItem("chaptersSize", chaptersSize.toString());
+      localStorage.setItem("mainContentSize", mainContentSize.toString());
+    }
+  }, [navSize, contentSize, chaptersSize, mainContentSize]);
 
   // Check token periodically (every 2 minutes)
   useTokenExpirationCheck(120000);
@@ -53,24 +102,68 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden">
-        <StudentSidebar />
-        <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
-          {courseId && <ChaptersSidebar />}
-          <div
-            className={cn(
-              "flex flex-col flex-1 overflow-y-auto",
-              isCoursePage && "md:pl-0"
-            )}
-          >
-            <Navbar isCoursePage={isCoursePage} />
-            <main className="flex-1 overflow-y-auto p-4 pb-16 md:pb-4">
-              {children}
-            </main>
-            <MobileNavigation />
-          </div>
-        </div>
-      </div>
+      <ResizablePanelGroup
+        direction="horizontal"
+        className="h-screen w-full overflow-hidden"
+      >
+        {/* Navigation sidebar - hidden on mobile */}
+        <ResizablePanel
+          defaultSize={navSize}
+          minSize={10}
+          maxSize={25}
+          className="hidden md:block"
+          onResize={(size) => setNavSize(size)}
+        >
+          <StudentSidebar />
+        </ResizablePanel>
+
+        <CustomResizableHandle hidden withHandle />
+
+        {/* Content area with conditional chapters sidebar */}
+        <ResizablePanel
+          defaultSize={contentSize}
+          onResize={(size) => setContentSize(size)}
+        >
+          {courseId ? (
+            <ResizablePanelGroup direction="horizontal">
+              {/* Chapters sidebar - only visible when in a course */}
+              <ResizablePanel
+                defaultSize={chaptersSize}
+                minSize={15}
+                maxSize={30}
+                className="hidden md:block"
+                onResize={(size) => setChaptersSize(size)}
+              >
+                <ChaptersSidebar />
+              </ResizablePanel>
+
+              <CustomResizableHandle hidden withHandle />
+
+              {/* Main content area */}
+              <ResizablePanel
+                defaultSize={mainContentSize}
+                onResize={(size) => setMainContentSize(size)}
+              >
+                <div className="flex flex-col h-full overflow-hidden">
+                  <Navbar isCoursePage={isCoursePage} />
+                  <main className="flex-1 overflow-y-auto p-4 pb-16 md:pb-4">
+                    {children}
+                  </main>
+                  <MobileNavigation />
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          ) : (
+            <div className="flex flex-col h-full overflow-hidden">
+              <Navbar isCoursePage={isCoursePage} />
+              <main className="flex-1 overflow-y-auto p-4 pb-16 md:pb-4">
+                {children}
+              </main>
+              <MobileNavigation />
+            </div>
+          )}
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </SidebarProvider>
   );
 }

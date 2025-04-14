@@ -69,7 +69,7 @@ const StudentSidebar = () => {
   return (
     <Sidebar
       collapsible="icon"
-      className="h-full bg-customgreys-primarybg border-primary-200 shadow-lg hidden md:block"
+      className="h-full bg-customgreys-primarybg border-primary-200 shadow-lg"
     >
       <SidebarHeader>
         <SidebarMenu className="flex items-center justify-between p-2">
