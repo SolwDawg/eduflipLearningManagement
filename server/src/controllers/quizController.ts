@@ -131,20 +131,60 @@ export const getCourseQuizzes = async (
 export const getQuiz = async (req: Request, res: Response): Promise<void> => {
   const { quizId } = req.params;
 
+  if (!quizId) {
+    res.status(400).json({ message: "Quiz ID is required" });
+    return;
+  }
+
   try {
-    // Fix: Using get() instead of findOne() which doesn't exist in dynamoose
+    console.log(`Fetching quiz with ID: ${quizId}`);
+
+    // Get the quiz
     const quiz = await Quiz.get(quizId);
 
     if (!quiz) {
+      console.log(`Quiz not found with ID: ${quizId}`);
       res.status(404).json({ message: "Quiz not found" });
       return;
     }
 
+    // Validate quiz data structure
+    if (!quiz.questions) {
+      quiz.questions = [];
+    }
+
+    // Validate questions are properly structured
+    if (Array.isArray(quiz.questions)) {
+      // Clean up any invalid questions
+      quiz.questions = quiz.questions.filter(
+        (q: any) => q && typeof q === "object"
+      );
+
+      // Ensure each question has required properties
+      quiz.questions = quiz.questions.map((question: any) => {
+        // If options are missing or not an array, initialize empty array
+        if (!Array.isArray(question.options)) {
+          question.options = [];
+        }
+
+        // Ensure all questions have a points value
+        if (typeof question.points !== "number") {
+          question.points = 1;
+        }
+
+        return question;
+      });
+    }
+
+    console.log(`Successfully retrieved quiz with ID: ${quizId}`);
+    console.log(`Quiz has ${quiz.questions.length} questions`);
+
     res.json(quiz);
   } catch (error) {
+    console.error(`Error fetching quiz with ID: ${quizId}:`, error);
     res.status(500).json({
       message: "Error fetching quiz",
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };

@@ -44,7 +44,7 @@ export default function StudentQuizView({
 }: StudentQuizViewProps) {
   const router = useRouter();
   const { user } = useUser();
-  const { data: quiz, isLoading } = useGetQuizQuery(quizId);
+  const { data: quiz, isLoading, error } = useGetQuizQuery(quizId);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<{ [key: string]: string | string[] }>(
     {}
@@ -116,7 +116,11 @@ export default function StudentQuizView({
   };
 
   const handleNextQuestion = () => {
-    if (quiz && currentQuestionIndex < quiz.questions.length - 1) {
+    if (
+      quiz &&
+      quiz.questions &&
+      currentQuestionIndex < quiz.questions.length - 1
+    ) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
@@ -128,20 +132,25 @@ export default function StudentQuizView({
   };
 
   const submitQuiz = () => {
-    if (!quiz) return;
+    if (!quiz || !quiz.questions) {
+      toast.error("Không thể nộp bài - dữ liệu bài kiểm tra không hợp lệ");
+      return;
+    }
 
     // Calculate score
     let earnedPoints = 0;
     let totalAvailablePoints = 0;
 
     quiz.questions.forEach((question) => {
+      if (!question) return;
+
       totalAvailablePoints += question.points || 1;
 
       const userAnswer = answers[question.questionId];
 
       if (question.type === QuestionType.MULTIPLE_CHOICE) {
         const correctOptions = question.options
-          ?.filter((opt) => opt.isCorrect)
+          ?.filter((opt) => opt && opt.isCorrect)
           .map((opt) => opt.optionId);
 
         // For multiple choice, check if answer is correct
@@ -233,26 +242,51 @@ export default function StudentQuizView({
     router.push(`/user/courses/${courseId}`);
   };
 
-  if (isLoading || isLoadingResult) {
+  // Handle error cases
+  if (error) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p>Đang tải bài kiểm tra...</p>
-        </div>
-      </div>
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle>Lỗi khi tải bài kiểm tra</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Không thể tải dữ liệu bài kiểm tra. Vui lòng thử lại sau.</p>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={() => router.back()}>Quay lại</Button>
+        </CardFooter>
+      </Card>
     );
   }
 
-  if (!quiz) {
+  // Handle loading state
+  if (isLoading || isLoadingResult) {
     return (
-      <div className="text-center p-8">
-        <h2 className="text-2xl font-bold mb-4">Không tìm thấy bài kiểm tra</h2>
-        <p className="mb-6">Bài kiểm tra bạn đang tìm kiếm không tồn tại.</p>
-        <Button onClick={() => router.push(`/user/courses/${courseId}`)}>
-          Trở lại khóa học
-        </Button>
-      </div>
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle>Đang tải bài kiểm tra...</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle case where quiz data is missing
+  if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle>Không tìm thấy bài kiểm tra</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Bài kiểm tra không tồn tại hoặc không có câu hỏi nào.</p>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={() => router.back()}>Quay lại</Button>
+        </CardFooter>
+      </Card>
     );
   }
 
@@ -261,6 +295,23 @@ export default function StudentQuizView({
 
   // Get current question
   const currentQuestion = quiz.questions[currentQuestionIndex];
+
+  // Safety check to ensure currentQuestion exists
+  if (!currentQuestion) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle>Lỗi dữ liệu</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Dữ liệu câu hỏi không hợp lệ. Vui lòng liên hệ quản trị viên.</p>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={() => router.back()}>Quay lại</Button>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   const getOptionStatus = (question: any, optionId: string) => {
     if (!quizSubmitted && !reviewMode) return null;
@@ -284,202 +335,224 @@ export default function StudentQuizView({
     return "N/A"; // For essay questions
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">{quiz.title}</h2>
-        {timeLeft !== null && !quizSubmitted && !reviewMode && (
-          <div className="flex items-center text-sm">
-            <Clock className="h-4 w-4 mr-1" />
-            <span>Thời gian còn lại: {formatTime(timeLeft)}</span>
-          </div>
-        )}
-        {reviewMode && (
-          <div className="flex items-center text-sm">
-            <span className="font-medium mr-2">Score:</span>
-            <span
-              className={
-                score / totalPoints >= 0.7 ? "text-green-600" : "text-red-600"
-              }
-            >
-              {score}/{totalPoints} ({Math.round((score / totalPoints) * 100)}%)
-            </span>
-          </div>
-        )}
-      </div>
-
-      <Progress value={progress} className="h-2" />
-
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle className="flex items-start">
-            <span className="mr-2">Q{currentQuestionIndex + 1}.</span>
-            <span>{currentQuestion.text}</span>
-          </CardTitle>
-          <CardDescription>
-            {currentQuestion.points || 1}{" "}
-            {currentQuestion.points === 1 ? "point" : "points"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {currentQuestion.type === QuestionType.MULTIPLE_CHOICE && (
-            <RadioGroup
-              value={answers[currentQuestion.questionId] as string}
-              onValueChange={(value) =>
-                handleAnswerChange(currentQuestion.questionId, value)
-              }
-              disabled={quizSubmitted || reviewMode}
-              className="space-y-3"
-            >
-              {currentQuestion.options?.map((option) => {
-                const status = getOptionStatus(
-                  currentQuestion,
-                  option.optionId
-                );
-                return (
-                  <div
-                    key={option.optionId}
-                    className={`flex items-center space-x-2 p-2 rounded-md ${
-                      status === "correct"
-                        ? "bg-green-50 border border-green-200"
-                        : status === "incorrect"
-                        ? "bg-red-50 border border-red-200"
-                        : ""
-                    }`}
-                  >
-                    <RadioGroupItem
-                      value={option.optionId}
-                      id={option.optionId}
-                      disabled={quizSubmitted || reviewMode}
-                    />
-                    <Label
-                      htmlFor={option.optionId}
-                      className="flex-1 cursor-pointer"
-                    >
-                      {option.text}
-                    </Label>
-                    {status === "correct" && (
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    )}
-                    {status === "incorrect" && (
-                      <XCircle className="h-5 w-5 text-red-600" />
-                    )}
-                  </div>
-                );
-              })}
-            </RadioGroup>
+  // Render quiz content only when we have all the necessary data
+  if (quiz && quiz.questions && quiz.questions.length > 0 && currentQuestion) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold">{quiz.title}</h2>
+          {timeLeft !== null && !quizSubmitted && !reviewMode && (
+            <div className="flex items-center text-sm">
+              <Clock className="h-4 w-4 mr-1" />
+              <span>Thời gian còn lại: {formatTime(timeLeft)}</span>
+            </div>
           )}
-
-          {currentQuestion.type === QuestionType.ESSAY && (
-            <div className="space-y-4">
-              <Textarea
-                placeholder="Enter your answer here..."
-                value={(answers[currentQuestion.questionId] as string) || ""}
-                onChange={(e) =>
-                  handleAnswerChange(currentQuestion.questionId, e.target.value)
+          {reviewMode && (
+            <div className="flex items-center text-sm">
+              <span className="font-medium mr-2">Score:</span>
+              <span
+                className={
+                  score / totalPoints >= 0.7 ? "text-green-600" : "text-red-600"
                 }
-                disabled={quizSubmitted || reviewMode}
-                className="min-h-[150px]"
-              />
-
-              {(quizSubmitted || reviewMode) && (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                  <p className="text-sm font-medium text-yellow-800 mb-1">
-                    Đánh giá tự luận:
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Câu hỏi tự luận yêu cầu đánh giá bằng tay bởi giáo viên của
-                    bạn.
-                  </p>
-                </div>
-              )}
+              >
+                {score}/{totalPoints} ({Math.round((score / totalPoints) * 100)}
+                %)
+              </span>
             </div>
           )}
+        </div>
 
-          {(quizSubmitted || reviewMode) && (
-            <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-md">
-              <h3 className="font-medium mb-2">Giải thích câu trả lời</h3>
-              {currentQuestion.type === QuestionType.MULTIPLE_CHOICE ? (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Câu trả lời đúng:{" "}
-                    <span className="font-medium">
-                      {getCorrectAnswer(currentQuestion)}
-                    </span>
-                  </p>
-                  {(currentQuestion as any).explanation ? (
-                    <p className="text-sm">
-                      {(currentQuestion as any).explanation}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Không có giải thích được cung cấp.
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Câu tự luận sẽ được đánh giá bởi giáo viên của bạn.
-                </p>
-              )}
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button
-            onClick={handlePrevQuestion}
-            disabled={currentQuestionIndex === 0}
-            variant="outline"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Trang trước
-          </Button>
+        <Progress value={progress} className="h-2" />
 
-          {currentQuestionIndex < quiz.questions.length - 1 ? (
-            <Button onClick={handleNextQuestion}>
-              Trang tiếp
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : !quizSubmitted && !reviewMode ? (
-            <Button
-              onClick={submitQuiz}
-              variant="default"
-              className="bg-green-600 hover:bg-green-700"
-            >
-              Gửi bài kiểm tra
-            </Button>
-          ) : (
-            <Button onClick={handleFinishQuiz}>Hoàn tất đánh giá</Button>
-          )}
-        </CardFooter>
-      </Card>
-
-      {(quizSubmitted || reviewMode) && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardTitle>Kết quả bài kiểm tra</CardTitle>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle className="flex items-start">
+              <span className="mr-2">Q{currentQuestionIndex + 1}.</span>
+              <span>{currentQuestion.text}</span>
+            </CardTitle>
             <CardDescription>
-              Điểm của bạn: {score} trên {totalPoints} điểm (
-              {Math.round((score / totalPoints) * 100)}%)
+              {currentQuestion.points || 1}{" "}
+              {currentQuestion.points === 1 ? "point" : "points"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm">
-              Bạn có thể điều hướng qua câu hỏi để đánh giá lại câu trả lời của
-              mình.
-            </p>
+            {currentQuestion.type === QuestionType.MULTIPLE_CHOICE && (
+              <RadioGroup
+                value={answers[currentQuestion.questionId] as string}
+                onValueChange={(value) =>
+                  handleAnswerChange(currentQuestion.questionId, value)
+                }
+                disabled={quizSubmitted || reviewMode}
+                className="space-y-3"
+              >
+                {currentQuestion.options?.map((option) => {
+                  const status = getOptionStatus(
+                    currentQuestion,
+                    option.optionId
+                  );
+                  return (
+                    <div
+                      key={option.optionId}
+                      className={`flex items-center space-x-2 p-2 rounded-md ${
+                        status === "correct"
+                          ? "bg-green-50 border border-green-200"
+                          : status === "incorrect"
+                          ? "bg-red-50 border border-red-200"
+                          : ""
+                      }`}
+                    >
+                      <RadioGroupItem
+                        value={option.optionId}
+                        id={option.optionId}
+                        disabled={quizSubmitted || reviewMode}
+                      />
+                      <Label
+                        htmlFor={option.optionId}
+                        className="flex-1 cursor-pointer"
+                      >
+                        {option.text}
+                      </Label>
+                      {status === "correct" && (
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      )}
+                      {status === "incorrect" && (
+                        <XCircle className="h-5 w-5 text-red-600" />
+                      )}
+                    </div>
+                  );
+                })}
+              </RadioGroup>
+            )}
+
+            {currentQuestion.type === QuestionType.ESSAY && (
+              <div className="space-y-4">
+                <Textarea
+                  placeholder="Enter your answer here..."
+                  value={(answers[currentQuestion.questionId] as string) || ""}
+                  onChange={(e) =>
+                    handleAnswerChange(
+                      currentQuestion.questionId,
+                      e.target.value
+                    )
+                  }
+                  disabled={quizSubmitted || reviewMode}
+                  className="min-h-[150px]"
+                />
+
+                {(quizSubmitted || reviewMode) && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <p className="text-sm font-medium text-yellow-800 mb-1">
+                      Đánh giá tự luận:
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Câu hỏi tự luận yêu cầu đánh giá bằng tay bởi giáo viên
+                      của bạn.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {(quizSubmitted || reviewMode) && (
+              <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-md">
+                <h3 className="font-medium mb-2">Giải thích câu trả lời</h3>
+                {currentQuestion.type === QuestionType.MULTIPLE_CHOICE ? (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Câu trả lời đúng:{" "}
+                      <span className="font-medium">
+                        {getCorrectAnswer(currentQuestion)}
+                      </span>
+                    </p>
+                    {(currentQuestion as any).explanation ? (
+                      <p className="text-sm">
+                        {(currentQuestion as any).explanation}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Không có giải thích được cung cấp.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Câu tự luận sẽ được đánh giá bởi giáo viên của bạn.
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex justify-between">
             <Button
-              onClick={handleFinishQuiz}
-              className="w-full"
+              onClick={handlePrevQuestion}
+              disabled={currentQuestionIndex === 0}
               variant="outline"
             >
-              Trở lại khóa học
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Trang trước
             </Button>
+
+            {currentQuestionIndex < quiz.questions.length - 1 ? (
+              <Button onClick={handleNextQuestion}>
+                Trang tiếp
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : !quizSubmitted && !reviewMode ? (
+              <Button
+                onClick={submitQuiz}
+                variant="default"
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Gửi bài kiểm tra
+              </Button>
+            ) : (
+              <Button onClick={handleFinishQuiz}>Hoàn tất đánh giá</Button>
+            )}
           </CardFooter>
         </Card>
-      )}
-    </div>
+
+        {(quizSubmitted || reviewMode) && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardHeader className="pb-2">
+              <CardTitle>Kết quả bài kiểm tra</CardTitle>
+              <CardDescription>
+                Điểm của bạn: {score} trên {totalPoints} điểm (
+                {Math.round((score / totalPoints) * 100)}%)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">
+                Bạn có thể điều hướng qua câu hỏi để đánh giá lại câu trả lời
+                của mình.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button
+                onClick={handleFinishQuiz}
+                className="w-full"
+                variant="outline"
+              >
+                Trở lại khóa học
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // Default return for empty or invalid quiz data
+  return (
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardHeader>
+        <CardTitle>Bài kiểm tra không hợp lệ</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>Không thể hiển thị bài kiểm tra. Dữ liệu không đầy đủ.</p>
+      </CardContent>
+      <CardFooter>
+        <Button onClick={() => router.back()}>Quay lại</Button>
+      </CardFooter>
+    </Card>
   );
 }

@@ -216,6 +216,62 @@ const customBaseQuery = async (
         return { data: null, error: result.error };
       }
 
+      // Handle specific error handling for quiz-related endpoints
+      const isQuizEndpoint =
+        typeof args === "string"
+          ? args.includes("/quizzes/")
+          : args.url?.includes("/quizzes/");
+
+      // Special handling for quiz endpoints to prevent client crashes
+      if (isQuizEndpoint && result.error) {
+        console.error(
+          `Quiz API error (${result?.error?.status || "UNKNOWN"}):`,
+          result.error
+        );
+
+        // For quiz endpoints, if we get a 404 or 500, return a safe default object
+        if (result.error.status === 404 || result.error.status === 500) {
+          if (
+            typeof args === "string" &&
+            args.includes("/quizzes/") &&
+            !args.includes("/course/")
+          ) {
+            // Single quiz endpoint - return a safe empty quiz
+            console.log(
+              "Returning safe empty quiz object for failed quiz request"
+            );
+            return {
+              data: {
+                quizId: "error",
+                title: "Quiz không tồn tại",
+                description: "Không thể tải dữ liệu bài kiểm tra",
+                questions: [],
+                timeLimit: null,
+              },
+            };
+          } else if (
+            typeof args === "object" &&
+            args.url &&
+            args.url.includes("/quizzes/") &&
+            !args.url.includes("/course/")
+          ) {
+            // Single quiz endpoint - return a safe empty quiz
+            console.log(
+              "Returning safe empty quiz object for failed quiz request"
+            );
+            return {
+              data: {
+                quizId: "error",
+                title: "Quiz không tồn tại",
+                description: "Không thể tải dữ liệu bài kiểm tra",
+                questions: [],
+                timeLimit: null,
+              },
+            };
+          }
+        }
+      }
+
       return result;
     }
 
