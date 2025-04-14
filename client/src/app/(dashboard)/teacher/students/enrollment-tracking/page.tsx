@@ -89,7 +89,7 @@ export default function EnrollmentTracking() {
         icon={<UserRound className="h-6 w-6" />}
       />
 
-      <Card className="mb-6">
+      <Card className="m-6">
         <CardHeader>
           <CardTitle>Chọn khoá học</CardTitle>
           <CardDescription>Xem thông tin đăng ký chi tiết</CardDescription>
