@@ -15,6 +15,7 @@ import SmartSearch from "@/components/SmartSearch";
 import { UserButton } from "@clerk/nextjs";
 import StudentSidebar from "@/components/StudentSidebar";
 import { useTokenExpirationCheck } from "@/hooks/useTokenExpirationCheck";
+import MobileNavigation from "@/components/MobileNavigation";
 
 export default function DashboardLayout({
   children,
@@ -52,19 +53,21 @@ export default function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="dashboard">
+      <div className="flex h-screen w-full overflow-hidden">
         <StudentSidebar />
-        <div className="dashboard__content">
+        <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
           {courseId && <ChaptersSidebar />}
           <div
             className={cn(
-              "dashboard__main",
-              isCoursePage && "dashboard__main--not-course"
+              "flex flex-col flex-1 overflow-y-auto",
+              isCoursePage && "md:pl-0"
             )}
-            style={{ height: "100vh" }}
           >
             <Navbar isCoursePage={isCoursePage} />
-            <main className="dashboard__body">{children}</main>
+            <main className="flex-1 overflow-y-auto p-4 pb-16 md:pb-4">
+              {children}
+            </main>
+            <MobileNavigation />
           </div>
         </div>
       </div>

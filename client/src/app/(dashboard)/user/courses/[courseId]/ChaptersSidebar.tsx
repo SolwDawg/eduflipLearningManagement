@@ -75,8 +75,8 @@ export default function ChaptersSidebar() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-3 sm:p-4 border-b flex-shrink-0">
+    <div className="flex flex-col h-full border-r bg-gray-50 w-full md:w-72 lg:w-80 hidden md:flex overflow-hidden">
+      <div className="p-3 sm:p-4 border-b flex-shrink-0 bg-white">
         <h3 className="font-medium text-sm sm:text-base md:text-lg truncate">
           {course.title}
         </h3>
@@ -86,10 +86,7 @@ export default function ChaptersSidebar() {
         </div>
       </div>
 
-      <ScrollArea
-        className="flex-1 h-[calc(100vh-5rem)] sm:h-[calc(100vh-6rem)] md:h-[calc(100vh-7rem)]"
-        type="auto"
-      >
+      <ScrollArea className="flex-1 overflow-y-auto" type="auto">
         <div className="p-2 sm:p-3 md:p-4">
           {course.sections?.map((section, sectionIndex) => (
             <div
