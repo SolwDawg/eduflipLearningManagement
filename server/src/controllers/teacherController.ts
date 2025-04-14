@@ -415,3 +415,772 @@ export const getTeacherStudentsOverview = async (
     });
   }
 };
+
+/**
+ * Get the exact enrollment count for a specific course
+ * @swagger
+ * /api/teachers/course/{courseId}/enrollment-count:
+ *   get:
+ *     summary: Get the exact number of students enrolled in a course
+ *     description: Returns the exact count of students enrolled in a specific course
+ *     tags:
+ *       - Teachers
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         description: ID of the course
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved enrollment count
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Course enrollment count retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     courseId:
+ *                       type: string
+ *                       example: d290f1ee-6c54-4b01-90e6-d701748f0851
+ *                     title:
+ *                       type: string
+ *                       example: Introduction to JavaScript
+ *                     enrollmentCount:
+ *                       type: integer
+ *                       example: 25
+ *       401:
+ *         description: Unauthorized - User not authenticated
+ *       403:
+ *         description: Forbidden - User does not have permission to access this course's data
+ *       404:
+ *         description: Course not found
+ *       500:
+ *         description: Internal server error
+ */
+export const getCourseEnrollmentCount = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const auth = getAuth(req);
+
+    if (!auth || !auth.userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const teacherId = auth.userId;
+
+    // Verify that the course exists and the teacher owns it
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== teacherId) {
+      res.status(403).json({
+        message:
+          "You do not have permission to access this course's enrollment data",
+      });
+      return;
+    }
+
+    // Calculate the exact enrollment count
+    const enrollmentCount = course.enrollments ? course.enrollments.length : 0;
+
+    // Return the enrollment count
+    res.json({
+      message: "Course enrollment count retrieved successfully",
+      data: {
+        courseId: course.courseId,
+        title: course.title,
+        enrollmentCount,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving course enrollment count:", error);
+    res.status(500).json({
+      message: "Error retrieving course enrollment count",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+/**
+ * Get detailed enrollment information for a specific course
+ * @swagger
+ * /api/teachers/course/{courseId}/enrollment-details:
+ *   get:
+ *     summary: Get detailed enrollment information for a course
+ *     description: Returns detailed information about all students enrolled in a course
+ *     tags:
+ *       - Teachers
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         description: ID of the course
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved enrollment details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Course enrollment details retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     courseId:
+ *                       type: string
+ *                       example: d290f1ee-6c54-4b01-90e6-d701748f0851
+ *                     title:
+ *                       type: string
+ *                       example: Introduction to JavaScript
+ *                     enrollmentCount:
+ *                       type: integer
+ *                       example: 25
+ *                     enrolledStudents:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           userId:
+ *                             type: string
+ *                             example: user_2c9JhMXH2jKZqNJKLXVTMqXqRCC
+ *                           fullName:
+ *                             type: string
+ *                             example: John Doe
+ *                           email:
+ *                             type: string
+ *                             example: john.doe@example.com
+ *                           enrollmentDate:
+ *                             type: string
+ *                             format: date-time
+ *                             example: 2023-05-15T10:30:00Z
+ *                           overallProgress:
+ *                             type: number
+ *                             example: 65
+ *                           lastAccessDate:
+ *                             type: string
+ *                             format: date-time
+ *                             example: 2023-06-20T09:15:00Z
+ *       401:
+ *         description: Unauthorized - User not authenticated
+ *       403:
+ *         description: Forbidden - User does not have permission to access this course's data
+ *       404:
+ *         description: Course not found
+ *       500:
+ *         description: Internal server error
+ */
+export const getCourseEnrollmentDetails = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const auth = getAuth(req);
+
+    if (!auth || !auth.userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const teacherId = auth.userId;
+
+    // Verify that the course exists and the teacher owns it
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== teacherId) {
+      res.status(403).json({
+        message:
+          "You do not have permission to access this course's enrollment data",
+      });
+      return;
+    }
+
+    // If there are no enrollments, return empty data
+    if (!course.enrollments || course.enrollments.length === 0) {
+      res.json({
+        message: "No students enrolled in this course",
+        data: {
+          enrollmentCount: 0,
+          enrolledStudents: [],
+        },
+      });
+      return;
+    }
+
+    // Get detailed information for each enrolled student
+    const enrolledStudentsPromises = course.enrollments.map(
+      async (enrollment: any) => {
+        try {
+          // Get student details from Clerk
+          const user = await clerkClient.users.getUser(enrollment.userId);
+
+          // Get student progress
+          const progress = await UserCourseProgress.get({
+            userId: enrollment.userId,
+            courseId,
+          }).catch(() => null);
+
+          return {
+            userId: enrollment.userId,
+            fullName:
+              `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+              "Unknown",
+            email:
+              user.emailAddresses.length > 0
+                ? user.emailAddresses[0].emailAddress
+                : "N/A",
+            enrollmentDate: progress ? progress.enrollmentDate : "N/A",
+            overallProgress: progress ? progress.overallProgress : 0,
+            lastAccessDate: progress ? progress.lastAccessedTimestamp : "N/A",
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching details for user ${enrollment.userId}:`,
+            error
+          );
+          // Return minimal info if we can't get the details
+          return {
+            userId: enrollment.userId,
+            fullName: "Unknown User",
+            email: "N/A",
+            enrollmentDate: "N/A",
+            overallProgress: 0,
+            lastAccessDate: "N/A",
+          };
+        }
+      }
+    );
+
+    const enrolledStudents = await Promise.all(enrolledStudentsPromises);
+
+    res.json({
+      message: "Course enrollment details retrieved successfully",
+      data: {
+        courseId: course.courseId,
+        title: course.title,
+        enrollmentCount: course.enrollments.length,
+        enrolledStudents,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving course enrollment details:", error);
+    res.status(500).json({
+      message: "Error retrieving course enrollment details",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+/**
+ * Get the count of students who have completed quizzes for a specific course
+ * @swagger
+ * /api/teachers/course/{courseId}/quiz-completion-count:
+ *   get:
+ *     summary: Get the count of students who have completed quizzes for a course
+ *     description: Returns the exact number of students who have completed at least one quiz in the course
+ *     tags:
+ *       - Teachers
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         description: ID of the course
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved quiz completion count
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Quiz completion count retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     courseId:
+ *                       type: string
+ *                       example: d290f1ee-6c54-4b01-90e6-d701748f0851
+ *                     title:
+ *                       type: string
+ *                       example: Introduction to JavaScript
+ *                     enrollmentCount:
+ *                       type: integer
+ *                       example: 25
+ *                     quizCompletionCount:
+ *                       type: integer
+ *                       example: 18
+ *                     completionRate:
+ *                       type: number
+ *                       example: 72
+ *                     quizData:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           quizId:
+ *                             type: string
+ *                             example: quiz_12345
+ *                           title:
+ *                             type: string
+ *                             example: JavaScript Fundamentals Quiz
+ *                           completedCount:
+ *                             type: integer
+ *                             example: 15
+ *                           averageScore:
+ *                             type: number
+ *                             example: 78.5
+ *       401:
+ *         description: Unauthorized - User not authenticated
+ *       403:
+ *         description: Forbidden - User does not have permission to access this course's data
+ *       404:
+ *         description: Course not found
+ *       500:
+ *         description: Internal server error
+ */
+export const getCourseQuizCompletionCount = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const auth = getAuth(req);
+
+    if (!auth || !auth.userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const teacherId = auth.userId;
+
+    // Verify that the course exists and the teacher owns it
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== teacherId) {
+      res.status(403).json({
+        message: "You do not have permission to access this course's data",
+      });
+      return;
+    }
+
+    // If there are no enrollments, return zero counts
+    if (!course.enrollments || course.enrollments.length === 0) {
+      res.json({
+        message: "No students enrolled in this course",
+        data: {
+          courseId: course.courseId,
+          title: course.title,
+          enrollmentCount: 0,
+          quizCompletionCount: 0,
+          completionRate: 0,
+          quizData: [],
+        },
+      });
+      return;
+    }
+
+    const enrollmentCount = course.enrollments.length;
+
+    // Get all progress records for this course to check quiz completions
+    const progressRecords = await UserCourseProgress.scan("courseId")
+      .eq(courseId)
+      .exec();
+
+    // Count students who have completed at least one quiz
+    const studentsWithQuizzes = progressRecords.filter(
+      (record) => record.quizResults && record.quizResults.length > 0
+    );
+
+    const quizCompletionCount = studentsWithQuizzes.length;
+    const completionRate =
+      enrollmentCount > 0
+        ? Math.round((quizCompletionCount / enrollmentCount) * 100)
+        : 0;
+
+    // Collect data on individual quizzes
+    const quizMap = new Map();
+
+    // Process each student's quiz results
+    studentsWithQuizzes.forEach((record) => {
+      if (record.quizResults && Array.isArray(record.quizResults)) {
+        record.quizResults.forEach((quizResult: any) => {
+          const { quizId, score, totalQuestions } = quizResult;
+
+          if (!quizMap.has(quizId)) {
+            quizMap.set(quizId, {
+              quizId,
+              title: `Quiz ${quizId.substring(0, 8)}`, // Will try to get real titles below
+              completedCount: 0,
+              totalScore: 0,
+              attemptCount: 0,
+            });
+          }
+
+          const quizData = quizMap.get(quizId);
+          quizData.completedCount++;
+          quizData.totalScore += score;
+          quizData.attemptCount++;
+        });
+      }
+    });
+
+    // Try to get quiz titles
+    try {
+      const quizIds = Array.from(quizMap.keys());
+      if (quizIds.length > 0) {
+        const quizzes = await Quiz.scan("quizId").in(quizIds).exec();
+
+        quizzes.forEach((quiz: any) => {
+          if (quizMap.has(quiz.quizId)) {
+            quizMap.get(quiz.quizId).title = quiz.title;
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching quiz titles:", error);
+      // Continue without titles if there's an error
+    }
+
+    // Calculate average scores for each quiz
+    const quizData = Array.from(quizMap.values()).map((quiz) => ({
+      quizId: quiz.quizId,
+      title: quiz.title,
+      completedCount: quiz.completedCount,
+      averageScore:
+        quiz.attemptCount > 0
+          ? Math.round((quiz.totalScore / quiz.attemptCount) * 10) / 10
+          : 0,
+    }));
+
+    res.json({
+      message: "Quiz completion count retrieved successfully",
+      data: {
+        courseId: course.courseId,
+        title: course.title,
+        enrollmentCount,
+        quizCompletionCount,
+        completionRate,
+        quizData,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving quiz completion count:", error);
+    res.status(500).json({
+      message: "Error retrieving quiz completion count",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+/**
+ * Get detailed information about students who have completed quizzes for a specific course
+ * @swagger
+ * /api/teachers/course/{courseId}/students-with-quiz-completions:
+ *   get:
+ *     summary: Get detailed information about students who have completed quizzes
+ *     description: Returns a list of students who have completed quizzes for the course with their quiz completion details
+ *     tags:
+ *       - Teachers
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         description: ID of the course
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved students with quiz completions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Students with quiz completions retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     courseId:
+ *                       type: string
+ *                       example: d290f1ee-6c54-4b01-90e6-d701748f0851
+ *                     title:
+ *                       type: string
+ *                       example: Introduction to JavaScript
+ *                     enrollmentCount:
+ *                       type: integer
+ *                       example: 25
+ *                     studentsWithQuizzes:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           userId:
+ *                             type: string
+ *                             example: user_2c9JhMXH2jKZqNJKLXVTMqXqRCC
+ *                           fullName:
+ *                             type: string
+ *                             example: John Doe
+ *                           email:
+ *                             type: string
+ *                             example: john.doe@example.com
+ *                           completedQuizzes:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 quizId:
+ *                                   type: string
+ *                                   example: quiz_12345
+ *                                 title:
+ *                                   type: string
+ *                                   example: JavaScript Fundamentals Quiz
+ *                                 score:
+ *                                   type: number
+ *                                   example: 85
+ *                                 totalQuestions:
+ *                                   type: integer
+ *                                   example: 10
+ *                                 completionDate:
+ *                                   type: string
+ *                                   format: date-time
+ *                                   example: 2023-06-15T14:30:00Z
+ *                           averageQuizScore:
+ *                             type: number
+ *                             example: 82.5
+ *       401:
+ *         description: Unauthorized - User not authenticated
+ *       403:
+ *         description: Forbidden - User does not have permission to access this course's data
+ *       404:
+ *         description: Course not found
+ *       500:
+ *         description: Internal server error
+ */
+export const getStudentsWithQuizCompletions = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const auth = getAuth(req);
+
+    if (!auth || !auth.userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const teacherId = auth.userId;
+
+    // Verify that the course exists and the teacher owns it
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== teacherId) {
+      res.status(403).json({
+        message: "You do not have permission to access this course's data",
+      });
+      return;
+    }
+
+    // If there are no enrollments, return empty data
+    if (!course.enrollments || course.enrollments.length === 0) {
+      res.json({
+        message: "No students enrolled in this course",
+        data: {
+          courseId: course.courseId,
+          title: course.title,
+          enrollmentCount: 0,
+          studentsWithQuizzes: [],
+        },
+      });
+      return;
+    }
+
+    const enrollmentCount = course.enrollments.length;
+
+    // Get all progress records for this course to check quiz completions
+    const progressRecords = await UserCourseProgress.scan("courseId")
+      .eq(courseId)
+      .exec();
+
+    // Filter students who have completed at least one quiz
+    const studentsWithQuizzes = progressRecords.filter(
+      (record) => record.quizResults && record.quizResults.length > 0
+    );
+
+    if (studentsWithQuizzes.length === 0) {
+      res.json({
+        message: "No students have completed quizzes in this course",
+        data: {
+          courseId: course.courseId,
+          title: course.title,
+          enrollmentCount,
+          studentsWithQuizzes: [],
+        },
+      });
+      return;
+    }
+
+    // Try to get all quiz titles in a single request
+    const allQuizIds = new Set<string>();
+    studentsWithQuizzes.forEach((record) => {
+      if (record.quizResults && Array.isArray(record.quizResults)) {
+        record.quizResults.forEach((result: any) => {
+          allQuizIds.add(result.quizId);
+        });
+      }
+    });
+
+    const quizTitleMap: Record<string, string> = {};
+
+    // Get quiz titles if there are any quiz IDs
+    if (allQuizIds.size > 0) {
+      try {
+        const quizzes = await Quiz.scan("quizId")
+          .in(Array.from(allQuizIds))
+          .exec();
+
+        quizzes.forEach((quiz: any) => {
+          quizTitleMap[quiz.quizId] = quiz.title;
+        });
+      } catch (error) {
+        console.error("Error fetching quiz titles:", error);
+        // Continue without titles if there's an error
+      }
+    }
+
+    // Get detailed information for each student with quizzes
+    const studentDetailsPromises = studentsWithQuizzes.map(async (progress) => {
+      try {
+        // Get student details from Clerk
+        const user = await clerkClient.users.getUser(progress.userId);
+
+        // Process quiz results
+        const completedQuizzes = (progress.quizResults || []).map(
+          (result: any) => {
+            return {
+              quizId: result.quizId,
+              title:
+                quizTitleMap[result.quizId] ||
+                `Quiz ${result.quizId.substring(0, 8)}`,
+              score: result.score,
+              totalQuestions: result.totalQuestions,
+              completionDate: result.completionDate,
+              attemptCount: result.attemptCount || 1,
+            };
+          }
+        );
+
+        // Calculate average quiz score
+        const averageQuizScore =
+          completedQuizzes.length > 0
+            ? Math.round(
+                completedQuizzes.reduce(
+                  (sum: number, quiz: any) => sum + quiz.score,
+                  0
+                ) / completedQuizzes.length
+              )
+            : 0;
+
+        return {
+          userId: progress.userId,
+          fullName:
+            `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+            "Unknown",
+          email:
+            user.emailAddresses.length > 0
+              ? user.emailAddresses[0].emailAddress
+              : "N/A",
+          completedQuizzes,
+          averageQuizScore,
+          totalQuizzesCompleted: completedQuizzes.length,
+        };
+      } catch (error) {
+        console.error(
+          `Error fetching details for user ${progress.userId}:`,
+          error
+        );
+        // Return minimal info if we can't get the details
+        return {
+          userId: progress.userId,
+          fullName: "Unknown User",
+          email: "N/A",
+          completedQuizzes: progress.quizResults || [],
+          averageQuizScore: 0,
+          totalQuizzesCompleted: (progress.quizResults || []).length,
+        };
+      }
+    });
+
+    const detailedStudents = await Promise.all(studentDetailsPromises);
+
+    // Sort students by number of completed quizzes (highest first)
+    detailedStudents.sort(
+      (a, b) => b.totalQuizzesCompleted - a.totalQuizzesCompleted
+    );
+
+    res.json({
+      message: "Students with quiz completions retrieved successfully",
+      data: {
+        courseId: course.courseId,
+        title: course.title,
+        enrollmentCount,
+        studentsWithQuizzes: detailedStudents,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving students with quiz completions:", error);
+    res.status(500).json({
+      message: "Error retrieving students with quiz completions",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};

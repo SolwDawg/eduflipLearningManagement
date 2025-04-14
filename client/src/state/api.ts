@@ -1425,6 +1425,49 @@ export const api = createApi({
       providesTags: ["Courses", "CourseProgress"],
       keepUnusedDataFor: 300, // 5 minutes
     }),
+
+    /* 
+    ===============
+    TEACHER ENDPOINTS
+    =============== 
+    */
+    getCourseEnrollmentCount: build.query<
+      { courseId: string; title: string; enrollmentCount: number },
+      string
+    >({
+      query: (courseId) => ({
+        url: `teachers/course/${courseId}/enrollment-count`,
+        method: "GET",
+      }),
+      providesTags: (result, error, courseId) => [
+        { type: "Enrollments", id: courseId },
+      ],
+    }),
+
+    getCourseEnrollmentDetails: build.query<
+      {
+        courseId: string;
+        title: string;
+        enrollmentCount: number;
+        enrolledStudents: Array<{
+          userId: string;
+          fullName: string;
+          email: string;
+          enrollmentDate: string;
+          overallProgress: number;
+          lastAccessDate: string;
+        }>;
+      },
+      string
+    >({
+      query: (courseId) => ({
+        url: `teachers/course/${courseId}/enrollment-details`,
+        method: "GET",
+      }),
+      providesTags: (result, error, courseId) => [
+        { type: "Enrollments", id: courseId },
+      ],
+    }),
   }),
 });
 
@@ -1488,4 +1531,6 @@ export const {
   useGetAllTeacherCoursesWithAnalyticsQuery,
   useUpdateUserCourseProgressMutation,
   useGetUserDashboardQuery,
+  useGetCourseEnrollmentCountQuery,
+  useGetCourseEnrollmentDetailsQuery,
 } = api;

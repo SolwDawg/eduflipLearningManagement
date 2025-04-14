@@ -49,7 +49,7 @@ export default function UserProgressPage() {
     useGetUserQuizResultsQuery(userId as string, { skip: !userId });
 
   if (!userId) {
-    return <div>Please log in to view your progress.</div>;
+    return <div>Hãy đăng nhập để xem tiến độ học tập của bạn.</div>;
   }
 
   if (isSummaryLoading || isQuizLoading) {
@@ -58,13 +58,13 @@ export default function UserProgressPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <PageTitle title="My Learning Progress" />
+      <PageTitle title="Tiến độ học tập của tôi" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Enrolled Courses
+              Khóa học đã đăng ký
             </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -78,7 +78,7 @@ export default function UserProgressPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Completed Quizzes
+              Bài kiểm tra đã hoàn thành
             </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -91,7 +91,7 @@ export default function UserProgressPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Achievements</CardTitle>
+            <CardTitle className="text-sm font-medium">Thành tựu</CardTitle>
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -104,16 +104,16 @@ export default function UserProgressPage() {
 
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
-          <TabsTrigger value="courses">My Courses</TabsTrigger>
-          <TabsTrigger value="quizzes">My Quizzes</TabsTrigger>
+          <TabsTrigger value="courses">Khóa học của tôi</TabsTrigger>
+          <TabsTrigger value="quizzes">Bài kiểm tra của tôi</TabsTrigger>
         </TabsList>
 
         <TabsContent value="courses" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Course Progress</CardTitle>
+              <CardTitle>Tiến độ khóa học</CardTitle>
               <CardDescription>
-                View your progress in enrolled courses
+                Xem tiến độ học tập trong khóa học đã đăng ký
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -121,10 +121,10 @@ export default function UserProgressPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Course</TableHead>
-                      <TableHead>Enrolled On</TableHead>
-                      <TableHead>Progress</TableHead>
-                      <TableHead>Action</TableHead>
+                      <TableHead>Khóa học</TableHead>
+                      <TableHead>Ngày đăng ký</TableHead>
+                      <TableHead>Tiến độ</TableHead>
+                      <TableHead>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -162,14 +162,14 @@ export default function UserProgressPage() {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-muted-foreground">
-                    You are not enrolled in any courses yet.
+                    Bạn chưa đăng ký khóa học nào.
                   </p>
                   <Button
                     variant="outline"
                     className="mt-2"
                     onClick={() => router.push("/user/courses")}
                   >
-                    Browse Courses
+                    Xem khóa học
                   </Button>
                 </div>
               )}
@@ -180,9 +180,9 @@ export default function UserProgressPage() {
         <TabsContent value="quizzes" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Quiz Results</CardTitle>
+              <CardTitle>Kết quả bài kiểm tra</CardTitle>
               <CardDescription>
-                View all your quiz attempts and results
+                Xem tất cả các bài kiểm tra của bạn và kết quả
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -190,10 +190,10 @@ export default function UserProgressPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Quiz</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Completed</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Bài kiểm tra</TableHead>
+                      <TableHead>Điểm</TableHead>
+                      <TableHead>Hoàn thành</TableHead>
+                      <TableHead>Trạng thái</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -214,12 +214,12 @@ export default function UserProgressPage() {
                           {quiz.score / quiz.totalQuestions >= 0.7 ? (
                             <div className="flex items-center text-green-500">
                               <CheckCircle className="h-4 w-4 mr-1" />
-                              Passed
+                              Đã qua
                             </div>
                           ) : (
                             <div className="flex items-center text-amber-500">
                               <Clock className="h-4 w-4 mr-1" />
-                              Needs Improvement
+                              Cần cải thiện
                             </div>
                           )}
                         </TableCell>
@@ -230,14 +230,14 @@ export default function UserProgressPage() {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-muted-foreground">
-                    You haven&apos;t completed any quizzes yet.
+                    Bạn chưa hoàn thành bài kiểm tra nào.
                   </p>
                   <Button
                     variant="outline"
                     className="mt-2"
                     onClick={() => router.push("/user/courses")}
                   >
-                    Browse Courses
+                    Xem khóa học
                   </Button>
                 </div>
               )}

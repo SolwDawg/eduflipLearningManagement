@@ -15,10 +15,13 @@ import {
   Search,
   FileText,
   Award,
+  BarChart,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Student, StudentCourse } from "@/types/global";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface StudentsData {
   totalStudents: number;
@@ -103,6 +106,15 @@ const StudentsOverviewPage = () => {
         title="Tổng quan học sinh"
         subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
       />
+
+      <div className="flex justify-between items-center mb-6">
+        <Link href="/teacher/students/enrollment-tracking">
+          <Button variant="outline" className="flex items-center gap-2">
+            <BarChart className="h-4 w-4" />
+            Theo dõi đăng ký khóa học
+          </Button>
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card>
