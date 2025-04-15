@@ -218,7 +218,11 @@ export default function QuizTrackingPage() {
       </div>
 
       {selectedCourseId && (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full mt-4"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="summary">Tổng quan</TabsTrigger>
             <TabsTrigger value="students">Chi tiết học viên</TabsTrigger>
