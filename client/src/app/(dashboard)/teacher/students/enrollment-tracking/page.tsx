@@ -37,6 +37,8 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DataTable } from "@/components/ui/data-table";
+import { columns } from "./columns";
 
 export default function EnrollmentTracking() {
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
@@ -89,7 +91,7 @@ export default function EnrollmentTracking() {
         icon={<UserRound className="h-6 w-6" />}
       />
 
-      <Card className="m-6">
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle>Chọn khoá học</CardTitle>
           <CardDescription>Xem thông tin đăng ký chi tiết</CardDescription>
@@ -207,85 +209,12 @@ export default function EnrollmentTracking() {
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Học viên</TableHead>
-                          <TableHead>Ngày đăng ký</TableHead>
-                          <TableHead>Tiến độ</TableHead>
-                          <TableHead>Truy cập gần nhất</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {enrollmentDetails?.enrolledStudents.map((student) => (
-                          <TableRow key={student.userId}>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium">
-                                  {student.fullName}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {student.email}
-                                </p>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                                <span>
-                                  {formatDate(student.enrollmentDate)}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-medium">
-                                    {student.overallProgress}%
-                                  </span>
-                                  <Badge
-                                    variant={
-                                      student.overallProgress >= 80
-                                        ? "default"
-                                        : student.overallProgress >= 50
-                                        ? "secondary"
-                                        : "outline"
-                                    }
-                                    className={`text-xs ${
-                                      student.overallProgress >= 80
-                                        ? "bg-green-100 text-green-800 border-green-200"
-                                        : student.overallProgress >= 50
-                                        ? "bg-blue-100 text-blue-800 border-blue-200"
-                                        : ""
-                                    }`}
-                                  >
-                                    {student.overallProgress >= 80
-                                      ? "Hoàn thành"
-                                      : student.overallProgress >= 50
-                                      ? "Đang tiến triển"
-                                      : "Mới bắt đầu"}
-                                  </Badge>
-                                </div>
-                                <Progress
-                                  value={student.overallProgress}
-                                  className="h-2"
-                                />
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                                <span>
-                                  {formatDate(student.lastAccessDate)}
-                                </span>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  <DataTable
+                    columns={columns}
+                    data={enrollmentDetails?.enrolledStudents || []}
+                    searchKey="fullName"
+                    searchPlaceholder="Tìm kiếm học viên..."
+                  />
                 )}
               </CardContent>
             </Card>
