@@ -105,14 +105,16 @@ const UserProfilePage = () => {
             <Skeleton className="h-10 w-full" />
           ) : (
             <Select
-              value={selectedGradeId || ""}
-              onValueChange={(value) => setSelectedGradeId(value || null)}
+              value={selectedGradeId || "none"}
+              onValueChange={(value) =>
+                setSelectedGradeId(value === "none" ? null : value)
+              }
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Chọn lớp của bạn" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Không chọn lớp</SelectItem>
+                <SelectItem value="none">Không chọn lớp</SelectItem>
                 {grades?.map((grade) => (
                   <SelectItem key={grade.gradeId} value={grade.gradeId}>
                     {grade.name} (Lớp {grade.level})

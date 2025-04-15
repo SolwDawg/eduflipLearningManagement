@@ -50,7 +50,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function QuizTrackingPage() {
-  const [selectedGradeId, setSelectedGradeId] = useState<string>("");
+  const [selectedGradeId, setSelectedGradeId] = useState<string>("all");
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("summary");
   const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
@@ -75,15 +75,15 @@ export default function QuizTrackingPage() {
     isLoading: isLoadingGradeCourses,
     error: gradeCoursesError,
   } = useGetGradeCoursesQuery(selectedGradeId, {
-    skip: !selectedGradeId,
+    skip: !selectedGradeId || selectedGradeId === "all",
   });
 
   // Update available courses when grade selection changes
   useEffect(() => {
-    if (selectedGradeId && gradeCourses) {
+    if (selectedGradeId && selectedGradeId !== "all" && gradeCourses) {
       setAvailableCourses(gradeCourses);
       setSelectedCourseId(""); // Reset course selection on grade change
-    } else if (!selectedGradeId && allCourses) {
+    } else if (selectedGradeId === "all" && allCourses) {
       setAvailableCourses(allCourses);
     }
   }, [selectedGradeId, gradeCourses, allCourses]);
@@ -155,7 +155,7 @@ export default function QuizTrackingPage() {
                   <SelectValue placeholder="Chọn lớp" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tất cả lớp</SelectItem>
+                  <SelectItem value="all">Tất cả lớp</SelectItem>
                   {grades?.map((grade) => (
                     <SelectItem key={grade.gradeId} value={grade.gradeId}>
                       {grade.name} (Lớp {grade.level})
@@ -204,7 +204,7 @@ export default function QuizTrackingPage() {
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="" disabled>
+                    <SelectItem value="none" disabled>
                       {selectedGradeId
                         ? "Không có khóa học trong lớp này"
                         : "Không có khóa học nào"}
