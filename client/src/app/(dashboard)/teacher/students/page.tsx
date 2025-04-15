@@ -43,7 +43,7 @@ const StudentsOverviewPage = () => {
 
   if (isLoading) {
     return (
-      <div className="student-overview-header">
+      <div className="dashboard-container">
         <Header
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
@@ -58,7 +58,7 @@ const StudentsOverviewPage = () => {
 
   if (error) {
     return (
-      <div className="student-overview-header">
+      <div className="dashboard-container">
         <Header
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
@@ -129,7 +129,7 @@ const StudentsOverviewPage = () => {
   ];
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 mb-6">
       <PageTitle
         title="Quản lý học viên"
         description="Theo dõi và quản lý học viên trong các khoá học của bạn"
@@ -159,7 +159,7 @@ const StudentsOverviewPage = () => {
         ))}
       </div>
 
-      <div className="student-overview-header">
+      <div className="dashboard-container">
         <Header
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"

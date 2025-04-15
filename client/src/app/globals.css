@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -1110,19 +1110,6 @@ input[type="color"] {
 }
 
 .header__subtitle {
-  @apply text-sm text-gray-500 mt-1;
-}
-
-/* Student Overview Header */
-.student-overview-header {
-  @apply mb-7 flex justify-between items-center mt-10 pt-5;
-}
-
-.student-overview-header .header__title {
-  @apply text-3xl font-bold text-primary-900;
-}
-
-.student-overview-header .header__subtitle {
   @apply text-sm text-gray-500 mt-1;
 }
 
