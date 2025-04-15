@@ -43,7 +43,7 @@ const StudentsOverviewPage = () => {
 
   if (isLoading) {
     return (
-      <div className="dashboard-container">
+      <div className="student-overview-header">
         <Header
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
@@ -58,7 +58,7 @@ const StudentsOverviewPage = () => {
 
   if (error) {
     return (
-      <div className="dashboard-container">
+      <div className="student-overview-header">
         <Header
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"
@@ -159,7 +159,7 @@ const StudentsOverviewPage = () => {
         ))}
       </div>
 
-      <div className="dashboard-container">
+      <div className="student-overview-header">
         <Header
           title="Tổng quan học sinh"
           subtitle="Xem tổng quan về tất cả học sinh đã đăng ký khóa học của bạn"

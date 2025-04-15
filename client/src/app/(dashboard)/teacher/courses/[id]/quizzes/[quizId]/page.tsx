@@ -749,7 +749,7 @@ export default function EditQuiz() {
                                 className={`p-2 rounded-md text-sm ${
                                   option.isCorrect
                                     ? "bg-primary-700 text-white-100 border border-primary-600"
-                                    : "bg-customgreys-secondarybg text-white-50 border border-customgreys-darkerGrey"
+                                    : "bg-customgreys-secondarybg text-black border border-customgreys-darkerGrey"
                                 }`}
                               >
                                 {option.isCorrect && (

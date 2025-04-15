@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NonDashboardNavbar from "@/components/NonDashboardNavbar";
 import Footer from "@/components/Footer";
 import Landing from "./(nondashboard)/landing/page";
@@ -11,12 +11,39 @@ import Landing from "./(nondashboard)/landing/page";
 export default function Home() {
   const router = useRouter();
   const [showLanding, setShowLanding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user has visited before
+    const hasVisitedBefore = localStorage.getItem("hasVisitedBefore");
+
+    if (hasVisitedBefore) {
+      // Skip welcome page for returning users
+      setShowLanding(true);
+    }
+
+    setIsLoading(false);
+  }, []);
 
   const handleStart = () => {
+    // Save that user has visited
+    localStorage.setItem("hasVisitedBefore", "true");
     setShowLanding(true);
   };
 
-  // If user has clicked "Bắt đầu", show the landing page
+  // Show loading state while checking localStorage
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 border-t-2 border-b-2 border-primary-700 rounded-full animate-spin"></div>
+          <p className="text-primary-700">Đang tải...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user has visited before or clicked "Bắt đầu", show the landing page
   if (showLanding) {
     return (
       <div className="nondashboard-layout">
@@ -45,7 +72,7 @@ export default function Home() {
         </div>
 
         <h1 className="text-4xl font-bold mb-4 text-primary-700">
-          Cách học ngôn ngữ miễn phí, vui nhộn và hiệu quả!
+          Lớp học đổi chiều - Tư duy bức phá
         </h1>
 
         <p className="text-lg mb-8 text-foreground">
