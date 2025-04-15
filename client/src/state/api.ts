@@ -1602,6 +1602,22 @@ export const api = createApi({
         { type: "StudentProgress", id: courseId },
       ],
     }),
+
+    // Add updateUserGrade mutation
+    updateUserGrade: build.mutation<
+      { message: string; gradeId: string | null },
+      { userId: string; gradeId: string | null }
+    >({
+      query: ({ userId, gradeId }) => ({
+        url: `users/${userId}`,
+        method: "PUT",
+        body: { gradeId },
+      }),
+      invalidatesTags: (result, error, { userId }) => [
+        { type: "Users", id: userId },
+        "Users",
+      ],
+    }),
   }),
 });
 
@@ -1670,4 +1686,5 @@ export const {
   useGetCourseQuizCompletionCountQuery,
   useGetStudentsWithQuizCompletionsQuery,
   useGetDetailedCourseStudentPerformanceQuery,
+  useUpdateUserGradeMutation,
 } = api;

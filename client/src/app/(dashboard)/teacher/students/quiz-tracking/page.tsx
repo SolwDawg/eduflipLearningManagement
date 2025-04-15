@@ -5,6 +5,8 @@ import {
   useGetCoursesQuery,
   useGetCourseQuizCompletionCountQuery,
   useGetStudentsWithQuizCompletionsQuery,
+  useGetGradesQuery,
+  useGetGradeCoursesQuery,
 } from "@/state/api";
 import {
   Card,
@@ -31,6 +33,7 @@ import {
   Calendar,
   Award,
   Clock,
+  GraduationCap,
 } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -47,14 +50,43 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function QuizTrackingPage() {
+  const [selectedGradeId, setSelectedGradeId] = useState<string>("");
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("summary");
+  const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
 
+  // Fetch all grades
   const {
-    data: courses,
-    isLoading: isLoadingCourses,
-    error: coursesError,
+    data: grades,
+    isLoading: isLoadingGrades,
+    error: gradesError,
+  } = useGetGradesQuery();
+
+  // Fetch all courses (fallback)
+  const {
+    data: allCourses,
+    isLoading: isLoadingAllCourses,
+    error: allCoursesError,
   } = useGetCoursesQuery();
+
+  // Fetch grade courses when a grade is selected
+  const {
+    data: gradeCourses,
+    isLoading: isLoadingGradeCourses,
+    error: gradeCoursesError,
+  } = useGetGradeCoursesQuery(selectedGradeId, {
+    skip: !selectedGradeId,
+  });
+
+  // Update available courses when grade selection changes
+  useEffect(() => {
+    if (selectedGradeId && gradeCourses) {
+      setAvailableCourses(gradeCourses);
+      setSelectedCourseId(""); // Reset course selection on grade change
+    } else if (!selectedGradeId && allCourses) {
+      setAvailableCourses(allCourses);
+    }
+  }, [selectedGradeId, gradeCourses, allCourses]);
 
   const {
     data: quizCompletionCount,
@@ -90,50 +122,100 @@ export default function QuizTrackingPage() {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 mb-6">
       <PageTitle
         title="Theo dõi hoàn thành bài kiểm tra"
         description="Xem thông tin chi tiết về học viên đã hoàn thành bài kiểm tra trong khóa học"
         icon={<CheckCircle className="h-6 w-6" />}
       />
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Chọn khóa học</CardTitle>
-          <CardDescription>Xem thông tin bài kiểm tra chi tiết</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoadingCourses ? (
-            <Skeleton className="h-10 w-full" />
-          ) : coursesError ? (
-            <Alert variant="destructive">
-              <AlertTitle>Lỗi</AlertTitle>
-              <AlertDescription>
-                Không thể tải danh sách khóa học
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <Select
-              value={selectedCourseId}
-              onValueChange={(value) => {
-                setSelectedCourseId(value);
-                setActiveTab("summary"); // Reset to summary tab on course change
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Chọn khóa học" />
-              </SelectTrigger>
-              <SelectContent>
-                {courses?.map((course) => (
-                  <SelectItem key={course.courseId} value={course.courseId}>
-                    {course.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        {/* Grade Selection */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Chọn lớp</CardTitle>
+            <CardDescription>Lọc khóa học theo lớp</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingGrades ? (
+              <Skeleton className="h-10 w-full" />
+            ) : gradesError ? (
+              <Alert variant="destructive">
+                <AlertTitle>Lỗi</AlertTitle>
+                <AlertDescription>Không thể tải danh sách lớp</AlertDescription>
+              </Alert>
+            ) : (
+              <Select
+                value={selectedGradeId}
+                onValueChange={(value) => {
+                  setSelectedGradeId(value);
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn lớp" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tất cả lớp</SelectItem>
+                  {grades?.map((grade) => (
+                    <SelectItem key={grade.gradeId} value={grade.gradeId}>
+                      {grade.name} (Lớp {grade.level})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Course Selection */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Chọn khóa học</CardTitle>
+            <CardDescription>
+              Xem thông tin bài kiểm tra chi tiết
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingGradeCourses || isLoadingAllCourses ? (
+              <Skeleton className="h-10 w-full" />
+            ) : gradeCoursesError || allCoursesError ? (
+              <Alert variant="destructive">
+                <AlertTitle>Lỗi</AlertTitle>
+                <AlertDescription>
+                  Không thể tải danh sách khóa học
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Select
+                value={selectedCourseId}
+                onValueChange={(value) => {
+                  setSelectedCourseId(value);
+                  setActiveTab("summary"); // Reset to summary tab on course change
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn khóa học" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCourses?.length > 0 ? (
+                    availableCourses.map((course) => (
+                      <SelectItem key={course.courseId} value={course.courseId}>
+                        {course.title}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="" disabled>
+                      {selectedGradeId
+                        ? "Không có khóa học trong lớp này"
+                        : "Không có khóa học nào"}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {selectedCourseId && (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -381,8 +463,8 @@ export default function QuizTrackingPage() {
                                           quiz.score >= 80
                                             ? "bg-green-100 text-green-800 border-green-200"
                                             : quiz.score >= 60
-                                            ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                                            : "bg-red-100 text-red-800 border-red-200"
+                                              ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                              : "bg-red-100 text-red-800 border-red-200"
                                         }
                                       `}
                                     >

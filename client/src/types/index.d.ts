@@ -15,6 +15,7 @@ declare global {
     email: string;
     publicMetadata: {
       userType: "teacher" | "student";
+      gradeId?: string;
     };
     privateMetadata: {
       settings?: UserSettings;
@@ -41,6 +42,7 @@ declare global {
     enrollments?: Array<{
       userId: string;
     }>;
+    gradeId?: string;
   }
 
   interface DateRange {
