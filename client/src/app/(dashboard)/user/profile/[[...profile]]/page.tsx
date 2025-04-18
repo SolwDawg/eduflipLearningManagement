@@ -88,54 +88,6 @@ const UserProfilePage = () => {
   return (
     <div className="space-y-6">
       <Header title="Hồ sơ" subtitle="Xem và cập nhật hồ sơ của bạn" />
-
-      {/* Grade Selection Card */}
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl flex items-center gap-2">
-            <GraduationCap className="h-5 w-5" />
-            Lớp của tôi
-          </CardTitle>
-          <CardDescription>
-            Chọn lớp của bạn để xem nội dung phù hợp và được phân loại theo lớp
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading || isGradesLoading ? (
-            <Skeleton className="h-10 w-full" />
-          ) : (
-            <Select
-              value={selectedGradeId || "none"}
-              onValueChange={(value) =>
-                setSelectedGradeId(value === "none" ? null : value)
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Chọn lớp của bạn" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Không chọn lớp</SelectItem>
-                {grades?.map((grade) => (
-                  <SelectItem key={grade.gradeId} value={grade.gradeId}>
-                    {grade.name} (Lớp {grade.level})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </CardContent>
-        <CardFooter>
-          <Button
-            onClick={handleSaveGrade}
-            disabled={
-              isLoading || isUpdating || selectedGradeId === initialGradeId
-            }
-          >
-            {isUpdating ? "Đang lưu..." : "Lưu thay đổi"}
-          </Button>
-        </CardFooter>
-      </Card>
-
       {/* Clerk User Profile */}
       <UserProfile
         path="/user/profile"
