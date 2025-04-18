@@ -88,6 +88,7 @@ declare global {
     content: string;
     video?: string | File;
     presentation?: string | File;
+    document?: string | File;
     freePreview?: boolean;
     type: "Text" | "Quiz" | "Video";
     resources?: Array<{ title: string; url: string }>;
@@ -206,6 +207,7 @@ declare global {
       [chapterId: string]: {
         video: File | null;
         presentation: File | null;
+        document: File | null;
       };
     };
   }

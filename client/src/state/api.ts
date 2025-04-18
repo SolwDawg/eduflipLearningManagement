@@ -505,6 +505,23 @@ export const api = createApi({
       }),
     }),
 
+    getUploadDocumentUrl: build.mutation<
+      { uploadUrl: string; documentUrl: string },
+      {
+        courseId: string;
+        chapterId: string;
+        sectionId: string;
+        fileName: string;
+        fileType: string;
+      }
+    >({
+      query: ({ courseId, sectionId, chapterId, fileName, fileType }) => ({
+        url: `courses/${courseId}/sections/${sectionId}/chapters/${chapterId}/get-document-upload-url`,
+        method: "POST",
+        body: { fileName, fileType },
+      }),
+    }),
+
     getUploadImageUrl: build.mutation<
       { uploadUrl: string; imageUrl: string },
       {
@@ -1630,6 +1647,7 @@ export const {
   useGetCourseQuery,
   useGetUploadVideoUrlMutation,
   useGetUploadPresentationUrlMutation,
+  useGetUploadDocumentUrlMutation,
   useGetUploadImageUrlMutation,
   useGetUserEnrolledCoursesQuery,
   useGetUserCourseProgressQuery,

@@ -496,3 +496,215 @@ const getContentTypeForPresentation = (filename: string): string => {
       return "application/octet-stream";
   }
 };
+
+// Helper function to determine content type based on file extension for Word documents
+const getContentTypeForDocument = (filename: string): string => {
+  const extension = path.extname(filename).toLowerCase();
+
+  switch (extension) {
+    case ".doc":
+      return "application/msword";
+    case ".docx":
+      return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    default:
+      return "application/octet-stream";
+  }
+};
+
+// Get document upload URL
+export const getDocumentUploadUrl = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { courseId, sectionId, chapterId } = req.params;
+  const { fileName, fileType } = req.body;
+  const { userId } = getAuth(req);
+
+  console.log(`Document upload request received:`, {
+    courseId,
+    sectionId,
+    chapterId,
+    fileName,
+    fileType,
+  });
+
+  if (!fileName || !fileType) {
+    res.status(400).json({ message: "File name and type are required" });
+    return;
+  }
+
+  // Validate file extension
+  const fileExtension = fileName.split(".").pop()?.toLowerCase();
+  const validExtensions = ["doc", "docx"];
+
+  console.log(`Validating document extension: ${fileExtension}`);
+
+  if (!fileExtension || !validExtensions.includes(fileExtension)) {
+    console.error(`Invalid document extension: ${fileExtension}`);
+    res.status(400).json({
+      message:
+        "Invalid file type. Only Word documents (.doc, .docx) are allowed.",
+    });
+    return;
+  }
+
+  try {
+    const course = await Course.get(courseId);
+
+    if (!course) {
+      console.error(`Course not found: ${courseId}`);
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    // Verify teacher permissions
+    if (course.teacherId !== userId) {
+      console.error(`User ${userId} not authorized to edit course ${courseId}`);
+      res.status(403).json({ message: "Not authorized to edit this course" });
+      return;
+    }
+
+    const uniqueId = uuidv4();
+    const s3Key = `lectures/${courseId}/${sectionId}/${chapterId}/document/${uniqueId}-${fileName}`;
+
+    console.log(`Attempting to generate upload URL for document: ${s3Key}`);
+
+    try {
+      const s3 = new AWS.S3({
+        region: process.env.AWS_REGION,
+      });
+
+      const s3Params = {
+        Bucket: process.env.S3_BUCKET_NAME || "",
+        Key: s3Key,
+        Expires: 60,
+        ContentType: fileType,
+      };
+
+      const uploadUrl = s3.getSignedUrl("putObject", s3Params);
+      const documentUrl = `${process.env.CLOUDFRONT_DOMAIN}/${s3Key}`;
+
+      console.log(
+        `Generated document upload URL for file: ${fileName} (${fileType})`
+      );
+      console.log(`File will be stored at: ${s3Key}`);
+      console.log(`CloudFront URL will be: ${documentUrl}`);
+
+      res.json({
+        uploadUrl,
+        documentUrl,
+      });
+    } catch (urlError) {
+      console.error(`Failed to generate upload URL for document:`, urlError);
+      res.status(500).json({
+        message: "Error generating document upload URL",
+        error: urlError instanceof Error ? urlError.message : String(urlError),
+      });
+    }
+  } catch (error) {
+    console.error("Error in document upload URL generation process:", error);
+    res.status(500).json({ message: "Error generating upload URL", error });
+  }
+};
+
+// Upload document file directly (server-side)
+export const uploadDocument = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { courseId, sectionId, chapterId } = req.params;
+    const { userId } = getAuth(req);
+
+    // Ensure this is a multipart request with a file
+    if (!req.file) {
+      res.status(400).json({ message: "No file uploaded" });
+      return;
+    }
+
+    // Get the file details
+    const file = req.file;
+    const originalFileName = file.originalname;
+    const fileExtension = originalFileName.split(".").pop()?.toLowerCase();
+
+    // Validate file extension
+    const validExtensions = ["doc", "docx"];
+    if (!fileExtension || !validExtensions.includes(fileExtension)) {
+      res.status(400).json({
+        message:
+          "Invalid file type. Only Word documents (.doc, .docx) are allowed.",
+      });
+      return;
+    }
+
+    console.log(
+      `Processing document file upload: ${originalFileName} (${fileExtension} format)`
+    );
+
+    // Check permission
+    const course = await Course.get(courseId);
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    if (course.teacherId !== userId) {
+      res.status(403).json({ message: "Not authorized to edit this course" });
+      return;
+    }
+
+    // Configure S3 upload
+    const uniqueId = uuidv4();
+    const s3Key = `lectures/${courseId}/${sectionId}/${chapterId}/document/${uniqueId}-${originalFileName}`;
+
+    const s3 = new AWS.S3({
+      signatureVersion: "v4",
+    });
+
+    const bucketName = process.env.S3_BUCKET_NAME || "eduflip-s3";
+    const contentType = getContentTypeForDocument(originalFileName);
+
+    // Upload to S3 with proper content type
+    const params = {
+      Bucket: bucketName,
+      Key: s3Key,
+      Body: file.buffer,
+      ContentType: contentType,
+    };
+
+    console.log(`Uploading document file (${file.size} bytes) to S3: ${s3Key}`);
+    console.log(`Using content type: ${contentType}`);
+
+    // Perform the upload
+    const uploadResult = await s3.upload(params).promise();
+
+    // Construct the URL for the uploaded file
+    const fileUrl = `https://${bucketName}.s3.amazonaws.com/${s3Key}`;
+
+    console.log(`Document file uploaded successfully: ${fileUrl}`);
+    console.log(
+      `S3 upload result: ${JSON.stringify({
+        Location: uploadResult.Location,
+        Key: uploadResult.Key,
+        Bucket: uploadResult.Bucket,
+      })}`
+    );
+
+    // Return the success response
+    res.status(200).json({
+      message: "Document file uploaded successfully",
+      data: {
+        documentUrl: fileUrl,
+        fileName: originalFileName,
+        fileSize: file.size,
+        fileType: contentType,
+      },
+    });
+  } catch (error) {
+    console.error("Error uploading document file:", error);
+    res.status(500).json({
+      message: "Error uploading document file",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};

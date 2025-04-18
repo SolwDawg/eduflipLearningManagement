@@ -105,6 +105,9 @@ const chapterSchema = new Schema({
   presentation: {
     type: String,
   },
+  document: {
+    type: String,
+  },
   quiz: {
     type: Object,
     schema: new Schema({

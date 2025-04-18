@@ -23,6 +23,8 @@ import { RequestHandler } from "express";
 import {
   getPPTUploadUrl,
   uploadPowerPoint,
+  getDocumentUploadUrl,
+  uploadDocument,
 } from "../controllers/lectureController";
 
 const router = express.Router();
@@ -66,12 +68,26 @@ router.post(
   getPPTUploadUrl as RequestHandler
 );
 
+router.post(
+  "/:courseId/sections/:sectionId/chapters/:chapterId/get-document-upload-url",
+  requireAuth(),
+  getDocumentUploadUrl as RequestHandler
+);
+
 // Direct server-side PowerPoint upload route
 router.post(
   "/:courseId/sections/:sectionId/chapters/:chapterId/upload-ppt",
   requireAuth(),
   upload.single("file"),
   uploadPowerPoint as RequestHandler
+);
+
+// Direct server-side Document upload route
+router.post(
+  "/:courseId/sections/:sectionId/chapters/:chapterId/upload-document",
+  requireAuth(),
+  upload.single("file"),
+  uploadDocument as RequestHandler
 );
 
 // Chapter comments routes

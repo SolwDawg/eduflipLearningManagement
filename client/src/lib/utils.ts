@@ -646,8 +646,203 @@ async function uploadPresentation(
   return { ...chapter, ...(await attemptUpload()) };
 }
 
-// Export the uploadPresentation function so it's available for use outside this file
-export { uploadVideo, uploadPresentation };
+async function uploadDocument(
+  chapter: Chapter,
+  courseId: string,
+  sectionId: string,
+  getUploadDocumentUrl: any
+) {
+  const file = chapter.document as File;
+  const MAX_RETRIES = 3;
+  let retryCount = 0;
+
+  const attemptUpload = async (): Promise<{ document: string }> => {
+    try {
+      // Validate file extension first
+      const fileExt = file.name.split(".").pop()?.toLowerCase();
+      const validExtensions = ["doc", "docx"];
+
+      if (!fileExt || !validExtensions.includes(fileExt)) {
+        const error = new Error(
+          `Loại tệp tài liệu không hợp lệ: ${fileExt}. Định dạng hỗ trợ: .doc, .docx`
+        );
+        console.error(error.message);
+        toast.error(error.message);
+        throw error;
+      }
+
+      // Start upload without waiting for toast
+      console.log(
+        `Getting upload URL for Document: ${file.name} (${file.size} bytes)`
+      );
+
+      // Add error handling for the API call to get the upload URL
+      let uploadUrlResponse;
+      try {
+        uploadUrlResponse = await getUploadDocumentUrl({
+          courseId,
+          sectionId,
+          chapterId: chapter.chapterId,
+          fileName: file.name,
+          fileType: file.type,
+        }).unwrap();
+      } catch (apiError: any) {
+        console.error("Failed to get pre-signed URL from API:", apiError);
+        toast.error(
+          `Không thể lấy URL tải lên: ${
+            apiError?.message || "Lỗi API không xác định"
+          }`
+        );
+        throw new Error(
+          `API error: ${apiError?.message || "Failed to get upload URL"}`
+        );
+      }
+
+      const { uploadUrl, documentUrl } = uploadUrlResponse;
+
+      // Log the URL for debugging (but remove any sensitive parts)
+      console.log(
+        `Upload URL received for Document. Preparing to upload to S3...`
+      );
+      logUploadUrl(uploadUrl);
+
+      try {
+        // Use axios instead of fetch with increased timeout
+        console.log(
+          `Starting upload of Document: ${file.name} (${(
+            file.size /
+            1024 /
+            1024
+          ).toFixed(2)} MB)`
+        );
+
+        // Increase timeout for larger files
+        const calculatedTimeout = Math.max(120000, file.size / 256); // Minimum 2 minutes, or ~4ms per KB
+        console.log(
+          `Using timeout of ${Math.round(
+            calculatedTimeout / 1000
+          )} seconds for upload`
+        );
+
+        const response = await axios.put(uploadUrl, file, {
+          headers: {
+            "Content-Type": file.type,
+          },
+          timeout: calculatedTimeout,
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              console.log(`Document upload progress: ${percentCompleted}%`);
+            }
+          },
+        });
+
+        console.log(
+          `Document upload completed with status: ${response.status}`
+        );
+        if (response.status !== 200) {
+          throw new Error(
+            `Server responded with status: ${response.status}, ${response.statusText}`
+          );
+        }
+      } catch (axiosError: unknown) {
+        if (axios.isAxiosError(axiosError)) {
+          // Check if it's a timeout
+          if (axiosError.code === "ECONNABORTED") {
+            console.error(
+              `Upload timed out for Document ${file.name}. File might be too large or connection too slow.`
+            );
+            toast.error(
+              `Đã hết thời gian tải lên tài liệu. Tệp có thể quá lớn hoặc kết nối quá chậm.`
+            );
+          } else {
+            // Log more detailed error information
+            console.error(
+              `Network error when uploading Document for chapter ${chapter.title}:`,
+              {
+                message: axiosError.message,
+                code: axiosError.code,
+                status: axiosError.response?.status,
+                statusText: axiosError.response?.statusText,
+                data: axiosError.response?.data || "No response data",
+                url: axiosError.config?.url
+                  ? axiosError.config.url.split("?")[0]
+                  : "Unknown URL",
+              }
+            );
+
+            // Check if response contains S3 error details
+            if (axiosError.response?.data) {
+              const responseData = axiosError.response.data;
+              console.error("S3 Error Response:", responseData);
+            }
+          }
+
+          // If we haven't maxed out retries, try again with exponential backoff
+          if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            const backoffTime = Math.min(
+              1000 * Math.pow(2, retryCount - 1),
+              10000
+            );
+            console.log(
+              `Retrying Document upload in ${
+                backoffTime / 1000
+              } seconds (attempt ${retryCount} of ${MAX_RETRIES})...`
+            );
+            toast.info(
+              `Đang tải lên lại tài liệu (thử lại ${retryCount} lần của ${MAX_RETRIES})...`
+            );
+
+            // Wait before retrying
+            await new Promise((resolve) => setTimeout(resolve, backoffTime));
+            return await attemptUpload();
+          }
+
+          toast.error(
+            `Lỗi khi tải lên tài liệu: ${axiosError.message}. Vui lòng kiểm tra kết nối và thử lại.`
+          );
+        } else {
+          console.error(
+            `Unknown error when uploading Document for chapter ${chapter.title}:`,
+            axiosError
+          );
+          toast.error(
+            `Lỗi không xác định khi tải lên tài liệu. Vui lòng thử lại sau.`
+          );
+        }
+        throw new Error(
+          `Failed to upload Document: ${
+            axios.isAxiosError(axiosError)
+              ? axiosError.message
+              : "Network error"
+          }`
+        );
+      }
+
+      // Only show success toast for larger files
+      if (file.size > 2 * 1024 * 1024) {
+        // Only for files > 2MB
+        toast.success(`Tài liệu đã được tải lên: ${chapter.title}`);
+      }
+
+      return { document: documentUrl };
+    } catch (error) {
+      console.error(
+        `Failed to upload Document for chapter ${chapter.chapterId}:`,
+        error
+      );
+      throw error;
+    }
+  };
+
+  return { ...chapter, ...(await attemptUpload()) };
+}
+
+// Export the upload functions so they're available for use outside this file
+export { uploadVideo, uploadPresentation, uploadDocument };
 
 /**
  * Format a date string into a readable format
@@ -708,3 +903,131 @@ export function formatDistanceToNow(date: Date): string {
     return "Invalid Date";
   }
 }
+
+export const uploadDocumentFile = async (
+  file: File,
+  courseId: string,
+  chapterId: string
+) => {
+  if (!file) return null;
+
+  try {
+    const fileName = `${Date.now()}-${file.name}`;
+    const fileType = file.type;
+
+    // Get pre-signed URL
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/courses/${courseId}/chapters/${chapterId}/upload-document`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await window.Clerk?.session?.getToken()}`,
+        },
+        body: JSON.stringify({
+          fileName,
+          fileType,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to get document upload URL");
+    }
+
+    const { uploadUrl, documentUrl } = await response.json();
+
+    // Upload file to pre-signed URL
+    await fetch(uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": fileType,
+      },
+    });
+
+    return documentUrl;
+  } catch (error) {
+    console.error("Error uploading document:", error);
+    throw new Error("Failed to upload document");
+  }
+};
+
+// Simplified version for direct file uploads (without requiring Chapter objects)
+export const uploadFiles = async (
+  courseId: string,
+  chapterFiles: Record<
+    string,
+    { video: File | null; presentation: File | null; document: File | null }
+  >
+) => {
+  const uploadPromises: Promise<any>[] = [];
+
+  for (const chapterId in chapterFiles) {
+    const { video, presentation, document } = chapterFiles[chapterId];
+
+    if (video) {
+      uploadPromises.push(
+        uploadVideo(
+          { chapterId, title: video.name, content: "", type: "Video" } as any,
+          courseId,
+          "",
+          null
+        ).catch((error) => {
+          console.error(
+            `Failed to upload video for chapter ${chapterId}:`,
+            error
+          );
+          return null;
+        })
+      );
+    }
+
+    if (presentation) {
+      uploadPromises.push(
+        uploadPresentation(
+          {
+            chapterId,
+            title: presentation.name,
+            content: "",
+            type: "Text",
+          } as any,
+          courseId,
+          "",
+          null
+        ).catch((error) => {
+          console.error(
+            `Failed to upload presentation for chapter ${chapterId}:`,
+            error
+          );
+          return null;
+        })
+      );
+    }
+
+    if (document) {
+      uploadPromises.push(
+        uploadDocument(
+          {
+            chapterId,
+            title: document.name,
+            content: "",
+            type: "Text",
+            document,
+          } as any,
+          courseId,
+          "",
+          null
+        ).catch((error) => {
+          console.error(
+            `Failed to upload document for chapter ${chapterId}:`,
+            error
+          );
+          return null;
+        })
+      );
+    }
+  }
+
+  return Promise.all(uploadPromises);
+};

@@ -15,6 +15,7 @@ export const chapterSchema = z.object({
   content: z.string().min(10, "Content must be at least 10 characters"),
   video: z.union([z.string(), z.instanceof(File)]).optional(),
   presentation: z.union([z.string(), z.instanceof(File)]).optional(),
+  document: z.union([z.string(), z.instanceof(File)]).optional(),
 });
 
 export type ChapterFormData = z.infer<typeof chapterSchema>;

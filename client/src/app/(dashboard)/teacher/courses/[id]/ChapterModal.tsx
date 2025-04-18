@@ -14,7 +14,7 @@ import { ChapterFormData, chapterSchema } from "@/lib/schemas";
 import { addChapter, closeChapterModal, editChapter } from "@/state";
 import { useAppDispatch, useAppSelector } from "@/state/redux";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileUp, Video, X } from "lucide-react";
+import { FileUp, Video, X, FileText } from "lucide-react";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -41,6 +41,7 @@ const ChapterModal = () => {
       content: "",
       video: "",
       presentation: "",
+      document: "",
     },
   });
 
@@ -51,6 +52,7 @@ const ChapterModal = () => {
         content: chapter.content,
         video: chapter.video || "",
         presentation: chapter.presentation || "",
+        document: chapter.document || "",
       });
     } else {
       methods.reset({
@@ -58,6 +60,7 @@ const ChapterModal = () => {
         content: "",
         video: "",
         presentation: "",
+        document: "",
       });
     }
   }, [chapter, methods]);
@@ -77,11 +80,13 @@ const ChapterModal = () => {
       video: typeof data.video === "string" ? data.video : "",
       presentation:
         typeof data.presentation === "string" ? data.presentation : "",
+      document: typeof data.document === "string" ? data.document : "",
     };
 
     const videoFile = data.video instanceof File ? data.video : null;
     const presentationFile =
       data.presentation instanceof File ? data.presentation : null;
+    const documentFile = data.document instanceof File ? data.document : null;
 
     if (selectedChapterIndex === null) {
       dispatch(
@@ -100,11 +105,12 @@ const ChapterModal = () => {
       );
     }
 
-    if (videoFile || presentationFile) {
+    if (videoFile || presentationFile || documentFile) {
       if (window.chapterFiles === undefined) window.chapterFiles = {};
       window.chapterFiles[newChapter.chapterId] = {
         video: videoFile,
         presentation: presentationFile,
+        document: documentFile,
       };
     }
 
@@ -218,6 +224,49 @@ const ChapterModal = () => {
                         <div className="text-sm text-primary-500 bg-primary-50 p-2 rounded-md">
                           <p className="truncate">
                             Presentation đã chọn: {value.name}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-red-400" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={methods.control}
+              name="document"
+              render={({ field: { onChange, value } }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-primary-600 text-sm flex items-center">
+                    <FileText className="w-4 h-4 mr-1.5" />
+                    <span>Tài liệu Word</span>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            onChange(file);
+                          }
+                        }}
+                        className="border-none bg-customgreys-darkGrey py-2 cursor-pointer text-primary-100 w-full"
+                      />
+                      {typeof value === "string" && value && (
+                        <div className="text-sm text-primary-500 bg-primary-50 p-2 rounded-md">
+                          <p className="truncate">
+                            Tài liệu hiện tại: {value.split("/").pop()}
+                          </p>
+                        </div>
+                      )}
+                      {value instanceof File && (
+                        <div className="text-sm text-primary-500 bg-primary-50 p-2 rounded-md">
+                          <p className="truncate">
+                            Tài liệu đã chọn: {value.name}
                           </p>
                         </div>
                       )}
