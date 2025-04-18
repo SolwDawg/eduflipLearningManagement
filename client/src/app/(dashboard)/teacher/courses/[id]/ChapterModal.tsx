@@ -233,7 +233,7 @@ const ChapterModal = () => {
                 </FormItem>
               )}
             />
-
+            {/* 
             <FormField
               control={methods.control}
               name="document"
@@ -275,7 +275,7 @@ const ChapterModal = () => {
                   <FormMessage className="text-red-400" />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <div className="flex flex-col xs:flex-row pt-4 gap-2 sm:justify-end">
               <Button

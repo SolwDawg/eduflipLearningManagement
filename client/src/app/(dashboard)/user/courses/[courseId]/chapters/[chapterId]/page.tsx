@@ -306,12 +306,12 @@ const ChapterPage = () => {
                     >
                       Nội dung
                     </TabsTrigger>
-                    <TabsTrigger
+                    {/* <TabsTrigger
                       value="resources"
                       className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
                     >
                       Tài liệu
-                    </TabsTrigger>
+                    </TabsTrigger> */}
                     <TabsTrigger
                       value="quizzes"
                       className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary"
