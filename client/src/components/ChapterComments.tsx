@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
+import { safeFormatDistanceToNow } from "@/lib/utils";
 
 interface ChapterCommentsProps {
   courseId: string;
@@ -173,10 +174,14 @@ export default function ChapterComments({
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(comment.timestamp), {
-                          addSuffix: true,
-                          locale: vi,
-                        })}
+                        {safeFormatDistanceToNow(
+                          comment.timestamp,
+                          {
+                            addSuffix: true,
+                            locale: vi,
+                          },
+                          "Không có dữ liệu"
+                        )}
                       </div>
 
                       {comment.userId === user?.id && (

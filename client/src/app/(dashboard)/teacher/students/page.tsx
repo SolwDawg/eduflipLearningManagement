@@ -37,6 +37,31 @@ interface StudentsData {
   students: Student[];
 }
 
+// Add a safe date formatting function
+const safeFormatDistanceToNow = (dateString: string) => {
+  try {
+    // Check if dateString is undefined, null, or empty
+    if (!dateString) {
+      return "Không có dữ liệu";
+    }
+
+    // Create a date object and check if it's valid
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.error(`Invalid date string: ${dateString}`);
+      return "Không có dữ liệu";
+    }
+
+    return formatDistanceToNow(date, {
+      addSuffix: true,
+      locale: vi,
+    });
+  } catch (error) {
+    console.error(`Error formatting date: ${dateString}`, error);
+    return "Không có dữ liệu";
+  }
+};
+
 const StudentsOverviewPage = () => {
   const { data, isLoading, error } = useGetStudentsOverviewQuery();
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,6 +122,41 @@ const StudentsOverviewPage = () => {
       students: [],
     };
   }
+
+  // Ensure students array is valid
+  if (!Array.isArray(studentsData.students)) {
+    console.error("Students data is not an array:", studentsData.students);
+    studentsData.students = [];
+  }
+
+  // Process students data to ensure all fields are valid
+  const processedStudents = studentsData.students.map((student) => ({
+    ...student,
+    // Ensure lastActivity has a valid date or default value
+    lastActivity: student.lastActivity || new Date().toISOString(),
+    // Ensure courses is an array
+    courses: Array.isArray(student.courses)
+      ? student.courses.map((course) => ({
+          ...course,
+          // Ensure course lastActivity has a valid date or default value
+          lastActivity: course.lastActivity || new Date().toISOString(),
+          // Ensure quizResults is an array
+          quizResults: Array.isArray(course.quizResults)
+            ? course.quizResults.map((quiz) => ({
+                ...quiz,
+                // Ensure quiz completionDate has a valid date or default value
+                completionDate: quiz.completionDate || new Date().toISOString(),
+              }))
+            : [],
+        }))
+      : [],
+  }));
+
+  // Update studentsData with processed students
+  studentsData = {
+    ...studentsData,
+    students: processedStudents,
+  };
 
   console.log("Processed data:", studentsData);
   console.log("Students array:", studentsData.students);
@@ -240,10 +300,7 @@ const StudentsOverviewPage = () => {
                         className="bg-primary-50 text-primary-700 border-primary-200"
                       >
                         Hoạt động cuối:{" "}
-                        {formatDistanceToNow(new Date(student.lastActivity), {
-                          addSuffix: true,
-                          locale: vi,
-                        })}
+                        {safeFormatDistanceToNow(student.lastActivity)}
                       </Badge>
                     </div>
                   </div>
@@ -266,13 +323,7 @@ const StudentsOverviewPage = () => {
                             </h5>
                             <span className="text-sm text-primary-600">
                               Hoạt động cuối:{" "}
-                              {formatDistanceToNow(
-                                new Date(course.lastActivity),
-                                {
-                                  addSuffix: true,
-                                  locale: vi,
-                                }
-                              )}
+                              {safeFormatDistanceToNow(course.lastActivity)}
                             </span>
                           </div>
                           <div className="flex items-center justify-between mb-1">
@@ -320,14 +371,8 @@ const StudentsOverviewPage = () => {
                                           {course.quizResults[0].score / 10}
                                         </span>
                                         <span className="text-blue-600">
-                                          {formatDistanceToNow(
-                                            new Date(
-                                              course.quizResults[0].completionDate
-                                            ),
-                                            {
-                                              addSuffix: true,
-                                              locale: vi,
-                                            }
+                                          {safeFormatDistanceToNow(
+                                            course.quizResults[0].completionDate
                                           )}
                                         </span>
                                       </div>

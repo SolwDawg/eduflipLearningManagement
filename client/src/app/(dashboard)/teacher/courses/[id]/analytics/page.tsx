@@ -60,6 +60,7 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { safeFormatDistanceToNow } from "@/lib/utils";
 
 // Color constants for charts
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
@@ -639,10 +640,10 @@ const AnalyticsPage = () => {
                           {level === "high"
                             ? "Cao"
                             : level === "medium"
-                            ? "Trung bình"
-                            : level === "low"
-                            ? "Thấp"
-                            : "Không tham gia"}
+                              ? "Trung bình"
+                              : level === "low"
+                                ? "Thấp"
+                                : "Không tham gia"}
                         </span>
                       </div>
                       <div className="flex items-center">
@@ -738,29 +739,33 @@ const AnalyticsPage = () => {
                               "high"
                                 ? "bg-green-50 text-green-700 border-green-200"
                                 : student.participationLevel.toLowerCase() ===
-                                  "medium"
-                                ? "bg-blue-50 text-blue-700 border-blue-200"
-                                : student.participationLevel.toLowerCase() ===
-                                  "low"
-                                ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                                : "bg-red-50 text-red-700 border-red-200"
+                                    "medium"
+                                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                                  : student.participationLevel.toLowerCase() ===
+                                      "low"
+                                    ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                                    : "bg-red-50 text-red-700 border-red-200"
                             }
                           `}
                         >
                           {student.participationLevel === "High"
                             ? "Cao"
                             : student.participationLevel === "Medium"
-                            ? "Trung bình"
-                            : student.participationLevel === "Low"
-                            ? "Thấp"
-                            : "Không"}
+                              ? "Trung bình"
+                              : student.participationLevel === "Low"
+                                ? "Thấp"
+                                : "Không"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-primary-600">
-                        {formatDistanceToNow(new Date(student.lastAccessed), {
-                          addSuffix: true,
-                          locale: vi,
-                        })}
+                        {safeFormatDistanceToNow(
+                          student.lastAccessed,
+                          {
+                            addSuffix: true,
+                            locale: vi,
+                          },
+                          "Không có dữ liệu"
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

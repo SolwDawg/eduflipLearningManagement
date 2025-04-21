@@ -75,8 +75,20 @@ export default function EnrollmentTracking() {
   // Format date function
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), "dd/MM/yyyy HH:mm", { locale: vi });
+      // Check if the dateString is valid first before creating a Date object
+      if (!dateString || dateString === "undefined" || dateString === "null") {
+        return "Không có dữ liệu";
+      }
+
+      const date = new Date(dateString);
+      // Validate the date object
+      if (isNaN(date.getTime())) {
+        return "Không có dữ liệu";
+      }
+
+      return format(date, "dd/MM/yyyy HH:mm", { locale: vi });
     } catch (error) {
+      console.error(`Error formatting date: ${dateString}`, error);
       return "Không có dữ liệu";
     }
   };
