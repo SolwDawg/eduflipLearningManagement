@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import {
@@ -22,6 +22,13 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   BookOpen,
   FileText,
   Award,
@@ -30,6 +37,7 @@ import {
   XCircle,
   Clock,
   BarChart3,
+  GraduationCap,
 } from "lucide-react";
 import PageTitle from "@/components/PageTitle";
 import LoadingAlternative from "@/components/LoadingAlternative";
@@ -39,7 +47,11 @@ import {
   formatDistanceToNow,
   formatDuration,
 } from "@/lib/utils";
-import { useGetUserDashboardQuery } from "@/state/api";
+import {
+  useGetUserDashboardQuery,
+  useGetGradesQuery,
+  useGetCoursesQuery,
+} from "@/state/api";
 
 interface EnrolledCourse {
   courseId: string;
@@ -83,18 +95,53 @@ interface DashboardData {
 export default function UserDashboardPage() {
   const { userId } = useAuth();
   const router = useRouter();
+  const [selectedGradeId, setSelectedGradeId] = useState<string>("");
+  const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
 
   const { data: dashboard, isLoading } = useGetUserDashboardQuery(
     userId as string,
     { skip: !userId }
   );
+
+  // Fetch grades
+  const { data: grades, isLoading: gradesLoading } = useGetGradesQuery();
+
+  // Fetch all courses
+  const { data: allCourses, isLoading: coursesLoading } = useGetCoursesQuery();
+
+  // Filter courses when grade is selected
+  useEffect(() => {
+    if (selectedGradeId && allCourses && grades) {
+      // Find the selected grade to get its course IDs
+      const selectedGrade = grades.find(
+        (grade) => grade.gradeId === selectedGradeId
+      );
+
+      if (selectedGrade && selectedGrade.courseIds) {
+        // Filter courses that match the course IDs in the selected grade
+        const coursesForGrade = allCourses.filter((course) =>
+          selectedGrade.courseIds.includes(course.courseId)
+        );
+        setFilteredCourses(coursesForGrade);
+      } else {
+        setFilteredCourses([]);
+      }
+    } else {
+      setFilteredCourses([]);
+    }
+  }, [selectedGradeId, allCourses, grades]);
+
+  const handleGradeChange = (gradeId: string) => {
+    setSelectedGradeId(gradeId);
+  };
+
   console.log("dashboard raw: ", dashboard);
 
   if (!userId) {
     return <div>Đăng nhập để xem tiến độ của bạn.</div>;
   }
 
-  if (isLoading) {
+  if (isLoading || gradesLoading || coursesLoading) {
     return <LoadingAlternative />;
   }
 
@@ -187,6 +234,92 @@ export default function UserDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Grade selection dropdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <GraduationCap className="h-5 w-5 mr-2" />
+            Khóa học theo khối lớp
+          </CardTitle>
+          <CardDescription>
+            Chọn khối lớp để xem danh sách khóa học phù hợp
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {grades && grades.length > 0 ? (
+            <div className="space-y-4">
+              <Select value={selectedGradeId} onValueChange={handleGradeChange}>
+                <SelectTrigger className="w-full md:w-[260px]">
+                  <SelectValue placeholder="Chọn khối lớp" />
+                </SelectTrigger>
+                <SelectContent>
+                  {grades.map((grade) => (
+                    <SelectItem key={grade.gradeId} value={grade.gradeId}>
+                      {grade.name} (Lớp {grade.level})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {selectedGradeId && filteredCourses.length > 0 ? (
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium mb-2">
+                    Danh sách khóa học
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredCourses.map((course) => (
+                      <Card key={course.courseId} className="overflow-hidden">
+                        <div className="h-40 bg-muted relative">
+                          {course.image ? (
+                            <img
+                              src={course.image}
+                              alt={course.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center bg-secondary/30">
+                              <BookOpen className="h-10 w-10 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <CardHeader className="p-4">
+                          <CardTitle className="text-base line-clamp-1">
+                            {course.title}
+                          </CardTitle>
+                          <CardDescription className="line-clamp-2">
+                            {course.description || "Không có mô tả"}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                          <Button
+                            onClick={() =>
+                              router.push(`/user/courses/${course.courseId}`)
+                            }
+                            className="w-full"
+                          >
+                            Xem khóa học
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ) : selectedGradeId ? (
+                <div className="py-4 text-center text-muted-foreground">
+                  Không có khóa học nào cho khối lớp này.
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-muted-foreground">
+                Không có khối lớp nào được tìm thấy.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
