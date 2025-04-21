@@ -40,15 +40,16 @@ interface StudentsData {
 // Add a safe date formatting function
 const safeFormatDistanceToNow = (dateString: string) => {
   try {
-    // Check if dateString is undefined, null, or empty
-    if (!dateString) {
+    if (!dateString || dateString === "null" || dateString === "undefined") {
       return "Không có dữ liệu";
     }
 
-    // Create a date object and check if it's valid
+    // Parse the date string
     const date = new Date(dateString);
+
+    // Check if the date is valid
     if (isNaN(date.getTime())) {
-      console.error(`Invalid date string: ${dateString}`);
+      console.error(`Invalid date value: ${dateString}`);
       return "Không có dữ liệu";
     }
 
@@ -122,41 +123,6 @@ const StudentsOverviewPage = () => {
       students: [],
     };
   }
-
-  // Ensure students array is valid
-  if (!Array.isArray(studentsData.students)) {
-    console.error("Students data is not an array:", studentsData.students);
-    studentsData.students = [];
-  }
-
-  // Process students data to ensure all fields are valid
-  const processedStudents = studentsData.students.map((student) => ({
-    ...student,
-    // Ensure lastActivity has a valid date or default value
-    lastActivity: student.lastActivity || new Date().toISOString(),
-    // Ensure courses is an array
-    courses: Array.isArray(student.courses)
-      ? student.courses.map((course) => ({
-          ...course,
-          // Ensure course lastActivity has a valid date or default value
-          lastActivity: course.lastActivity || new Date().toISOString(),
-          // Ensure quizResults is an array
-          quizResults: Array.isArray(course.quizResults)
-            ? course.quizResults.map((quiz) => ({
-                ...quiz,
-                // Ensure quiz completionDate has a valid date or default value
-                completionDate: quiz.completionDate || new Date().toISOString(),
-              }))
-            : [],
-        }))
-      : [],
-  }));
-
-  // Update studentsData with processed students
-  studentsData = {
-    ...studentsData,
-    students: processedStudents,
-  };
 
   console.log("Processed data:", studentsData);
   console.log("Students array:", studentsData.students);

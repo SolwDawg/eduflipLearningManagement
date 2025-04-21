@@ -4,15 +4,7 @@ import * as z from "zod";
 import { api } from "../state/api";
 import { toast } from "sonner";
 import axios from "axios";
-import {
-  format,
-  formatDistanceToNow as fDistanceToNow,
-  Locale,
-} from "date-fns";
-import { User } from "@clerk/clerk-js";
-import { Section, Chapter, CourseFormData } from "@/types/global";
-import { Toast } from "sonner";
-import { UploadResult } from "./types";
+import { format, formatDistanceToNow as fDistanceToNow } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -903,9 +895,20 @@ export function formatDuration(seconds: number): string {
   return `${minutes} phút ${remainingSeconds} giây`;
 }
 
-export function formatDistanceToNow(date: Date): string {
+export function formatDistanceToNow(date: Date | string): string {
   try {
-    return fDistanceToNow(date, { addSuffix: true });
+    if (!date) return "Invalid Date";
+
+    // If it's a string, convert to Date
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) {
+      console.error("Invalid date value:", date);
+      return "Invalid Date";
+    }
+
+    return fDistanceToNow(dateObj, { addSuffix: true });
   } catch (error) {
     console.error("Error formatting distance to now:", error);
     return "Invalid Date";
@@ -1039,78 +1042,3 @@ export const uploadFiles = async (
 
   return Promise.all(uploadPromises);
 };
-
-/**
- * A robust utility for safely formatting dates that handles various error cases
- * @param dateValue - The date value to format (can be string, Date object, or null/undefined)
- * @param formatter - A function that formats a valid Date (defaults to ISO string)
- * @param defaultValue - The default value to return if date is invalid (defaults to "N/A")
- * @returns Formatted date string or default value if date is invalid
- */
-export function safeDateFormat<T = string>(
-  dateValue: string | Date | null | undefined,
-  formatter: (date: Date) => T = (date) => date.toISOString() as unknown as T,
-  defaultValue: T = "N/A" as unknown as T
-): T {
-  try {
-    // Handle null or undefined
-    if (dateValue == null) {
-      return defaultValue;
-    }
-
-    // Convert to Date if it's a string
-    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
-
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
-      console.error(`Invalid date value: ${dateValue}`);
-      return defaultValue;
-    }
-
-    // Apply the formatter
-    return formatter(date);
-  } catch (error) {
-    console.error(`Error formatting date: ${dateValue}`, error);
-    return defaultValue;
-  }
-}
-
-/**
- * Safely formats a date using the date-fns formatDistanceToNow function
- * @param dateValue - The date value (string, Date, or null/undefined)
- * @param options - Format options for formatDistanceToNow
- * @param defaultValue - Default value if date is invalid
- * @returns Formatted distance string or default value
- */
-export function safeFormatDistanceToNow(
-  dateValue: string | Date | null | undefined,
-  options: { addSuffix?: boolean; locale?: Locale } = {},
-  defaultValue: string = "N/A"
-): string {
-  return safeDateFormat(
-    dateValue,
-    (date) => fDistanceToNow(date, options),
-    defaultValue
-  );
-}
-
-/**
- * Safely formats a date using the date-fns format function
- * @param dateValue - The date value (string, Date, or null/undefined)
- * @param formatString - Format string for date-fns format
- * @param options - Format options for date-fns format
- * @param defaultValue - Default value if date is invalid
- * @returns Formatted date string or default value
- */
-export function safeFormat(
-  dateValue: string | Date | null | undefined,
-  formatString: string = "PPP",
-  options: { locale?: Locale } = {},
-  defaultValue: string = "N/A"
-): string {
-  return safeDateFormat(
-    dateValue,
-    (date) => format(date, formatString, options),
-    defaultValue
-  );
-}

@@ -58,6 +58,32 @@ const PARTICIPATION_COLORS = {
   None: "#E11D48", // Rose-600
 };
 
+// Add a safe date formatting function
+const safeFormatDistanceToNow = (dateString: string) => {
+  try {
+    if (!dateString || dateString === "null" || dateString === "undefined") {
+      return "N/A";
+    }
+
+    // Parse the date string
+    const date = new Date(dateString);
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      console.error(`Invalid date value: ${dateString}`);
+      return "N/A";
+    }
+
+    return formatDistanceToNow(date, {
+      addSuffix: true,
+      locale: vi,
+    });
+  } catch (error) {
+    console.error(`Error formatting date: ${dateString}`, error);
+    return "N/A";
+  }
+};
+
 const StudentPerformancePage = () => {
   const params = useParams();
   const courseId = params.id as string;
@@ -420,12 +446,7 @@ const StudentPerformancePage = () => {
                             ).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            {student.lastAccessDate
-                              ? formatDistanceToNow(
-                                  new Date(student.lastAccessDate),
-                                  { addSuffix: true, locale: vi }
-                                )
-                              : "N/A"}
+                            {safeFormatDistanceToNow(student.lastAccessDate)}
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col gap-1">
@@ -446,10 +467,10 @@ const StudentPerformancePage = () => {
                                 student.participationLevel === "High"
                                   ? "bg-emerald-100 text-emerald-800"
                                   : student.participationLevel === "Medium"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : student.participationLevel === "Low"
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-rose-100 text-rose-800"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : student.participationLevel === "Low"
+                                      ? "bg-amber-100 text-amber-800"
+                                      : "bg-rose-100 text-rose-800"
                               }
                             >
                               {student.participationLevel}
@@ -665,18 +686,15 @@ const StudentPerformancePage = () => {
                           <TableCell>{student.totalDiscussionPosts}</TableCell>
                           <TableCell>
                             {student.discussionActivity.length > 0
-                              ? formatDistanceToNow(
-                                  new Date(
-                                    student.discussionActivity.reduce(
-                                      (latest: any, current: any) =>
-                                        new Date(current.lastActivityDate) >
-                                        new Date(latest.lastActivityDate)
-                                          ? current
-                                          : latest,
-                                      student.discussionActivity[0]
-                                    ).lastActivityDate
-                                  ),
-                                  { addSuffix: true, locale: vi }
+                              ? safeFormatDistanceToNow(
+                                  student.discussionActivity.reduce(
+                                    (latest: any, current: any) =>
+                                      new Date(current.lastActivityDate) >
+                                      new Date(latest.lastActivityDate)
+                                        ? current
+                                        : latest,
+                                    student.discussionActivity[0]
+                                  ).lastActivityDate
                                 )
                               : "N/A"}
                           </TableCell>

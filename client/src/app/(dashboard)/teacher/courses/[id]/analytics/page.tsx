@@ -60,7 +60,6 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { safeFormatDistanceToNow } from "@/lib/utils";
 
 // Color constants for charts
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
@@ -69,6 +68,32 @@ const PARTICIPATION_COLORS = {
   medium: "#059669", // Emerald-600
   low: "#0EA5E9", // Sky-500
   none: "#E11D48", // Rose-600
+};
+
+// Add a safe date formatting function
+const safeFormatDistanceToNow = (dateString: string) => {
+  try {
+    if (!dateString || dateString === "null" || dateString === "undefined") {
+      return "N/A";
+    }
+
+    // Parse the date string
+    const date = new Date(dateString);
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      console.error(`Invalid date value: ${dateString}`);
+      return "N/A";
+    }
+
+    return formatDistanceToNow(date, {
+      addSuffix: true,
+      locale: vi,
+    });
+  } catch (error) {
+    console.error(`Error formatting date: ${dateString}`, error);
+    return "N/A";
+  }
 };
 
 const AnalyticsPage = () => {
@@ -758,14 +783,7 @@ const AnalyticsPage = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-primary-600">
-                        {safeFormatDistanceToNow(
-                          student.lastAccessed,
-                          {
-                            addSuffix: true,
-                            locale: vi,
-                          },
-                          "Không có dữ liệu"
-                        )}
+                        {safeFormatDistanceToNow(student.lastAccessed)}
                       </TableCell>
                     </TableRow>
                   ))

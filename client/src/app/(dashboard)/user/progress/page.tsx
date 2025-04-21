@@ -208,7 +208,18 @@ export default function UserProgressPage() {
                           %)
                         </TableCell>
                         <TableCell>
-                          {formatDistanceToNow(new Date(quiz.completionDate))}
+                          {(() => {
+                            try {
+                              const date = new Date(quiz.completionDate);
+                              if (isNaN(date.getTime())) {
+                                return "Thời gian không xác định";
+                              }
+                              return formatDistanceToNow(date);
+                            } catch (error) {
+                              console.error("Error formatting date:", error);
+                              return "Thời gian không xác định";
+                            }
+                          })()}
                         </TableCell>
                         <TableCell>
                           {quiz.score / quiz.totalQuestions >= 0.7 ? (

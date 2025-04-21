@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetUserConversationsQuery } from "@/state/api";
 import { Skeleton } from "@/components/ui/skeleton";
-import { safeFormatDistanceToNow } from "@/lib/utils";
 
 interface ConversationsListProps {
   onSelectConversation: (conversation: any) => void;
@@ -142,14 +141,23 @@ export default function ConversationsList({
                         {conversation.otherUserName || "User"}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {safeFormatDistanceToNow(
-                          conversation.updatedAt || conversation.createdAt,
-                          {
-                            addSuffix: true,
-                            locale: vi,
-                          },
-                          "Không có dữ liệu"
-                        )}
+                        {(() => {
+                          try {
+                            const date = new Date(
+                              conversation.updatedAt || conversation.createdAt
+                            );
+                            if (isNaN(date.getTime())) {
+                              return "Thời gian không xác định";
+                            }
+                            return formatDistanceToNow(date, {
+                              addSuffix: true,
+                              locale: vi,
+                            });
+                          } catch (error) {
+                            console.error("Error formatting date:", error);
+                            return "Thời gian không xác định";
+                          }
+                        })()}
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground truncate max-w-[220px]">
