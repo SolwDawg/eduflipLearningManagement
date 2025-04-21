@@ -2,7 +2,11 @@
 
 import Toolbar from "@/components/Toolbar";
 import CourseCard from "@/components/CourseCard";
-import { useGetUserEnrolledCoursesQuery, useGetGradesQuery } from "@/state/api";
+import {
+  useGetUserEnrolledCoursesQuery,
+  useGetGradesQuery,
+  useGetCoursesQuery,
+} from "@/state/api";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { useUser } from "@clerk/nextjs";
@@ -17,7 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Bookmark } from "lucide-react";
+import { GraduationCap, Bookmark, Filter } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Courses = () => {
   const router = useRouter();
@@ -27,8 +39,20 @@ const Courses = () => {
   const [filterByGrade, setFilterByGrade] = useState<boolean>(false);
   const [userGradeId, setUserGradeId] = useState<string | null>(null);
 
+  // New state for grade filter
+  const [selectedGradeId, setSelectedGradeId] = useState<string>("");
+  const [isGradeFilterActive, setIsGradeFilterActive] =
+    useState<boolean>(false);
+
   // Fetch grades
   const { data: grades, isLoading: isLoadingGrades } = useGetGradesQuery();
+
+  // Fetch all courses (for grade filtering)
+  const { data: allCourses, isLoading: isAllCoursesLoading } =
+    useGetCoursesQuery();
+
+  // State for grade-filtered courses
+  const [gradeFilteredCourses, setGradeFilteredCourses] = useState<any[]>([]);
 
   // Fetch user metadata to get grade
   useEffect(() => {
@@ -63,6 +87,35 @@ const Courses = () => {
     if (!grades || !userGradeId) return null;
     return grades.find((grade) => grade.gradeId === userGradeId);
   }, [grades, userGradeId]);
+
+  // Filter courses when grade is selected
+  useEffect(() => {
+    if (selectedGradeId && allCourses && grades) {
+      // Find the selected grade to get its course IDs
+      const selectedGrade = grades.find(
+        (grade) => grade.gradeId === selectedGradeId
+      );
+
+      if (selectedGrade && selectedGrade.courseIds) {
+        // Filter courses that match the course IDs in the selected grade
+        const coursesForGrade = allCourses.filter((course) =>
+          selectedGrade.courseIds.includes(course.courseId)
+        );
+        setGradeFilteredCourses(coursesForGrade);
+        setIsGradeFilterActive(true);
+      } else {
+        setGradeFilteredCourses([]);
+        setIsGradeFilterActive(false);
+      }
+    } else {
+      setGradeFilteredCourses([]);
+      setIsGradeFilterActive(false);
+    }
+  }, [selectedGradeId, allCourses, grades]);
+
+  const handleGradeChange = (gradeId: string) => {
+    setSelectedGradeId(gradeId);
+  };
 
   const filteredCourses = useMemo(() => {
     if (!courses) return [];
@@ -118,7 +171,8 @@ const Courses = () => {
     return grade ? `${grade.name} (Lớp ${grade.level})` : null;
   };
 
-  if (!isLoaded || isLoading) return <Loading />;
+  if (!isLoaded || isLoading || isLoadingGrades || isAllCoursesLoading)
+    return <Loading />;
   if (!user)
     return <div>Vui lòng đăng nhập để xem danh sách khóa học của bạn.</div>;
 
@@ -161,53 +215,157 @@ const Courses = () => {
   }
 
   return (
-    <div className="user-courses">
+    <div className="user-courses p-6 space-y-6">
       <Header
         title="Khóa học của tôi"
         subtitle="Xem khóa học đã đăng ký của bạn"
       />
 
-      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        {userGrade && (
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-primary" />
-            <span>
-              Lớp của bạn:{" "}
-              <strong>
-                {userGrade.name} (Lớp {userGrade.level})
-              </strong>
-            </span>
+      <Tabs defaultValue="enrolled" className="w-full">
+        <TabsList>
+          <TabsTrigger value="enrolled">Khóa học đã đăng ký</TabsTrigger>
+          <TabsTrigger value="by-grade">Khóa học theo khối lớp</TabsTrigger>
+        </TabsList>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="ml-2"
-              onClick={() => setFilterByGrade(!filterByGrade)}
-            >
-              {filterByGrade ? "Hiển thị tất cả" : "Ưu tiên khóa học theo lớp"}
-            </Button>
-          </div>
-        )}
+        <TabsContent value="enrolled" className="space-y-6">
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {userGrade && (
+              <div className="flex items-center gap-2">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                <span>
+                  Lớp của bạn:{" "}
+                  <strong>
+                    {userGrade.name} (Lớp {userGrade.level})
+                  </strong>
+                </span>
 
-        <Toolbar
-          onSearch={setSearchTerm}
-          onCategoryChange={setSelectedCategory}
-        />
-      </div>
-
-      <div className="user-courses__grid">
-        {filteredCourses.map((course) => (
-          <div key={course.courseId} className="relative">
-            {course.gradeId && course.gradeId === userGradeId && (
-              <Badge className="absolute top-2 right-2 z-10 bg-green-500">
-                <GraduationCap className="h-3 w-3 mr-1" />
-                Lớp của bạn
-              </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => setFilterByGrade(!filterByGrade)}
+                >
+                  {filterByGrade
+                    ? "Hiển thị tất cả"
+                    : "Ưu tiên khóa học theo lớp"}
+                </Button>
+              </div>
             )}
-            <CourseCard course={course} onGoToCourse={handleGoToCourse} />
+
+            <Toolbar
+              onSearch={setSearchTerm}
+              onCategoryChange={setSelectedCategory}
+            />
           </div>
-        ))}
-      </div>
+
+          <div className="user-courses__grid">
+            {filteredCourses.map((course) => (
+              <div key={course.courseId} className="relative">
+                {course.gradeId && course.gradeId === userGradeId && (
+                  <Badge className="absolute top-2 right-2 z-10 bg-green-500">
+                    <GraduationCap className="h-3 w-3 mr-1" />
+                    Lớp của bạn
+                  </Badge>
+                )}
+                <CourseCard course={course} onGoToCourse={handleGoToCourse} />
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="by-grade" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <GraduationCap className="h-5 w-5 mr-2" />
+                Tìm khóa học theo khối lớp
+              </CardTitle>
+              <CardDescription>
+                Chọn khối lớp để xem danh sách khóa học phù hợp
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {grades && grades.length > 0 ? (
+                <div className="space-y-4">
+                  <Select
+                    value={selectedGradeId}
+                    onValueChange={handleGradeChange}
+                  >
+                    <SelectTrigger className="w-full md:w-[260px]">
+                      <SelectValue placeholder="Chọn khối lớp" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {grades.map((grade) => (
+                        <SelectItem key={grade.gradeId} value={grade.gradeId}>
+                          {grade.name} (Lớp {grade.level})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {selectedGradeId && gradeFilteredCourses.length > 0 ? (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-4">
+                        Khóa học cho {getGradeName(selectedGradeId)}
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {gradeFilteredCourses.map((course) => (
+                          <div key={course.courseId} className="relative">
+                            {course.courseId &&
+                              (() => {
+                                // Check if course is already enrolled
+                                const isEnrolled = courses.some(
+                                  (c) => c.courseId === course.courseId
+                                );
+
+                                if (isEnrolled) {
+                                  return (
+                                    <Badge className="absolute top-2 right-2 z-10 bg-blue-500">
+                                      <Bookmark className="h-3 w-3 mr-1" />
+                                      Đã đăng ký
+                                    </Badge>
+                                  );
+                                }
+
+                                return null;
+                              })()}
+                            <CourseCard
+                              course={course}
+                              onGoToCourse={(c) => {
+                                // Check if already enrolled
+                                const isEnrolled = courses.some(
+                                  (ec) => ec.courseId === c.courseId
+                                );
+
+                                if (isEnrolled) {
+                                  handleGoToCourse(c);
+                                } else {
+                                  // Go to course details instead
+                                  router.push(`/courses/${c.courseId}`);
+                                }
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : selectedGradeId ? (
+                    <div className="py-6 text-center text-muted-foreground">
+                      Không có khóa học nào cho khối lớp này.
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground">
+                    Không có khối lớp nào được tìm thấy.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

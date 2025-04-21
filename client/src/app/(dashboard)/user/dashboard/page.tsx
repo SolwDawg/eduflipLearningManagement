@@ -294,7 +294,7 @@ export default function UserDashboardPage() {
                         <CardContent className="p-4 pt-0">
                           <Button
                             onClick={() =>
-                              router.push(`/user/courses/${course.courseId}`)
+                              router.push(`/courses/${course.courseId}`)
                             }
                             className="w-full"
                           >
