@@ -70,7 +70,7 @@ const NonDashboardNavbar = () => {
               className="nondashboard-navbar__auth-button--login"
               scroll={false}
             >
-              Đặng Nhập
+              Đăng Nhập
             </Link>
             <Link
               href="/signup"
